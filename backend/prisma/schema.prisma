@@ -4,8 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
 }
 
 // ============================================================================
@@ -83,9 +82,9 @@ model Product {
   id           String   @id @default(uuid())
   name         String
   slug         String   @unique
-  description  String   @db.Text
-  price        Decimal  @db.Decimal(10, 2)
-  comparePrice Decimal? @db.Decimal(10, 2) @map("compare_price")
+  description  String
+  price        Decimal
+  comparePrice Decimal? @map("compare_price")
   stockQty     Int      @default(0) @map("stock_quantity")
   sku          String   @unique
   brand        String?
@@ -124,7 +123,7 @@ model ProductVariant {
   productId  String  @map("product_id")
   name       String
   sku        String  @unique
-  price      Decimal @db.Decimal(10, 2)
+  price      Decimal
   stockQty   Int     @default(0) @map("stock_quantity")
   attributes Json?
 
@@ -168,7 +167,7 @@ model CartItem {
   productId  String   @map("product_id")
   variantId  String?  @map("variant_id")
   quantity   Int      @default(1)
-  priceAtAdd Decimal  @db.Decimal(10, 2) @map("price_at_add")
+  priceAtAdd Decimal  @map("price_at_add")
   createdAt  DateTime @default(now()) @map("created_at")
 
   cart    Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
@@ -228,10 +227,10 @@ model Order {
   userId             String        @map("user_id")
   orderNumber        String        @unique @map("order_number")
   status             OrderStatus   @default(PENDING)
-  subtotal           Decimal       @db.Decimal(10, 2)
-  tax                Decimal       @db.Decimal(10, 2)
-  shippingCost       Decimal       @db.Decimal(10, 2) @map("shipping_cost")
-  total              Decimal       @db.Decimal(10, 2)
+  subtotal           Decimal
+  tax                Decimal
+  shippingCost       Decimal       @map("shipping_cost")
+  total              Decimal
   paymentStatus      PaymentStatus @default(PENDING) @map("payment_status")
   shippingAddressId  String        @map("shipping_address_id")
   billingAddressId   String        @map("billing_address_id")
@@ -270,8 +269,8 @@ model OrderItem {
   productId String   @map("product_id")
   variantId String?  @map("variant_id")
   quantity  Int
-  price     Decimal  @db.Decimal(10, 2)
-  subtotal  Decimal  @db.Decimal(10, 2)
+  price     Decimal
+  subtotal  Decimal
   createdAt DateTime @default(now()) @map("created_at")
 
   order       Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -305,7 +304,7 @@ model Review {
   userId           String       @map("user_id")
   rating           Int
   title            String
-  comment          String       @db.Text
+  comment          String
   verifiedPurchase Boolean      @default(false) @map("verified_purchase")
   helpfulCount     Int          @default(0) @map("helpful_count")
   unhelpfulCount   Int          @default(0) @map("unhelpful_count")
@@ -358,7 +357,7 @@ model Return {
   userId       String       @map("user_id")
   reason       String
   status       ReturnStatus @default(PENDING)
-  refundAmount Decimal      @db.Decimal(10, 2) @map("refund_amount")
+  refundAmount Decimal      @map("refund_amount")
   createdAt    DateTime     @default(now()) @map("created_at")
   updatedAt    DateTime     @updatedAt @map("updated_at")
 
@@ -398,7 +397,7 @@ model Notification {
   userId    String   @map("user_id")
   type      String
   title     String
-  message   String   @db.Text
+  message   String
   link      String?
   isRead    Boolean  @default(false) @map("is_read")
   createdAt DateTime @default(now()) @map("created_at")
@@ -490,7 +489,7 @@ model SupportMessage {
   id       String   @id @default(uuid())
   ticketId String   @map("ticket_id")
   userId   String   @map("user_id")
-  message  String   @db.Text
+  message  String
   isStaff  Boolean  @default(false) @map("is_staff")
   createdAt DateTime @default(now()) @map("created_at")
 
