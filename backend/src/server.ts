@@ -92,8 +92,16 @@ app.get('/', (_req, res) => {
     });
 });
 
+// ============================================================================
+// API ROUTES
+// ============================================================================
+
+import authRoutes from './routes/auth.routes';
+
+// Auth routes
+app.use('/api/auth', authRoutes);
+
 // API Routes will be added here
-// app.use('/api/auth', authRoutes);
 // app.use('/api/products', productRoutes);
 // app.use('/api/cart', cartRoutes);
 // etc...
