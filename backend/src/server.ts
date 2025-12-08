@@ -97,12 +97,19 @@ app.get('/', (_req, res) => {
 // ============================================================================
 
 import authRoutes from './routes/auth.routes';
+import productsRoutes from './routes/products.routes';
+import categoriesRoutes from './routes/categories.routes';
 
 // Auth routes
 app.use('/api/auth', authRoutes);
 
+// Product routes
+app.use('/api/products', productsRoutes);
+
+// Category routes
+app.use('/api/categories', categoriesRoutes);
+
 // API Routes will be added here
-// app.use('/api/products', productRoutes);
 // app.use('/api/cart', cartRoutes);
 // etc...
 
