@@ -99,6 +99,8 @@ app.get('/', (_req, res) => {
 import authRoutes from './routes/auth.routes';
 import productsRoutes from './routes/products.routes';
 import categoriesRoutes from './routes/categories.routes';
+import cartRoutes from './routes/cart.routes';
+import wishlistRoutes from './routes/wishlist.routes';
 
 // Auth routes
 app.use('/api/auth', authRoutes);
@@ -109,8 +111,13 @@ app.use('/api/products', productsRoutes);
 // Category routes
 app.use('/api/categories', categoriesRoutes);
 
+// Cart routes
+app.use('/api/cart', cartRoutes);
+
+// Wishlist routes
+app.use('/api/wishlist', wishlistRoutes);
+
 // API Routes will be added here
-// app.use('/api/cart', cartRoutes);
 // etc...
 
 // ============================================================================
