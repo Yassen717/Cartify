@@ -415,3 +415,11 @@
         width: 100%;
     }
 }
+
+/* Loading State */
+.products-loading {
+    text-align: center;
+    padding: var(--space-3xl);
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+}
