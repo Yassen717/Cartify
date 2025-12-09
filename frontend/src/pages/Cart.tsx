@@ -1,44 +1,56 @@
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 import { FiTrash2, FiMinus, FiPlus, FiShoppingBag, FiArrowRight } from 'react-icons/fi';
 import { Button, Card } from '../components/ui';
 import { Link } from 'react-router-dom';
+import { useCartStore } from '../stores/cartStore';
+import { useAuthStore } from '../stores/authStore';
 import './Cart.css';
 
 export const Cart = () => {
-    // Mock cart data - will be replaced with state management
-    const cartItems = [
-        {
-            id: 1,
-            name: 'Premium Wireless Headphones',
-            price: 199.99,
-            quantity: 1,
-            image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop',
-            variant: 'Black',
-        },
-        {
-            id: 2,
-            name: 'Smart Watch Pro',
-            price: 299.99,
-            quantity: 2,
-            image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&h=200&fit=crop',
-            variant: 'Silver',
-        },
-        {
-            id: 3,
-            name: 'Laptop Stand',
-            price: 49.99,
-            quantity: 1,
-            image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=200&h=200&fit=crop',
-            variant: 'Aluminum',
-        },
-    ];
+    const { cart, isLoading, fetchCart, updateItem, removeItem, clearCart } = useCartStore();
+    const { isAuthenticated, user } = useAuthStore();
 
-    const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const shipping = 10;
-    const tax = subtotal * 0.1;
-    const total = subtotal + shipping + tax;
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchCart();
+        }
+    }, [isAuthenticated]);
 
-    if (cartItems.length === 0) {
+    if (!isAuthenticated) {
+        return (
+            <div className="cart-empty">
+                <div className="container">
+                    <motion.div
+                        className="empty-state"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                    >
+                        <div className="empty-icon">
+                            <FiShoppingBag />
+                        </div>
+                        <h2>Please login to view cart</h2>
+                        <p>You need to be logged in to access your shopping cart</p>
+                        <Link to="/login">
+                            <Button size="lg">Login</Button>
+                        </Link>
+                    </motion.div>
+                </div>
+            </div>
+        );
+    }
+
+    if (isLoading && !cart) {
+        return (
+            <div className="cart-page">
+                <div className="container">
+                    <div className="cart-loading">Loading your cart...</div>
+                </div>
+            </div>
+        );
+    }
+
+    if (!cart || !cart.items || cart.items.length === 0) {
         return (
             <div className="cart-empty">
                 <div className="container">
@@ -61,16 +73,21 @@ export const Cart = () => {
         );
     }
 
+    const subtotal = cart.subtotal || 0;
+    const shipping = subtotal > 50 ? 0 : 10;
+    const tax = subtotal * 0.1;
+    const total = subtotal + shipping + tax;
+
     return (
         <div className="cart-page">
             <div className="container">
                 <h1>Shopping Cart</h1>
-                <p className="cart-subtitle">{cartItems.length} items in your cart</p>
+                <p className="cart-subtitle">{cart.itemCount || 0} items in your cart</p>
 
                 <div className="cart-content">
                     {/* Cart Items */}
                     <div className="cart-items">
-                        {cartItems.map((item, i) => (
+                        {cart.items.map((item, i) => (
                             <motion.div
                                 key={item.id}
                                 initial={{ opacity: 0, x: -20 }}
@@ -79,30 +96,47 @@ export const Cart = () => {
                             >
                                 <Card padding="lg" className="cart-item">
                                     <div className="item-image">
-                                        <img src={item.image} alt={item.name} />
+                                        <img
+                                            src={item.product.images?.[0]?.url || 'https://via.placeholder.com/120'}
+                                            alt={item.product.name}
+                                        />
                                     </div>
                                     <div className="item-details">
-                                        <h3>{item.name}</h3>
-                                        <p className="item-variant">Variant: {item.variant}</p>
-                                        <p className="item-price">${item.price}</p>
+                                        <h3>{item.product.name}</h3>
+                                        {item.variant && (
+                                            <p className="item-variant">Variant: {item.variant.name}</p>
+                                        )}
+                                        <p className="item-price">${item.priceAtAdd}</p>
                                     </div>
                                     <div className="item-actions">
                                         <div className="quantity-control">
-                                            <button className="qty-btn">
+                                            <button
+                                                className="qty-btn"
+                                                onClick={() => updateItem(item.id, Math.max(1, item.quantity - 1))}
+                                                disabled={isLoading}
+                                            >
                                                 <FiMinus />
                                             </button>
                                             <span className="qty-value">{item.quantity}</span>
-                                            <button className="qty-btn">
+                                            <button
+                                                className="qty-btn"
+                                                onClick={() => updateItem(item.id, item.quantity + 1)}
+                                                disabled={isLoading}
+                                            >
                                                 <FiPlus />
                                             </button>
                                         </div>
-                                        <button className="remove-btn">
+                                        <button
+                                            className="remove-btn"
+                                            onClick={() => removeItem(item.id)}
+                                            disabled={isLoading}
+                                        >
                                             <FiTrash2 /> Remove
                                         </button>
                                     </div>
                                     <div className="item-total">
                                         <span className="item-total-label">Total:</span>
-                                        <span className="item-total-price">${(item.price * item.quantity).toFixed(2)}</span>
+                                        <span className="item-total-price">${(item.priceAtAdd * item.quantity).toFixed(2)}</span>
                                     </div>
                                 </Card>
                             </motion.div>
@@ -120,7 +154,7 @@ export const Cart = () => {
                             </div>
                             <div className="summary-row">
                                 <span>Shipping</span>
-                                <span>${shipping.toFixed(2)}</span>
+                                <span>{shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}</span>
                             </div>
                             <div className="summary-row">
                                 <span>Tax</span>
@@ -154,6 +188,20 @@ export const Cart = () => {
                                     <Button variant="outline">Apply</Button>
                                 </div>
                             </div>
+
+                            {/* Clear Cart */}
+                            <Button
+                                variant="ghost"
+                                fullWidth
+                                onClick={() => {
+                                    if (window.confirm('Are you sure you want to clear your cart?')) {
+                                        clearCart();
+                                    }
+                                }}
+                                disabled={isLoading}
+                            >
+                                Clear Cart
+                            </Button>
                         </Card>
 
                         {/* Trust Badges */}
@@ -164,7 +212,7 @@ export const Cart = () => {
                             </div>
                             <div className="trust-badge">
                                 <span className="badge-icon">🚚</span>
-                                <span>Free Shipping</span>
+                                <span>{shipping === 0 ? 'Free Shipping Applied!' : 'Free Shipping Over $50'}</span>
                             </div>
                             <div className="trust-badge">
                                 <span className="badge-icon">↩️</span>

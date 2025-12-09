@@ -282,6 +282,14 @@
     margin-bottom: var(--space-xl);
 }
 
+/* Loading State */
+.cart-loading {
+    text-align: center;
+    padding: var(--space-3xl);
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .cart-content {
