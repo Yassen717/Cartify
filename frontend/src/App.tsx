@@ -3,6 +3,8 @@ import { Layout } from './components/layout';
 import { Home } from './pages/Home';
 import { Products } from './pages/Products';
 import { Cart } from './pages/Cart';
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
 import { Toaster } from 'react-hot-toast';
 import './App.css';
 
@@ -18,6 +20,8 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/wishlist" element={<div className="container"><h1>Wishlist Page</h1></div>} />
           <Route path="/profile" element={<div className="container"><h1>Profile Page</h1></div>} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Routes>
       </Layout>
       <Toaster
