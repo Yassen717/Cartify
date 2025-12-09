@@ -1,29 +1,14 @@
+```typescript
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiUser } from 'react-icons/fi';
 import { Button, Input } from '../components/ui';
+import { useAuthStore } from '../stores/authStore';
+import toast from 'react-hot-toast';
 import './Login.css';
 
 export const Register = () => {
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        // Mock registration - will integrate with backend
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 2000);
-    };
-
-    return (
-        <div className="auth-page">
-            <div className="auth-container">
-                {/* Left Side - Visual */}
-                <motion.div
                     className="auth-visual-section"
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
