@@ -5,6 +5,7 @@ import { Products } from './pages/Products';
 import { Cart } from './pages/Cart';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { Profile } from './pages/Profile';
 import { Toaster } from 'react-hot-toast';
 import './App.css';
 
@@ -19,7 +20,7 @@ function App() {
           <Route path="/deals" element={<div className="container"><h1>Deals Page</h1></div>} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/wishlist" element={<div className="container"><h1>Wishlist Page</h1></div>} />
-          <Route path="/profile" element={<div className="container"><h1>Profile Page</h1></div>} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>

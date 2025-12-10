@@ -51,8 +51,8 @@ export const Register = () => {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
             });
-            toast.success('Account created successfully!');
-            navigate('/');
+            toast.success('Account created successfully! Please login.');
+            navigate('/login');
         } catch (err: any) {
             toast.error(error || 'Registration failed. Please try again.');
         }

@@ -139,6 +139,45 @@
     transform: scale(1.1);
 }
 
+/* User Profile Button */
+.user-profile-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-xs) var(--space-md);
+    border-radius: var(--radius-full);
+    background: var(--bg-secondary);
+    transition: all var(--transition-fast);
+}
+
+.user-profile-btn:hover {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-sm);
+    font-weight: var(--font-bold);
+    color: var(--white);
+    text-transform: uppercase;
+}
+
+.user-name {
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+}
+
+.user-profile-btn:hover .user-name {
+    color: var(--white);
+}
+
 .badge {
     position: absolute;
     top: -4px;

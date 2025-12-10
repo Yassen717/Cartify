@@ -2,11 +2,13 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FiShoppingCart, FiHeart, FiUser, FiSearch, FiMenu, FiX } from 'react-icons/fi';
 import { useState } from 'react';
+import { useAuthStore } from '../../stores/authStore';
 import './Header.css';
 
 export const Header = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+    const { isAuthenticated, user } = useAuthStore();
 
     return (
         <motion.header
@@ -53,9 +55,19 @@ export const Header = () => {
                             <FiShoppingCart />
                             <span className="badge pulse">5</span>
                         </Link>
-                        <Link to="/profile" className="action-btn">
-                            <FiUser />
-                        </Link>
+
+                        {isAuthenticated && user ? (
+                            <Link to="/profile" className="user-profile-btn">
+                                <div className="user-avatar">
+                                    {user.firstName?.[0]}{user.lastName?.[0]}
+                                </div>
+                                <span className="user-name">{user.firstName}</span>
+                            </Link>
+                        ) : (
+                            <Link to="/login" className="action-btn">
+                                <FiUser />
+                            </Link>
+                        )}
                     </div>
 
                     {/* Mobile Menu Toggle */}
