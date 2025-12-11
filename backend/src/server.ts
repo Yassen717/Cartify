@@ -102,6 +102,7 @@ import categoriesRoutes from './routes/categories.routes';
 import cartRoutes from './routes/cart.routes';
 import wishlistRoutes from './routes/wishlist.routes';
 import uploadRoutes from './routes/upload.routes';
+import orderRoutes from './routes/order.routes';
 
 // Auth routes
 app.use('/api/auth', authRoutes);
@@ -120,6 +121,9 @@ app.use('/api/wishlist', wishlistRoutes);
 
 // Upload routes
 app.use('/api/upload', uploadRoutes);
+
+// Order routes
+app.use('/api/orders', orderRoutes);
 
 // API Routes will be added here
 // etc...

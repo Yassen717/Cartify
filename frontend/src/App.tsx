@@ -10,6 +10,8 @@ import { Categories } from './pages/Categories';
 import { Deals } from './pages/Deals';
 import { Wishlist } from './pages/Wishlist';
 import { ProductDetail } from './pages/ProductDetail';
+import { Checkout } from './pages/Checkout';
+import { Orders } from './pages/Orders';
 import { Toaster } from 'react-hot-toast';
 import './App.css';
 
@@ -24,7 +26,9 @@ function App() {
           <Route path="/categories" element={<Categories />} />
           <Route path="/deals" element={<Deals />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/orders" element={<Orders />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
