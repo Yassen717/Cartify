@@ -112,20 +112,27 @@
     grid-column: 1 / -1;
     text-align: center;
     padding: var(--space-3xl);
+    min-height: 50vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .no-categories-icon {
-    font-size: 4rem;
+    font-size: 5rem;
     color: var(--text-tertiary);
-    margin-bottom: var(--space-lg);
+    margin-bottom: var(--space-xl);
 }
 
 .no-categories h3 {
-    margin-bottom: var(--space-sm);
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-md);
 }
 
 .no-categories p {
     color: var(--text-secondary);
+    font-size: var(--text-lg);
 }
 
 /* Featured Section */

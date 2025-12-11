@@ -17,6 +17,10 @@
     padding: var(--space-3xl);
     font-size: var(--text-lg);
     color: var(--text-secondary);
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Profile Content */

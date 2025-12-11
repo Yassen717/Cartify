@@ -214,20 +214,27 @@
 .no-deals {
     text-align: center;
     padding: var(--space-3xl);
+    min-height: 50vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .no-deals-icon {
-    font-size: 4rem;
-    margin-bottom: var(--space-lg);
+    font-size: 5rem;
+    margin-bottom: var(--space-xl);
 }
 
 .no-deals h3 {
-    margin-bottom: var(--space-sm);
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-md);
 }
 
 .no-deals p {
     color: var(--text-secondary);
-    margin-bottom: var(--space-xl);
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-2xl);
 }
 
 /* Responsive */
