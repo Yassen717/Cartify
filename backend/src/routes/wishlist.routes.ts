@@ -6,6 +6,8 @@ import {
     moveToCart,
 } from '../controllers/wishlist.controller';
 import { authenticate } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
+import { addToWishlistSchema } from '../utils/validation.schemas';
 
 const router = Router();
 
@@ -13,8 +15,9 @@ const router = Router();
 router.use(authenticate);
 
 router.get('/', getWishlist);
-router.post('/', addToWishlist);
+router.post('/', validateBody(addToWishlistSchema), addToWishlist);
 router.delete('/:productId', removeFromWishlist);
 router.post('/:productId/move-to-cart', moveToCart);
 
 export default router;
+

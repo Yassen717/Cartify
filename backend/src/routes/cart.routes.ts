@@ -7,6 +7,8 @@ import {
     clearCart,
 } from '../controllers/cart.controller';
 import { authenticate } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
+import { addToCartSchema, updateCartItemSchema } from '../utils/validation.schemas';
 
 const router = Router();
 
@@ -14,9 +16,10 @@ const router = Router();
 router.use(authenticate);
 
 router.get('/', getCart);
-router.post('/items', addToCart);
-router.put('/items/:itemId', updateCartItem);
+router.post('/items', validateBody(addToCartSchema), addToCart);
+router.put('/items/:itemId', validateBody(updateCartItemSchema), updateCartItem);
 router.delete('/items/:itemId', removeFromCart);
 router.delete('/', clearCart);
 
 export default router;
+

@@ -2,19 +2,21 @@
 export class ApiError extends Error {
     statusCode: number;
     isOperational: boolean;
+    details?: any;
 
-    constructor(statusCode: number, message: string, isOperational = true) {
+    constructor(statusCode: number, message: string, isOperational = true, details?: any) {
         super(message);
         this.statusCode = statusCode;
         this.isOperational = isOperational;
+        this.details = details;
         Error.captureStackTrace(this, this.constructor);
     }
 }
 
 // Common error creators
 export class BadRequestError extends ApiError {
-    constructor(message = 'Bad Request') {
-        super(400, message);
+    constructor(message = 'Bad Request', details?: any) {
+        super(400, message, true, details);
     }
 }
 
