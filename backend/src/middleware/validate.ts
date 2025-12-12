@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject, ZodError } from 'zod';
+import { z } from 'zod';
 import { BadRequestError } from '../utils/errors';
 
 /**
@@ -7,7 +7,7 @@ import { BadRequestError } from '../utils/errors';
  * @param schema - Zod schema to validate against
  * @param source - Which part of the request to validate ('body', 'query', 'params')
  */
-export const validate = (schema: AnyZodObject, source: 'body' | 'query' | 'params' = 'body') => {
+export const validate = (schema: z.ZodSchema, source: 'body' | 'query' | 'params' = 'body') => {
     return async (req: Request, _res: Response, next: NextFunction) => {
         try {
             const data = req[source];
@@ -15,10 +15,10 @@ export const validate = (schema: AnyZodObject, source: 'body' | 'query' | 'param
             req[source] = validated;
             next();
         } catch (error) {
-            if (error instanceof ZodError) {
-                const errorMessages = error.errors.map((err) => ({
-                    field: err.path.join('.'),
-                    message: err.message,
+            if (error instanceof z.ZodError) {
+                const errorMessages = error.issues.map((issue) => ({
+                    field: issue.path.join('.'),
+                    message: issue.message,
                 }));
 
                 next(
@@ -37,14 +37,15 @@ export const validate = (schema: AnyZodObject, source: 'body' | 'query' | 'param
 /**
  * Middleware for validating request body
  */
-export const validateBody = (schema: AnyZodObject) => validate(schema, 'body');
+export const validateBody = (schema: z.ZodSchema) => validate(schema, 'body');
 
 /**
  * Middleware for validating query parameters
  */
-export const validateQuery = (schema: AnyZodObject) => validate(schema, 'query');
+export const validateQuery = (schema: z.ZodSchema) => validate(schema, 'query');
 
 /**
  * Middleware for validating route parameters
  */
-export const validateParams = (schema: AnyZodObject) => validate(schema, 'params');
+export const validateParams = (schema: z.ZodSchema) => validate(schema, 'params');
+
