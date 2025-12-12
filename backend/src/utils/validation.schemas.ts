@@ -57,7 +57,7 @@ export const createProductSchema = z.object({
         sku: z.string(),
         price: z.number().positive(),
         stockQty: z.number().int().min(0).default(0),
-        attributes: z.record(z.any()).optional(),
+        attributes: z.record(z.string(), z.any()).optional(),
     })).optional(),
     attributes: z.array(z.object({
         attributeName: z.string(),
@@ -68,8 +68,8 @@ export const createProductSchema = z.object({
 export const updateProductSchema = createProductSchema.partial();
 
 export const productQuerySchema = z.object({
-    page: z.string().regex(/^\d+$/).transform(Number).default('1'),
-    limit: z.string().regex(/^\d+$/).transform(Number).default('20'),
+    page: z.string().regex(/^\d+$/).default('1').transform(Number),
+    limit: z.string().regex(/^\d+$/).default('20').transform(Number),
     search: z.string().optional(),
     categoryId: z.string().uuid().optional(),
     minPrice: z.string().regex(/^\d+(\.\d+)?$/).transform(Number).optional(),
