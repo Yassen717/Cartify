@@ -70,10 +70,10 @@ export const updateProductSchema = createProductSchema.partial();
 export const productQuerySchema = z.object({
     page: z.string().regex(/^\d+$/).default('1').transform(Number),
     limit: z.string().regex(/^\d+$/).default('20').transform(Number),
-    search: z.string().optional(),
-    categoryId: z.string().uuid().optional(),
-    minPrice: z.string().regex(/^\d+(\.\d+)?$/).transform(Number).optional(),
-    maxPrice: z.string().regex(/^\d+(\.\d+)?$/).transform(Number).optional(),
+    search: z.string().transform(val => val === '' ? undefined : val).optional(),
+    categoryId: z.string().transform(val => val === '' ? undefined : val).pipe(z.string().uuid()).optional(),
+    minPrice: z.string().transform(val => val === '' ? undefined : val).pipe(z.string().regex(/^\d+(\.\d+)?$/).transform(Number)).optional(),
+    maxPrice: z.string().transform(val => val === '' ? undefined : val).pipe(z.string().regex(/^\d+(\.\d+)?$/).transform(Number)).optional(),
     sortBy: z.enum(['price', 'createdAt', 'name']).default('createdAt'),
     sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });
