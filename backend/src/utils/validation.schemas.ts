@@ -68,12 +68,30 @@ export const createProductSchema = z.object({
 export const updateProductSchema = createProductSchema.partial();
 
 export const productQuerySchema = z.object({
-    page: z.string().regex(/^\d+$/).default('1').transform(Number),
-    limit: z.string().regex(/^\d+$/).default('20').transform(Number),
-    search: z.string().transform(val => val === '' ? undefined : val).optional(),
-    categoryId: z.string().transform(val => val === '' ? undefined : val).pipe(z.string().uuid()).optional(),
-    minPrice: z.string().transform(val => val === '' ? undefined : val).pipe(z.string().regex(/^\d+(\.\d+)?$/).transform(Number)).optional(),
-    maxPrice: z.string().transform(val => val === '' ? undefined : val).pipe(z.string().regex(/^\d+(\.\d+)?$/).transform(Number)).optional(),
+    page: z.preprocess(
+        (val) => (typeof val === 'string' && val.match(/^\d+$/) ? Number(val) : 1),
+        z.number().int().positive().default(1)
+    ),
+    limit: z.preprocess(
+        (val) => (typeof val === 'string' && val.match(/^\d+$/) ? Number(val) : 20),
+        z.number().int().positive().default(20)
+    ),
+    search: z.preprocess(
+        (val) => (typeof val === 'string' && val !== '' ? val : undefined),
+        z.string().optional()
+    ),
+    categoryId: z.preprocess(
+        (val) => (typeof val === 'string' && val !== '' ? val : undefined),
+        z.string().uuid().optional()
+    ),
+    minPrice: z.preprocess(
+        (val) => (typeof val === 'string' && val !== '' && val.match(/^\d+(\.\d+)?$/) ? Number(val) : undefined),
+        z.number().positive().optional()
+    ),
+    maxPrice: z.preprocess(
+        (val) => (typeof val === 'string' && val !== '' && val.match(/^\d+(\.\d+)?$/) ? Number(val) : undefined),
+        z.number().positive().optional()
+    ),
     sortBy: z.enum(['price', 'createdAt', 'name']).default('createdAt'),
     sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });

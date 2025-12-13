@@ -12,7 +12,14 @@ export const validate = (schema: z.ZodSchema, source: 'body' | 'query' | 'params
         try {
             const data = req[source];
             const validated = await schema.parseAsync(data);
-            req[source] = validated;
+
+            // For query params, we need to use Object.assign since req.query is read-only
+            if (source === 'query') {
+                Object.assign(req.query, validated);
+            } else {
+                req[source] = validated;
+            }
+
             next();
         } catch (error) {
             if (error instanceof z.ZodError) {
@@ -48,4 +55,5 @@ export const validateQuery = (schema: z.ZodSchema) => validate(schema, 'query');
  * Middleware for validating route parameters
  */
 export const validateParams = (schema: z.ZodSchema) => validate(schema, 'params');
+
 
