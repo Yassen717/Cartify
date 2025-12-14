@@ -1,14 +1,15 @@
 .card {
+    position: relative;
     background: var(--bg-primary);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-md);
-    transition: all var(--transition-base);
-    border: 1px solid var(--border-color);
+    transition: all var(--transition-smooth);
+    overflow: hidden;
 }
 
 /* Variants */
 .card-default {
-    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
 }
 
 .card-glass {
@@ -19,9 +20,36 @@
 }
 
 .card-gradient {
+    background: var(--bg-primary);
+    position: relative;
+}
+
+.card-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-xl);
+    padding: 2px;
     background: var(--gradient-primary);
-    color: var(--white);
-    border: none;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* Hover state */
+.card-hover {
+    cursor: pointer;
+}
+
+.card-hover:hover {
+    box-shadow: var(--shadow-xl), var(--shadow-primary);
+    transform: translateY(-4px) scale(1.01);
+}
+
+.card-hover:active {
+    transform: translateY(-2px) scale(1.005);
 }
 
 /* Padding */
@@ -41,14 +69,33 @@
     padding: var(--space-xl);
 }
 
-/* Hover effect */
-.card-hover {
-    cursor: pointer;
+/* Loading shimmer effect */
+.card-loading {
+    position: relative;
+    overflow: hidden;
+    pointer-events: none;
 }
 
-.card-hover:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-xl);
+.card-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: var(--gradient-shimmer);
+    animation: shimmer 2s infinite;
+}
+
+/* Elevated card on hover */
+.card-elevated:hover {
+    box-shadow: var(--shadow-2xl);
+}
+
+/* Bordered card with hover state */
+.card-bordered {
+    border: 2px solid var(--border-color);
 }
 
 /* Dark mode adjustments */
