@@ -40,6 +40,7 @@ h3,
 h4,
 h5,
 h6 {
+  font-family: var(--font-display);
   font-weight: var(--font-bold);
   line-height: var(--leading-tight);
   color: var(--text-primary);
@@ -48,6 +49,7 @@ h6 {
 h1 {
   font-size: var(--text-5xl);
   margin-bottom: var(--space-lg);
+  font-weight: var(--font-extrabold);
 }
 
 h2 {
@@ -101,23 +103,25 @@ a:hover {
 
 ::-webkit-scrollbar-track {
   background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--gray-400);
+  background: var(--gradient-primary);
   border-radius: var(--radius-full);
   border: 2px solid var(--bg-secondary);
-  transition: background var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--gray-500);
+  background: var(--gradient-accent);
+  box-shadow: var(--shadow-glow);
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--gray-400) var(--bg-secondary);
+  scrollbar-color: var(--primary) var(--bg-secondary);
 }
 
 /* ============================================================================
@@ -139,15 +143,17 @@ a:hover {
    ============================================================================ */
 
 :focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
   border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-glow);
 }
 
 button:focus-visible,
 a:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+  box-shadow: var(--shadow-glow);
 }
 
 /* ============================================================================
