@@ -1,18 +1,29 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FiShoppingCart, FiHeart, FiUser, FiSearch, FiMenu, FiX } from 'react-icons/fi';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import './Header.css';
 
 export const Header = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
     const { isAuthenticated, user } = useAuthStore();
+
+    // Scroll detection for header styling
+    React.useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 50);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     return (
         <motion.header
-            className="header glass"
+            className={`header glass ${isScrolled ? 'scrolled' : ''}`}
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.5 }}
