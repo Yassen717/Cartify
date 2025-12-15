@@ -3,7 +3,7 @@ import { HTMLAttributes, ReactNode } from 'react';
 import './Card.css';
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
-    variant?: 'default' | 'glass' | 'gradient';
+    variant?: 'default' | 'glass' | 'gradient' | 'outlined' | 'elevated';
     hover?: boolean;
     padding?: 'none' | 'sm' | 'md' | 'lg';
     children: ReactNode;
