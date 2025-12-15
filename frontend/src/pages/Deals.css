@@ -31,6 +31,9 @@
     max-width: 600px;
     margin: 0 auto;
     text-align: center;
+    background: var(--gradient-primary);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-primary);
 }
 
 .countdown-label {
@@ -38,16 +41,17 @@
     align-items: center;
     justify-content: center;
     gap: var(--space-sm);
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--white);
     margin-bottom: var(--space-md);
     font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
 }
 
 .countdown-timer {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-md);
+    gap: var(--space-lg);
 }
 
 .time-unit {
@@ -55,19 +59,27 @@
     flex-direction: column;
     align-items: center;
     gap: var(--space-xs);
+    background: rgba(255, 255, 255, 0.15);
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    min-width: 80px;
 }
 
 .time-value {
     font-size: var(--text-4xl);
     font-weight: var(--font-bold);
     color: var(--white);
-    min-width: 60px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .time-label {
     font-size: var(--text-xs);
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--white);
     text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: var(--font-medium);
 }
 
 .time-separator {
@@ -75,6 +87,7 @@
     font-weight: var(--font-bold);
     color: var(--white);
     margin: 0 var(--space-xs);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Stats */
@@ -89,11 +102,24 @@
     display: flex;
     align-items: center;
     gap: var(--space-md);
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-base);
+}
+
+.stat-card:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-primary);
+    transform: translateY(-2px);
 }
 
 .stat-icon {
     font-size: 2.5rem;
     color: var(--primary);
+    background: var(--bg-secondary);
+    padding: var(--space-md);
+    border-radius: var(--radius-lg);
 }
 
 .stat-value {
@@ -105,6 +131,7 @@
 .stat-label {
     color: var(--text-secondary);
     font-size: var(--text-sm);
+    font-weight: var(--font-medium);
 }
 
 /* Loading */
@@ -125,6 +152,14 @@
 .deal-card {
     position: relative;
     overflow: hidden;
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    transition: all var(--transition-base);
+}
+
+.deal-card:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-primary);
 }
 
 .deal-badge {
@@ -133,12 +168,13 @@
     right: var(--space-md);
     background: var(--error);
     color: var(--white);
-    padding: var(--space-xs) var(--space-md);
+    padding: var(--space-sm) var(--space-lg);
     border-radius: var(--radius-full);
     font-size: var(--text-sm);
     font-weight: var(--font-bold);
     z-index: 1;
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-xl);
+    border: 2px solid var(--white);
 }
 
 .deal-image {
@@ -165,6 +201,8 @@
 .deal-info h3 {
     font-size: var(--text-lg);
     margin-bottom: var(--space-sm);
+    color: var(--text-primary);
+    font-weight: var(--font-semibold);
 }
 
 .deal-description {
@@ -175,10 +213,15 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    line-height: var(--leading-relaxed);
 }
 
 .deal-pricing {
     margin-bottom: var(--space-lg);
+    padding: var(--space-md);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
 }
 
 .price-row {
@@ -191,16 +234,14 @@
 .current-price {
     font-size: var(--text-2xl);
     font-weight: var(--font-bold);
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--primary);
 }
 
 .original-price {
     font-size: var(--text-base);
     color: var(--text-tertiary);
     text-decoration: line-through;
+    font-weight: var(--font-medium);
 }
 
 .savings {
@@ -208,6 +249,9 @@
     color: var(--success);
     font-size: var(--text-sm);
     font-weight: var(--font-semibold);
+    background: var(--success-light);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
 }
 
 /* No Deals */
@@ -219,22 +263,29 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xl);
+    border: 2px dashed var(--border-color);
 }
 
 .no-deals-icon {
     font-size: 5rem;
     margin-bottom: var(--space-xl);
+    filter: grayscale(0.3);
 }
 
 .no-deals h3 {
     font-size: var(--text-2xl);
     margin-bottom: var(--space-md);
+    color: var(--text-primary);
+    font-weight: var(--font-bold);
 }
 
 .no-deals p {
     color: var(--text-secondary);
     font-size: var(--text-lg);
     margin-bottom: var(--space-2xl);
+    max-width: 400px;
 }
 
 /* Responsive */
