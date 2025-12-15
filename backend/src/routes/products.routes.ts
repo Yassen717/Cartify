@@ -23,13 +23,14 @@ import {
     updateReviewSchema,
     voteReviewSchema,
 } from '../utils/validation.schemas';
+import { cacheMiddleware } from '../middleware/cache';
 
 const router = Router();
 
-// Public routes
-router.get('/', validateQuery(productQuerySchema), getProducts);
-router.get('/:id', getProductById);
-router.get('/:id/reviews', getProductReviews);
+// Public routes with caching
+router.get('/', validateQuery(productQuerySchema), cacheMiddleware(300), getProducts); // 5 min cache
+router.get('/:id', cacheMiddleware(600), getProductById); // 10 min cache
+router.get('/:id/reviews', cacheMiddleware(300), getProductReviews); // 5 min cache
 
 // Review routes
 router.post('/:id/reviews', authenticate, validateBody(createReviewSchema), createReview);

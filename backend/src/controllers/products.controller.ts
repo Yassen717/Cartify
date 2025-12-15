@@ -3,6 +3,7 @@ import prisma from '../config/database';
 import { asyncHandler } from '../middleware/errorHandler';
 import { NotFoundError, BadRequestError } from '../utils/errors';
 import { logger } from '../utils/logger';
+import { invalidateCache } from '../middleware/cache';
 
 // Get all products with pagination and filters
 export const getProducts = asyncHandler(
@@ -233,6 +234,9 @@ export const createProduct = asyncHandler(
 
         logger.info(`Product created: ${product.name} (${product.sku})`);
 
+        // Invalidate product cache
+        await invalidateCache.products();
+
         res.status(201).json({
             success: true,
             message: 'Product created successfully',
@@ -281,6 +285,9 @@ export const updateProduct = asyncHandler(
 
         logger.info(`Product updated: ${product.name} (${product.id})`);
 
+        // Invalidate product cache
+        await invalidateCache.product(id);
+
         res.json({
             success: true,
             message: 'Product updated successfully',
@@ -309,6 +316,9 @@ export const deleteProduct = asyncHandler(
         });
 
         logger.info(`Product deleted: ${product.name} (${product.id})`);
+
+        // Invalidate product cache
+        await invalidateCache.product(id);
 
         res.json({
             success: true,

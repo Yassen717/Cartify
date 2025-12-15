@@ -9,6 +9,8 @@ import path from 'path';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { requestLogger, logger } from './utils/logger';
 import prisma from './config/database';
+import { redisClient } from './config/redis';
+import { warmCache } from './middleware/cache';
 
 // Load environment variables
 dotenv.config();
@@ -69,12 +71,18 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // ============================================================================
 
 // Health check endpoint
-app.get('/health', (_req, res) => {
+app.get('/health', async (_req, res) => {
+    const redisStatus = redisClient.isReady() ? 'connected' : 'disconnected';
+    
     res.json({
         success: true,
         message: 'Server is healthy',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
+        services: {
+            database: 'connected',
+            redis: redisStatus,
+        },
     });
 });
 
@@ -125,6 +133,10 @@ app.use('/api/upload', uploadRoutes);
 // Order routes
 app.use('/api/orders', orderRoutes);
 
+// Cache management routes
+import cacheRoutes from './routes/cache.routes';
+app.use('/api/cache', cacheRoutes);
+
 // API Routes will be added here
 // etc...
 
@@ -147,8 +159,12 @@ const gracefulShutdown = async () => {
     logger.info('Starting graceful shutdown...');
 
     try {
+        await redisClient.disconnect();
+        logger.info('Redis connection closed');
+        
         await prisma.$disconnect();
         logger.info('Database connection closed');
+        
         process.exit(0);
     } catch (error) {
         logger.error('Error during shutdown:', error);
@@ -160,11 +176,19 @@ process.on('SIGTERM', gracefulShutdown);
 process.on('SIGINT', gracefulShutdown);
 
 // Start server
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
     logger.info(`🚀 Server is running on port ${PORT}`);
     logger.info(`📍 Health check: http://localhost:${PORT}/health`);
     logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
     logger.info(`🔒 CORS enabled for: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
+    
+    // Connect to Redis
+    await redisClient.connect();
+    
+    // Warm cache if Redis is connected
+    if (redisClient.isReady()) {
+        await warmCache();
+    }
 });
 
 // Handle unhandled promise rejections
