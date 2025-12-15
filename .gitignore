@@ -40,3 +40,6 @@ lerna-debug.log*
 .cache/
 temp/
 tmp/
+
+# Documentation (local only)
+docs/
