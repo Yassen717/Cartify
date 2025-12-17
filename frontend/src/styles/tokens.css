@@ -2,22 +2,22 @@
    DESIGN TOKENS - Enhanced for Premium UI/UX
    ============================================================================ */
 
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+/* Import Google Fonts - Maison Style */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Enhanced Color Palette - Blue & Sky Blue Theme */
-  --primary: hsl(210, 100%, 55%);
-  --primary-dark: hsl(210, 90%, 45%);
-  --primary-light: hsl(210, 100%, 65%);
-  --accent: hsl(195, 100%, 50%);
-  --accent-dark: hsl(195, 90%, 40%);
-  --accent-light: hsl(195, 100%, 60%);
+  /* Maison Color Palette - Warm & Elegant */
+  --primary: hsl(25, 35%, 45%);
+  --primary-dark: hsl(25, 40%, 35%);
+  --primary-light: hsl(25, 30%, 55%);
+  --accent: hsl(20, 45%, 60%);
+  --accent-dark: hsl(20, 50%, 50%);
+  --accent-light: hsl(20, 40%, 70%);
 
   /* Secondary Accent Colors */
-  --secondary: hsl(200, 100%, 45%);
-  --secondary-dark: hsl(200, 90%, 35%);
-  --tertiary: hsl(185, 95%, 50%);
+  --secondary: hsl(30, 25%, 50%);
+  --secondary-dark: hsl(30, 30%, 40%);
+  --tertiary: hsl(15, 35%, 55%);
 
   /* Semantic Colors */
   --success: hsl(142, 76%, 55%);
@@ -29,50 +29,55 @@
   --info: hsl(199, 89%, 55%);
   --info-light: hsl(199, 89%, 65%);
 
-  /* Neutrals - Refined */
+  /* Neutrals - Warm Tones */
   --white: hsl(0, 0%, 100%);
-  --gray-50: hsl(210, 20%, 99%);
-  --gray-100: hsl(210, 15%, 96%);
-  --gray-200: hsl(210, 10%, 92%);
-  --gray-300: hsl(210, 8%, 82%);
-  --gray-400: hsl(210, 6%, 65%);
-  --gray-500: hsl(210, 5%, 50%);
-  --gray-600: hsl(210, 6%, 40%);
-  --gray-700: hsl(210, 8%, 28%);
-  --gray-800: hsl(210, 10%, 18%);
-  --gray-900: hsl(210, 12%, 12%);
+  --beige-50: hsl(30, 30%, 98%);
+  --beige-100: hsl(30, 25%, 95%);
+  --beige-200: hsl(30, 20%, 90%);
+  --beige-300: hsl(30, 15%, 85%);
+  --gray-50: hsl(30, 10%, 97%);
+  --gray-100: hsl(30, 8%, 93%);
+  --gray-200: hsl(30, 6%, 88%);
+  --gray-300: hsl(30, 5%, 75%);
+  --gray-400: hsl(30, 4%, 60%);
+  --gray-500: hsl(30, 3%, 45%);
+  --gray-600: hsl(30, 4%, 35%);
+  --gray-700: hsl(30, 5%, 25%);
+  --gray-800: hsl(30, 8%, 18%);
+  --gray-900: hsl(30, 10%, 12%);
   --black: hsl(0, 0%, 0%);
 
   /* Surface Colors */
   --bg-primary: var(--white);
-  --bg-secondary: var(--gray-50);
-  --bg-tertiary: var(--gray-100);
+  --bg-secondary: var(--beige-50);
+  --bg-tertiary: var(--beige-100);
   --text-primary: var(--gray-900);
-  --text-secondary: var(--gray-700);
-  --text-tertiary: var(--gray-500);
+  --text-secondary: var(--gray-600);
+  --text-tertiary: var(--gray-400);
   --border-color: var(--gray-200);
 
-  /* Premium Gradients - Blue Theme */
-  --gradient-primary: linear-gradient(135deg, hsl(210, 100%, 55%), hsl(195, 100%, 50%));
-  --gradient-secondary: linear-gradient(135deg, hsl(200, 100%, 45%), hsl(185, 95%, 50%));
-  --gradient-accent: linear-gradient(135deg, hsl(195, 100%, 50%), hsl(185, 95%, 50%));
+  /* Elegant Gradients - Warm Theme */
+  --gradient-primary: linear-gradient(135deg, hsl(25, 35%, 45%), hsl(20, 45%, 60%));
+  --gradient-secondary: linear-gradient(135deg, hsl(30, 25%, 50%), hsl(15, 35%, 55%));
+  --gradient-accent: linear-gradient(135deg, hsl(20, 45%, 60%), hsl(15, 35%, 55%));
   --gradient-success: linear-gradient(135deg, hsl(142, 76%, 55%), hsl(162, 76%, 45%));
-  --gradient-hero: linear-gradient(135deg, hsl(210, 100%, 55%) 0%, hsl(195, 100%, 50%) 50%, hsl(185, 95%, 50%) 100%);
-  --gradient-card: linear-gradient(135deg, hsl(210, 100%, 60%), hsl(195, 100%, 55%));
+  --gradient-hero: linear-gradient(135deg, hsl(30, 30%, 92%) 0%, hsl(25, 25%, 88%) 50%, hsl(20, 20%, 85%) 100%);
+  --gradient-card: linear-gradient(135deg, hsl(25, 35%, 50%), hsl(20, 40%, 55%));
   --gradient-shimmer: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-  --gradient-dark: linear-gradient(135deg, hsl(210, 12%, 15%), hsl(210, 20%, 20%));
+  --gradient-dark: linear-gradient(135deg, hsl(30, 10%, 15%), hsl(30, 12%, 20%));
+  --gradient-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%);
 
-  /* Enhanced Shadows with Blue Tint */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.12), 0 4px 6px rgba(0, 0, 0, 0.08);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.18), 0 10px 10px rgba(0, 0, 0, 0.06);
-  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.25);
-  --shadow-glow: 0 0 30px rgba(59, 130, 246, 0.5);
-  --shadow-glow-accent: 0 0 30px rgba(6, 182, 212, 0.5);
-  --shadow-glow-secondary: 0 0 30px rgba(14, 165, 233, 0.5);
-  --shadow-primary: 0 8px 16px rgba(59, 130, 246, 0.3);
-  --shadow-accent: 0 8px 16px rgba(6, 182, 212, 0.3);
+  /* Subtle Shadows - Elegant */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.12), 0 10px 10px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.15);
+  --shadow-glow: 0 0 30px rgba(139, 92, 66, 0.3);
+  --shadow-glow-accent: 0 0 30px rgba(180, 120, 90, 0.3);
+  --shadow-glow-secondary: 0 0 30px rgba(160, 110, 80, 0.3);
+  --shadow-primary: 0 8px 16px rgba(139, 92, 66, 0.2);
+  --shadow-accent: 0 8px 16px rgba(180, 120, 90, 0.2);
 
   /* Enhanced Glassmorphism */
   --glass-bg: rgba(255, 255, 255, 0.75);
@@ -100,9 +105,9 @@
   --radius-3xl: 2rem;
   --radius-full: 9999px;
 
-  /* Typography - Premium Fonts */
+  /* Typography - Elegant Fonts */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
   --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
 
   --text-xs: 0.75rem;
