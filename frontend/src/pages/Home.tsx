@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
-import { Button } from '../components/ui';
-import { FiArrowRight, FiTrendingUp, FiStar, FiShoppingBag } from 'react-icons/fi';
+import { FiHeart } from 'react-icons/fi';
 import './Home.css';
 
 export const Home = () => {
@@ -8,98 +7,92 @@ export const Home = () => {
         <div className="home">
             {/* Hero Section */}
             <section className="hero">
-                <div className="hero-background" />
-                <div className="container">
+                <div className="hero-image">
+                    <img
+                        src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1600&h=800&fit=crop"
+                        alt="Hero"
+                    />
+                    <div className="hero-overlay"></div>
+                </div>
+                <div className="hero-content">
                     <motion.div
-                        className="hero-content"
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
                     >
-                        <motion.h1
-                            className="hero-title"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2, duration: 0.8 }}
-                        >
-                            Discover Premium Products
-                            <span className="text-gradient"> at Amazing Prices</span>
-                        </motion.h1>
-                        <motion.p
-                            className="hero-subtitle"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.4, duration: 0.8 }}
-                        >
-                            Shop the latest trends with exclusive deals and fast shipping
-                        </motion.p>
-                        <motion.div
-                            className="hero-actions"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.6, duration: 0.8 }}
-                        >
-                            <Button size="lg" rightIcon={<FiArrowRight />}>
-                                Shop Now
-                            </Button>
-                            <Button size="lg" variant="outline">
-                                Browse Categories
-                            </Button>
-                        </motion.div>
+                        <p className="hero-label">AUTUMN COLLECTION 2024</p>
+                        <h1 className="hero-title">
+                            Crafted for<br />
+                            <em>Everyday Living</em>
+                        </h1>
+                        <p className="hero-subtitle">
+                            Discover handpicked pieces that transform your<br />
+                            space into a sanctuary of warmth and elegance.
+                        </p>
+                        <div className="hero-actions">
+                            <button className="btn-primary">Explore Collection</button>
+                            <button className="btn-secondary">View Lookbook</button>
+                        </div>
                     </motion.div>
                 </div>
             </section>
 
-            {/* Features */}
-            <section className="features">
+            {/* Categories Section */}
+            <section className="categories-section">
                 <div className="container">
-                    <div className="features-grid">
-                        <motion.div
-                            className="feature-card glass"
-                            whileHover={{ y: -8 }}
-                        >
-                            <div className="feature-icon">
-                                <FiShoppingBag />
-                            </div>
-                            <h3>Free Shipping</h3>
-                            <p>On orders over $50</p>
-                        </motion.div>
+                    <div className="section-header-center">
+                        <p className="section-label">SHOP BY ROOM</p>
+                        <h2 className="section-title">Explore Categories</h2>
+                    </div>
 
-                        <motion.div
-                            className="feature-card glass"
-                            whileHover={{ y: -8 }}
-                        >
-                            <div className="feature-icon">
-                                <FiStar />
-                            </div>
-                            <h3>Premium Quality</h3>
-                            <p>Curated products</p>
-                        </motion.div>
-
-                        <motion.div
-                            className="feature-card glass"
-                            whileHover={{ y: -8 }}
-                        >
-                            <div className="feature-icon">
-                                <FiTrendingUp />
-                            </div>
-                            <h3>Best Prices</h3>
-                            <p>Unbeatable deals</p>
-                        </motion.div>
+                    <div className="categories-grid">
+                        {[
+                            { name: 'Living Room', count: '174 Products', image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&h=600&fit=crop' },
+                            { name: 'Lighting', count: '68 Products', image: 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?w=600&h=600&fit=crop' },
+                            { name: 'Textiles', count: '89 Products', image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=600&h=600&fit=crop' }
+                        ].map((category, i) => (
+                            <motion.div
+                                key={category.name}
+                                className="category-card"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.1 }}
+                                whileHover={{ y: -8 }}
+                            >
+                                <div className="category-image">
+                                    <img src={category.image} alt={category.name} />
+                                    <div className="category-overlay"></div>
+                                </div>
+                                <div className="category-info">
+                                    <h3>{category.name}</h3>
+                                    <p>{category.count}</p>
+                                </div>
+                            </motion.div>
+                        ))}
                     </div>
                 </div>
             </section>
 
             {/* Featured Products */}
-            <section className="section">
+            <section className="featured-section">
                 <div className="container">
-                    <div className="section-header">
-                        <h2>Featured Products</h2>
-                        <Button variant="ghost">View All <FiArrowRight /></Button>
+                    <div className="section-header-split">
+                        <div>
+                            <p className="section-label">CURATED SELECTION</p>
+                            <h2 className="section-title">Featured Products</h2>
+                        </div>
+                        <a href="/products" className="view-all-link">View All Products →</a>
                     </div>
 
                     <div className="products-grid">
-                        {[1, 2, 3, 4].map((i) => (
+                        {[
+                            { name: 'Terracotta Artisan Vase', category: 'DECOR', price: 89, image: 'https://images.unsplash.com/photo-1578500494198-246f612d3b3d?w=500&h=500&fit=crop', isNew: true },
+                            { name: 'Oak Round Side Table', category: 'LIVING', price: 320, image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&h=500&fit=crop', isNew: true },
+                            { name: 'Handwoven Linen Throw', category: 'TEXTILES', price: 78, image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=500&h=500&fit=crop', isNew: false },
+                            { name: 'Brass Cylinder Pendant', category: 'LIGHTING', price: 320, image: 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?w=500&h=500&fit=crop', isNew: false },
+                            { name: 'Stacking Ceramic Bowls', category: 'KITCHEN', price: 95, image: 'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=500&h=500&fit=crop', isNew: true },
+                            { name: 'Natural Oak Frame', category: 'DECOR', price: 78, image: 'https://images.unsplash.com/photo-1582053433926-0b5e8b9e5d7f?w=500&h=500&fit=crop', isNew: false }
+                        ].map((product, i) => (
                             <motion.div
                                 key={i}
                                 className="product-card"
@@ -109,45 +102,17 @@ export const Home = () => {
                                 whileHover={{ y: -8 }}
                             >
                                 <div className="product-image">
-                                    <img
-                                        src={`https://images.unsplash.com/photo-${1523275335684 + i}-eca6aff25d35?w=500&h=500&fit=crop`}
-                                        alt="Product"
-                                    />
-                                    <div className="product-badge">New</div>
+                                    <img src={product.image} alt={product.name} />
+                                    {product.isNew && <div className="product-badge">NEW</div>}
+                                    <button className="wishlist-btn">
+                                        <FiHeart />
+                                    </button>
                                 </div>
                                 <div className="product-info">
-                                    <h3>Premium Product {i}</h3>
-                                    <p className="product-description">High-quality item with amazing features</p>
-                                    <div className="product-footer">
-                                        <div className="product-price">
-                                            <span className="price-current">$99.99</span>
-                                            <span className="price-old">$149.99</span>
-                                        </div>
-                                        <Button size="sm">Add to Cart</Button>
-                                    </div>
+                                    <p className="product-category">{product.category}</p>
+                                    <h3 className="product-name">{product.name}</h3>
+                                    <p className="product-price">${product.price}</p>
                                 </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Categories */}
-            <section className="section">
-                <div className="container">
-                    <h2 className="text-center">Shop by Category</h2>
-                    <div className="categories-grid">
-                        {['Electronics', 'Fashion', 'Home & Garden', 'Sports'].map((category, i) => (
-                            <motion.div
-                                key={category}
-                                className="category-card gradient-primary"
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: i * 0.1 }}
-                                whileHover={{ scale: 1.05 }}
-                            >
-                                <h3>{category}</h3>
-                                <p>Explore now</p>
                             </motion.div>
                         ))}
                     </div>
