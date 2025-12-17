@@ -11,37 +11,50 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
     console.log('🌱 Starting database seeding...');
 
-    // Create admin user
-    const adminPassword = await bcrypt.hash('admin123', 10);
-    const admin = await prisma.user.upsert({
-        where: { email: 'admin@cartify.com' },
-        update: {},
-        create: {
-            email: 'admin@cartify.com',
-            passwordHash: adminPassword,
-            firstName: 'Admin',
-            lastName: 'User',
-            phone: '+1234567890',
-            role: 'ADMIN',
-        },
-    });
-    console.log('✅ Created admin user:', admin.email);
+    // Only create test users in development
+    if (process.env.NODE_ENV !== 'production') {
+        // Generate secure random passwords
+        const crypto = await import('crypto');
+        const adminPassword = process.env.ADMIN_PASSWORD || crypto.randomBytes(16).toString('hex');
+        const customerPassword = process.env.CUSTOMER_PASSWORD || crypto.randomBytes(16).toString('hex');
 
-    // Create customer user
-    const customerPassword = await bcrypt.hash('customer123', 10);
-    const customer = await prisma.user.upsert({
-        where: { email: 'customer@example.com' },
-        update: {},
-        create: {
-            email: 'customer@example.com',
-            passwordHash: customerPassword,
-            firstName: 'John',
-            lastName: 'Doe',
-            phone: '+0987654321',
-            role: 'CUSTOMER',
-        },
-    });
-    console.log('✅ Created customer user:', customer.email);
+        const adminPasswordHash = await bcrypt.hash(adminPassword, 10);
+        const admin = await prisma.user.upsert({
+            where: { email: 'admin@cartify.com' },
+            update: {},
+            create: {
+                email: 'admin@cartify.com',
+                passwordHash: adminPasswordHash,
+                firstName: 'Admin',
+                lastName: 'User',
+                phone: '+1234567890',
+                role: 'ADMIN',
+            },
+        });
+        console.log('✅ Created admin user:', admin.email);
+        console.log('⚠️  Admin Password:', adminPassword);
+        console.log('⚠️  SAVE THIS PASSWORD - It will not be shown again!');
+
+        const customerPasswordHash = await bcrypt.hash(customerPassword, 10);
+        const customer = await prisma.user.upsert({
+            where: { email: 'customer@example.com' },
+            update: {},
+            create: {
+                email: 'customer@example.com',
+                passwordHash: customerPasswordHash,
+                firstName: 'John',
+                lastName: 'Doe',
+                phone: '+0987654321',
+                role: 'CUSTOMER',
+            },
+        });
+        console.log('✅ Created customer user:', customer.email);
+        console.log('⚠️  Customer Password:', customerPassword);
+        console.log('⚠️  SAVE THIS PASSWORD - It will not be shown again!');
+    } else {
+        console.log('⚠️  Skipping test user creation in production');
+        console.log('⚠️  Create admin users manually with strong passwords');
+    }
 
     // Create categories
     const electronics = await prisma.category.upsert({
