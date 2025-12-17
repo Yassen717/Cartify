@@ -32,6 +32,16 @@
     grid-template-columns: 120px 1fr auto auto;
     gap: var(--space-lg);
     align-items: center;
+    padding: var(--space-lg);
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    transition: all var(--transition-base);
+}
+
+.cart-item:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-md);
 }
 
 .item-image {
@@ -61,10 +71,7 @@
 .item-price {
     font-size: var(--text-xl);
     font-weight: var(--font-semibold);
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--primary);
 }
 
 /* Item Actions */
@@ -80,6 +87,7 @@
     align-items: center;
     gap: var(--space-sm);
     background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
     border-radius: var(--radius-lg);
     padding: var(--space-xs);
 }
@@ -90,17 +98,20 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: none;
+    border: 2px solid var(--border-color);
     background: var(--bg-primary);
     border-radius: var(--radius-md);
     cursor: pointer;
     color: var(--text-primary);
+    font-weight: var(--font-bold);
     transition: all var(--transition-fast);
 }
 
 .qty-btn:hover {
     background: var(--primary);
+    border-color: var(--primary);
     color: var(--white);
+    transform: scale(1.1);
 }
 
 .qty-value {
@@ -153,6 +164,11 @@
     top: 100px;
 }
 
+.cart-summary .card {
+    border: 2px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+}
+
 .cart-summary h3 {
     margin-bottom: var(--space-lg);
 }
@@ -179,10 +195,7 @@
 }
 
 .total-amount {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--primary);
     font-size: var(--text-3xl);
 }
 
@@ -219,11 +232,22 @@
 .promo-input {
     flex: 1;
     padding: var(--space-md);
-    border: 1px solid var(--border-color);
+    border: 2px solid var(--border-color);
     border-radius: var(--radius-lg);
     background: var(--bg-primary);
     color: var(--text-primary);
     font-size: var(--text-base);
+    transition: all var(--transition-fast);
+}
+
+.promo-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.promo-input::placeholder {
+    color: var(--text-tertiary);
 }
 
 /* Trust Badges */
@@ -238,9 +262,12 @@
     display: flex;
     align-items: center;
     gap: var(--space-sm);
-    padding: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
     font-size: var(--text-sm);
     color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
 }
 
 .badge-icon {
