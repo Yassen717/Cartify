@@ -4,14 +4,15 @@ import {
     uploadProductImages,
     deleteUploadedImage,
 } from '../controllers/upload.controller';
-import { upload } from '../middleware/upload';
+import { upload, uploadLimiter } from '../middleware/upload';
 import { authenticate, authorize } from '../middleware/auth';
 
 const router = Router();
 
-// Upload routes - require authentication and admin role
+// Upload routes - require authentication, admin role, and rate limiting
 router.post(
     '/product-image',
+    uploadLimiter,
     authenticate,
     authorize('ADMIN'),
     upload.single('image'),
@@ -20,6 +21,7 @@ router.post(
 
 router.post(
     '/product-images',
+    uploadLimiter,
     authenticate,
     authorize('ADMIN'),
     upload.array('images', 5),

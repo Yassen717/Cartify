@@ -1,6 +1,8 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
+import rateLimit from 'express-rate-limit';
 import { BadRequestError } from '../utils/errors';
 
 // Ensure uploads directory exists
@@ -15,31 +17,46 @@ const storage = multer.diskStorage({
         cb(null, uploadsDir);
     },
     filename: (_req, file, cb) => {
-        // Generate unique filename: timestamp-random-originalname
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname);
-        const basename = path.basename(file.originalname, ext);
-        cb(null, `${basename}-${uniqueSuffix}${ext}`);
+        // Generate cryptographically secure random filename
+        const randomName = crypto.randomBytes(32).toString('hex');
+        const ext = path.extname(file.originalname).toLowerCase();
+        cb(null, `${randomName}${ext}`);
     },
 });
 
-// File filter for images only
+// Strict file filter for images only
 const imageFilter = (_req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
-
-    if (allowedMimeTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(new BadRequestError('Only image files are allowed (jpeg, jpg, png, webp, gif)'));
+    // Check file extension (whitelist approach)
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    
+    if (!allowedExtensions.includes(ext)) {
+        return cb(new BadRequestError('Invalid file extension. Only jpg, jpeg, png, and webp are allowed'));
     }
+    
+    // Check MIME type (double validation)
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+        return cb(new BadRequestError('Invalid file type. Only JPEG, PNG, and WebP images are allowed'));
+    }
+    
+    // Prevent path traversal in filename
+    const basename = path.basename(file.originalname);
+    if (basename !== file.originalname || basename.includes('..')) {
+        return cb(new BadRequestError('Invalid filename'));
+    }
+    
+    cb(null, true);
 };
 
-// Create multer instance
+// Create multer instance with strict limits
 export const upload = multer({
     storage: storage,
     fileFilter: imageFilter,
     limits: {
         fileSize: 5 * 1024 * 1024, // 5MB max file size
+        files: 10, // Max 10 files per request
+        fields: 20, // Max 20 non-file fields
     },
 });
 
@@ -59,3 +76,12 @@ export const getFileUrl = (filename: string): string => {
     const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
     return `${baseUrl}/uploads/${filename}`;
 };
+
+// Rate limiter for upload endpoints
+export const uploadLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 20, // Limit each IP to 20 upload requests per window
+    message: 'Too many upload requests from this IP, please try again later',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
