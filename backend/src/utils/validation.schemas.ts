@@ -4,12 +4,21 @@ import { z } from 'zod';
 // AUTH VALIDATION SCHEMAS
 // ============================================================================
 
+// Strong password validation
+const passwordSchema = z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password is too long')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character');
+
 export const registerSchema = z.object({
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    firstName: z.string().min(1, 'First name is required'),
-    lastName: z.string().min(1, 'Last name is required'),
-    phone: z.string().optional(),
+    email: z.string().email('Invalid email address').toLowerCase(),
+    password: passwordSchema,
+    firstName: z.string().min(1, 'First name is required').max(50, 'First name is too long'),
+    lastName: z.string().min(1, 'Last name is required').max(50, 'Last name is too long'),
+    phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format').optional(),
 });
 
 export const loginSchema = z.object({
@@ -29,7 +38,7 @@ export const updateProfileSchema = z.object({
 
 export const changePasswordSchema = z.object({
     currentPassword: z.string().min(1, 'Current password is required'),
-    newPassword: z.string().min(8, 'New password must be at least 8 characters'),
+    newPassword: passwordSchema,
 });
 
 // ============================================================================
@@ -37,14 +46,14 @@ export const changePasswordSchema = z.object({
 // ============================================================================
 
 export const createProductSchema = z.object({
-    name: z.string().min(1, 'Product name is required'),
-    slug: z.string().min(1, 'Slug is required'),
-    description: z.string().min(1, 'Description is required'),
-    price: z.number().positive('Price must be positive'),
-    comparePrice: z.number().positive().optional(),
-    stockQty: z.number().int().min(0, 'Stock quantity cannot be negative').default(0),
-    sku: z.string().min(1, 'SKU is required'),
-    brand: z.string().optional(),
+    name: z.string().min(1, 'Product name is required').max(200, 'Product name is too long'),
+    slug: z.string().min(1, 'Slug is required').max(200, 'Slug is too long'),
+    description: z.string().min(1, 'Description is required').max(5000, 'Description is too long'),
+    price: z.number().positive('Price must be positive').max(1000000, 'Price is too high'),
+    comparePrice: z.number().positive().max(1000000, 'Compare price is too high').optional(),
+    stockQty: z.number().int().min(0, 'Stock quantity cannot be negative').max(100000, 'Stock quantity is too high').default(0),
+    sku: z.string().min(1, 'SKU is required').max(100, 'SKU is too long'),
+    brand: z.string().max(100, 'Brand name is too long').optional(),
     categoryId: z.string().uuid('Invalid category ID'),
     images: z.array(z.object({
         url: z.string().url(),
@@ -103,11 +112,11 @@ export const productQuerySchema = z.object({
 export const addToCartSchema = z.object({
     productId: z.string().uuid('Invalid product ID'),
     variantId: z.string().uuid().optional(),
-    quantity: z.number().int().min(1, 'Quantity must be at least 1').default(1),
+    quantity: z.number().int().min(1, 'Quantity must be at least 1').max(100, 'Quantity cannot exceed 100').default(1),
 });
 
 export const updateCartItemSchema = z.object({
-    quantity: z.number().int().min(1, 'Quantity must be at least 1'),
+    quantity: z.number().int().min(1, 'Quantity must be at least 1').max(100, 'Quantity cannot exceed 100'),
 });
 
 // ============================================================================
