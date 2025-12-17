@@ -32,8 +32,7 @@ export const Header = () => {
                 <div className="header-content">
                     {/* Logo */}
                     <Link to="/" className="logo">
-                        <span className="logo-icon">🛍️</span>
-                        <span className="logo-text text-gradient">Cartify</span>
+                        <span className="logo-text">Cartify</span>
                     </Link>
 
                     {/* Desktop Navigation */}
@@ -44,41 +43,28 @@ export const Header = () => {
                         <Link to="/deals" className="nav-link">Deals</Link>
                     </nav>
 
+                    <div className="spacer"></div>
+
                     {/* Search Bar */}
                     <div className={`search-bar ${isSearchExpanded ? 'expanded' : ''}`}>
                         <FiSearch className="search-icon" />
-                        <input
-                            type="text"
-                            placeholder="Search products..."
-                            className="search-input"
-                            onFocus={() => setIsSearchExpanded(true)}
-                            onBlur={() => setIsSearchExpanded(false)}
-                        />
                     </div>
 
                     {/* Actions */}
                     <div className="header-actions">
-                        <Link to="/wishlist" className="action-btn">
-                            <FiHeart />
-                            <span className="badge">3</span>
-                        </Link>
-                        <Link to="/cart" className="action-btn">
-                            <FiShoppingCart />
-                            <span className="badge pulse">5</span>
-                        </Link>
-
                         {isAuthenticated && user ? (
-                            <Link to="/profile" className="user-profile-btn">
-                                <div className="user-avatar">
-                                    {user.firstName?.[0]}{user.lastName?.[0]}
-                                </div>
-                                <span className="user-name">{user.firstName}</span>
+                            <Link to="/profile" className="action-btn">
+                                <FiUser />
                             </Link>
                         ) : (
                             <Link to="/login" className="action-btn">
                                 <FiUser />
                             </Link>
                         )}
+                        <Link to="/cart" className="action-btn cart-btn">
+                            <FiShoppingCart />
+                            <span className="badge">0</span>
+                        </Link>
                     </div>
 
                     {/* Mobile Menu Toggle */}
