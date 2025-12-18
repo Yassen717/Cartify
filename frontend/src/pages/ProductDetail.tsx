@@ -20,7 +20,7 @@ export const ProductDetail = () => {
     const [quantity, setQuantity] = useState(1);
 
     const { addItem: addToCart } = useCartStore();
-    const { addItem: addToWishlist } = useWishlistStore();
+    const { addItem: addToWishlist, wishlist, fetchWishlist } = useWishlistStore();
     const { isAuthenticated } = useAuthStore();
 
     useEffect(() => {
@@ -28,6 +28,13 @@ export const ProductDetail = () => {
             fetchProduct();
         }
     }, [id]);
+
+    // Fetch wishlist on mount if authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchWishlist();
+        }
+    }, [isAuthenticated, fetchWishlist]);
 
     const fetchProduct = async () => {
         if (!id) return;
@@ -73,6 +80,9 @@ export const ProductDetail = () => {
             // Error handled in store
         }
     };
+
+    // Check if product is in wishlist
+    const isInWishlist = product ? (wishlist?.items?.some(item => item.productId === product.id) || false) : false;
 
     if (isLoading) {
         return (
@@ -207,10 +217,10 @@ export const ProductDetail = () => {
                                 {product.stockQty === 0 ? 'Out of Stock' : 'Add to Cart'}
                             </Button>
                             <button
-                                className="wishlist-btn"
+                                className={`wishlist-btn ${isInWishlist ? 'active' : ''}`}
                                 onClick={handleAddToWishlist}
                             >
-                                <FiHeart />
+                                <FiHeart className={isInWishlist ? 'filled' : ''} />
                             </button>
                         </div>
 

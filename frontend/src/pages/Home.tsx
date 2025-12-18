@@ -1,8 +1,71 @@
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { FiHeart } from 'react-icons/fi';
+import { useWishlistStore } from '../stores/wishlistStore';
+import { useAuthStore } from '../stores/authStore';
+import * as productsService from '../services/products.service';
+import type { Product } from '../services/products.service';
+import toast from 'react-hot-toast';
 import './Home.css';
 
 export const Home = () => {
+    const { addItem: addToWishlist, wishlist, fetchWishlist } = useWishlistStore();
+    const { isAuthenticated } = useAuthStore();
+
+    // Fetch featured products from API
+    const { data: productsData, isLoading, error } = useQuery({
+        queryKey: ['featured-products'],
+        queryFn: async () => {
+            const response = await productsService.getProducts({
+                page: 1,
+                limit: 6,
+                sortBy: 'createdAt',
+                sortOrder: 'desc',
+            });
+            return response.data.products;
+        },
+    });
+
+    // Fetch wishlist on mount if authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchWishlist();
+        }
+    }, [isAuthenticated, fetchWishlist]);
+
+    // Helper function to get product image
+    const getProductImage = (product: Product) => {
+        if (product.images && product.images.length > 0) {
+            return product.images[0].url;
+        }
+        // Fallback to placeholder
+        return `https://via.placeholder.com/500?text=${encodeURIComponent(product.name)}`;
+    };
+
+    // Check if product is in wishlist
+    const isInWishlist = (productId: string) => {
+        return wishlist?.items?.some(item => item.productId === productId) || false;
+    };
+
+    // Handle wishlist button click
+    const handleWishlistClick = async (e: React.MouseEvent, productId: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (!isAuthenticated) {
+            toast.error('Please login to add items to wishlist');
+            return;
+        }
+        
+        try {
+            await addToWishlist(productId);
+        } catch (error) {
+            // Error handled in store
+        }
+    };
+
     return (
         <div className="home">
             {/* Hero Section */}
@@ -30,7 +93,7 @@ export const Home = () => {
                             space into a sanctuary of warmth and elegance.
                         </p>
                         <div className="hero-actions">
-                            <button className="btn-primary">Explore Collection</button>
+                            <Link to="/products" className="btn-primary">Explore Collection</Link>
                             <button className="btn-secondary">View Lookbook</button>
                         </div>
                     </motion.div>
@@ -81,41 +144,66 @@ export const Home = () => {
                             <p className="section-label">CURATED SELECTION</p>
                             <h2 className="section-title">Featured Products</h2>
                         </div>
-                        <a href="/products" className="view-all-link">View All Products →</a>
+                        <Link to="/products" className="view-all-link">View All Products →</Link>
                     </div>
 
-                    <div className="products-grid">
-                        {[
-                            { name: 'Terracotta Artisan Vase', category: 'DECOR', price: 89, image: 'https://images.unsplash.com/photo-1578500494198-246f612d3b3d?w=500&h=500&fit=crop', isNew: true },
-                            { name: 'Oak Round Side Table', category: 'LIVING', price: 320, image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&h=500&fit=crop', isNew: true },
-                            { name: 'Handwoven Linen Throw', category: 'TEXTILES', price: 78, image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=500&h=500&fit=crop', isNew: false },
-                            { name: 'Brass Cylinder Pendant', category: 'LIGHTING', price: 320, image: 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?w=500&h=500&fit=crop', isNew: false },
-                            { name: 'Stacking Ceramic Bowls', category: 'KITCHEN', price: 95, image: 'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=500&h=500&fit=crop', isNew: true },
-                            { name: 'Natural Oak Frame', category: 'DECOR', price: 78, image: 'https://images.unsplash.com/photo-1582053433926-0b5e8b9e5d7f?w=500&h=500&fit=crop', isNew: false }
-                        ].map((product, i) => (
-                            <motion.div
-                                key={i}
-                                className="product-card"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.1 }}
-                                whileHover={{ y: -8 }}
-                            >
-                                <div className="product-image">
-                                    <img src={product.image} alt={product.name} />
-                                    {product.isNew && <div className="product-badge">NEW</div>}
-                                    <button className="wishlist-btn">
-                                        <FiHeart />
-                                    </button>
-                                </div>
-                                <div className="product-info">
-                                    <p className="product-category">{product.category}</p>
-                                    <h3 className="product-name">{product.name}</h3>
-                                    <p className="product-price">${product.price}</p>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
+                    {isLoading && (
+                        <div className="products-loading">
+                            <p>Loading products...</p>
+                        </div>
+                    )}
+
+                    {error && (
+                        <div className="products-error">
+                            <p>Failed to load products. Please try again later.</p>
+                        </div>
+                    )}
+
+                    {!isLoading && !error && productsData && productsData.length === 0 && (
+                        <div className="products-empty">
+                            <p>No products available at the moment.</p>
+                        </div>
+                    )}
+
+                    {!isLoading && !error && productsData && productsData.length > 0 && (
+                        <div className="products-grid">
+                            {productsData.map((product, i) => {
+                                const productInWishlist = isInWishlist(product.id);
+                                return (
+                                    <motion.div
+                                        key={product.id}
+                                        className="product-card"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: i * 0.1 }}
+                                        whileHover={{ y: -8 }}
+                                    >
+                                        <Link to={`/products/${product.id}`} className="product-card-link">
+                                            <div className="product-image">
+                                                <img src={getProductImage(product)} alt={product.name} />
+                                                <button 
+                                                    className={`wishlist-btn ${productInWishlist ? 'active' : ''}`}
+                                                    onClick={(e) => handleWishlistClick(e, product.id)}
+                                                >
+                                                    <FiHeart className={productInWishlist ? 'filled' : ''} />
+                                                </button>
+                                            </div>
+                                            <div className="product-info">
+                                                <p className="product-category">{product.category?.name || 'Uncategorized'}</p>
+                                                <h3 className="product-name">{product.name}</h3>
+                                                <div className="product-pricing">
+                                                    <p className="product-price">${product.price}</p>
+                                                    {product.comparePrice && product.comparePrice > product.price && (
+                                                        <p className="product-compare-price">${product.comparePrice}</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    </motion.div>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
             </section>
         </div>

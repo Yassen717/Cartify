@@ -225,6 +225,12 @@
     transition: all var(--transition-smooth);
 }
 
+.product-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
 .product-card:hover {
     transform: translateY(-8px);
 }
@@ -276,11 +282,21 @@
     transition: all var(--transition-fast);
     color: var(--text-primary);
     font-size: 1.1rem;
+    z-index: 10;
 }
 
 .wishlist-btn:hover {
     background: var(--gray-900);
     color: var(--white);
+}
+
+.wishlist-btn.active {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.wishlist-btn.active .filled {
+    fill: currentColor;
 }
 
 .product-info {
@@ -302,10 +318,41 @@
     margin-bottom: var(--space-sm);
 }
 
+.product-pricing {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
 .product-price {
     font-size: var(--text-lg);
     font-weight: var(--font-medium);
     color: var(--text-primary);
+}
+
+.product-compare-price {
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
+    text-decoration: line-through;
+}
+
+/* Loading and Error States */
+.products-loading,
+.products-error,
+.products-empty {
+    text-align: center;
+    padding: var(--space-4xl) 0;
+    color: var(--text-secondary);
+}
+
+.products-error {
+    color: var(--error);
+}
+
+/* Button as Link */
+.btn-primary {
+    text-decoration: none;
+    display: inline-block;
 }
 
 /* Responsive */

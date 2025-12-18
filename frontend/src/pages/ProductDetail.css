@@ -262,6 +262,16 @@
     transform: scale(1.05);
 }
 
+.wishlist-btn.active {
+    background: var(--error);
+    color: var(--white);
+    border-color: var(--error);
+}
+
+.wishlist-btn.active .filled {
+    fill: currentColor;
+}
+
 /* Features Card */
 .features-card {
     display: flex;

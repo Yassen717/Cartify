@@ -245,6 +245,13 @@
     height: 100%;
 }
 
+.product-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+}
+
 .product-item .card {
     height: 100%;
     display: flex;
@@ -288,13 +295,22 @@
     font-size: 1.25rem;
     box-shadow: var(--shadow-md);
     transition: all var(--transition-fast);
-    z-index: 1;
+    z-index: 10;
 }
 
 .wishlist-btn:hover {
     background: var(--error);
     color: var(--white);
     transform: scale(1.1);
+}
+
+.wishlist-btn.active {
+    background: var(--error);
+    color: var(--white);
+}
+
+.wishlist-btn.active .filled {
+    fill: currentColor;
 }
 
 [data-theme="dark"] .wishlist-btn {

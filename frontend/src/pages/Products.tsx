@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { FiFilter, FiGrid, FiList, FiHeart, FiShoppingCart } from 'react-icons/fi';
 import { Button, Card } from '../components/ui';
 import { useCartStore } from '../stores/cartStore';
+import { useWishlistStore } from '../stores/wishlistStore';
 import { useAuthStore } from '../stores/authStore';
 import * as productsService from '../services/products.service';
 import type { Product } from '../services/products.service';
@@ -30,7 +32,15 @@ export const Products = () => {
     });
 
     const { addItem } = useCartStore();
+    const { addItem: addToWishlist, wishlist, fetchWishlist } = useWishlistStore();
     const { isAuthenticated } = useAuthStore();
+
+    // Fetch wishlist on mount if authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchWishlist();
+        }
+    }, [isAuthenticated, fetchWishlist]);
 
     useEffect(() => {
         fetchProducts();
@@ -64,6 +74,37 @@ export const Products = () => {
             await addItem(productId, 1);
         } catch (error) {
             // Error already handled in store
+        }
+    };
+
+    // Helper function to get product image
+    const getProductImage = (product: Product) => {
+        if (product.images && product.images.length > 0) {
+            return product.images[0].url;
+        }
+        // Fallback to placeholder
+        return `https://via.placeholder.com/500?text=${encodeURIComponent(product.name)}`;
+    };
+
+    // Check if product is in wishlist
+    const isInWishlist = (productId: string) => {
+        return wishlist?.items?.some(item => item.productId === productId) || false;
+    };
+
+    // Handle wishlist button click
+    const handleWishlistClick = async (e: React.MouseEvent, productId: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (!isAuthenticated) {
+            toast.error('Please login to add items to wishlist');
+            return;
+        }
+        
+        try {
+            await addToWishlist(productId);
+        } catch (error) {
+            // Error handled in store
         }
     };
 
@@ -204,49 +245,58 @@ export const Products = () => {
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: i * 0.05 }}
                                         >
-                                            <Card hover padding="none">
-                                                <div className="product-image-container">
-                                                    <img
-                                                        src={product.images?.[0]?.url || `https://via.placeholder.com/500`}
-                                                        alt={product.name}
-                                                    />
-                                                    <button className="wishlist-btn">
-                                                        <FiHeart />
-                                                    </button>
-                                                    {product.comparePrice && product.comparePrice > product.price && (
-                                                        <div className="discount-badge">
-                                                            {Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)}% OFF
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="product-details">
-                                                    <span className="product-category">{product.category?.name || 'Uncategorized'}</span>
-                                                    <h3 className="product-name">{product.name}</h3>
-                                                    <p className="product-description">{product.description}</p>
-                                                    {product.averageRating && (
-                                                        <div className="product-rating">
-                                                            <span className="stars">{'⭐'.repeat(Math.floor(product.averageRating))}</span>
-                                                            <span className="rating-count">({product.reviewCount || 0})</span>
-                                                        </div>
-                                                    )}
-                                                    <div className="product-footer">
-                                                        <div className="product-pricing">
-                                                            <span className="current-price">${product.price}</span>
-                                                            {product.comparePrice && (
-                                                                <span className="compare-price">${product.comparePrice}</span>
-                                                            )}
-                                                        </div>
-                                                        <Button
-                                                            size="sm"
-                                                            leftIcon={<FiShoppingCart />}
-                                                            onClick={() => handleAddToCart(product.id)}
-                                                            disabled={product.stockQty === 0}
+                                            <Link to={`/products/${product.id}`} className="product-link">
+                                                <Card hover padding="none">
+                                                    <div className="product-image-container">
+                                                        <img
+                                                            src={getProductImage(product)}
+                                                            alt={product.name}
+                                                        />
+                                                        <button 
+                                                            className={`wishlist-btn ${isInWishlist(product.id) ? 'active' : ''}`}
+                                                            onClick={(e) => handleWishlistClick(e, product.id)}
                                                         >
-                                                            {product.stockQty === 0 ? 'Out of Stock' : 'Add to Cart'}
-                                                        </Button>
+                                                            <FiHeart className={isInWishlist(product.id) ? 'filled' : ''} />
+                                                        </button>
+                                                        {product.comparePrice && product.comparePrice > product.price && (
+                                                            <div className="discount-badge">
+                                                                {Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)}% OFF
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                </div>
-                                            </Card>
+                                                    <div className="product-details">
+                                                        <span className="product-category">{product.category?.name || 'Uncategorized'}</span>
+                                                        <h3 className="product-name">{product.name}</h3>
+                                                        <p className="product-description">{product.description}</p>
+                                                        {product.averageRating && (
+                                                            <div className="product-rating">
+                                                                <span className="stars">{'⭐'.repeat(Math.floor(product.averageRating))}</span>
+                                                                <span className="rating-count">({product.reviewCount || 0})</span>
+                                                            </div>
+                                                        )}
+                                                        <div className="product-footer">
+                                                            <div className="product-pricing">
+                                                                <span className="current-price">${product.price}</span>
+                                                                {product.comparePrice && (
+                                                                    <span className="compare-price">${product.comparePrice}</span>
+                                                                )}
+                                                            </div>
+                                                            <Button
+                                                                size="sm"
+                                                                leftIcon={<FiShoppingCart />}
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    e.stopPropagation();
+                                                                    handleAddToCart(product.id);
+                                                                }}
+                                                                disabled={product.stockQty === 0}
+                                                            >
+                                                                {product.stockQty === 0 ? 'Out of Stock' : 'Add to Cart'}
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                </Card>
+                                            </Link>
                                         </motion.div>
                                     ))}
                                 </div>
