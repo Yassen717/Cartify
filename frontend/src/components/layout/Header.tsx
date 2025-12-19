@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FiShoppingCart, FiHeart, FiUser, FiSearch, FiMenu, FiX } from 'react-icons/fi';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../stores/authStore';
+import { useCartStore } from '../../stores/cartStore';
 import './Header.css';
 
 export const Header = () => {
@@ -10,6 +11,7 @@ export const Header = () => {
     const [isSearchExpanded, setIsSearchExpanded] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const { isAuthenticated, user } = useAuthStore();
+    const { cart, fetchCart } = useCartStore();
 
     // Scroll detection for header styling
     React.useEffect(() => {
