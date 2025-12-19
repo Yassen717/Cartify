@@ -63,10 +63,11 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Strict rate limiting for authentication endpoints
+// In development, allow more attempts to avoid blocking local testing
 const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // Only 5 attempts per 15 minutes
-    message: 'Too many authentication attempts from this IP, please try again after 15 minutes.',
+    windowMs: process.env.NODE_ENV === 'production' ? 15 * 60 * 1000 : 5 * 60 * 1000, // 15 min prod, 5 min dev
+    max: process.env.NODE_ENV === 'production' ? 5 : 50, // much higher limit in dev
+    message: 'Too many authentication attempts from this IP, please try again after a short while.',
     standardHeaders: true,
     legacyHeaders: false,
     skipSuccessfulRequests: true, // Don't count successful requests
