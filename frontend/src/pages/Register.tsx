@@ -44,6 +44,13 @@ export const Register = () => {
             return;
         }
 
+        // Validate password strength (matching backend requirements)
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])/;
+        if (!passwordRegex.test(formData.password)) {
+            toast.error('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character');
+            return;
+        }
+
         try {
             await register({
                 email: formData.email,
@@ -54,7 +61,13 @@ export const Register = () => {
             toast.success('Account created successfully! Please login.');
             navigate('/login');
         } catch (err: any) {
-            toast.error(error || 'Registration failed. Please try again.');
+            // Error is already handled in store, but show toast with details
+            const errorMessage = err.response?.data?.details 
+                ? (Array.isArray(err.response.data.details) 
+                    ? err.response.data.details.map((d: any) => d.message).join(', ')
+                    : err.response.data.details)
+                : (error || err.response?.data?.message || 'Registration failed. Please try again.');
+            toast.error(errorMessage);
         }
     };
 
@@ -156,7 +169,7 @@ export const Register = () => {
                                         {showPassword ? <FiEyeOff /> : <FiEye />}
                                     </button>
                                 }
-                                helperText="At least 8 characters"
+                                helperText="At least 8 characters with uppercase, lowercase, number, and special character"
                                 required
                             />
 

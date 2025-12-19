@@ -73,8 +73,21 @@ export const useAuthStore = create<AuthState>()(
                         isLoading: false,
                     });
                 } catch (error: any) {
+                    // Extract error message with validation details
+                    let errorMessage = error.response?.data?.message || 'Registration failed';
+                    
+                    // If there are validation details, format them
+                    if (error.response?.data?.details && Array.isArray(error.response.data.details)) {
+                        const validationErrors = error.response.data.details
+                            .map((detail: any) => detail.message || `${detail.field}: ${detail.message}`)
+                            .join(', ');
+                        errorMessage = validationErrors || errorMessage;
+                    } else if (error.response?.data?.details && typeof error.response.data.details === 'string') {
+                        errorMessage = error.response.data.details;
+                    }
+                    
                     set({
-                        error: error.response?.data?.message || 'Registration failed',
+                        error: errorMessage,
                         isLoading: false,
                     });
                     throw error;
