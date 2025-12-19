@@ -134,14 +134,14 @@ export const Wishlist = () => {
                                             <Button
                                                 fullWidth
                                                 leftIcon={<FiShoppingCart />}
-                                                onClick={() => moveToCart(item.id)}
+                                                onClick={() => moveToCart(item.productId)}
                                                 disabled={item.product.stockQty === 0 || isLoading}
                                             >
                                                 Move to Cart
                                             </Button>
                                             <button
                                                 className="remove-btn"
-                                                onClick={() => removeItem(item.id)}
+                                                onClick={() => removeItem(item.productId)}
                                                 disabled={isLoading}
                                             >
                                                 <FiTrash2 />

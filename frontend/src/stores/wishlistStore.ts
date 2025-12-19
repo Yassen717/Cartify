@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import * as wishlistService from '../services/wishlist.service';
-import type { Wishlist, WishlistItem } from '../services/wishlist.service';
+import type { Wishlist } from '../services/wishlist.service';
 import toast from 'react-hot-toast';
 
 interface WishlistState {
@@ -11,8 +11,8 @@ interface WishlistState {
     // Actions
     fetchWishlist: () => Promise<void>;
     addItem: (productId: string) => Promise<void>;
-    removeItem: (itemId: string) => Promise<void>;
-    moveToCart: (itemId: string, quantity?: number) => Promise<void>;
+    removeItem: (productId: string) => Promise<void>;
+    moveToCart: (productId: string, quantity?: number) => Promise<void>;
 }
 
 export const useWishlistStore = create<WishlistState>((set) => ({
@@ -24,7 +24,17 @@ export const useWishlistStore = create<WishlistState>((set) => ({
         set({ isLoading: true, error: null });
         try {
             const response = await wishlistService.getWishlist();
-            set({ wishlist: response.data.wishlist, isLoading: false });
+            // Backend returns array directly, convert to expected format
+            const wishlistArray = Array.isArray(response.data.wishlist) 
+                ? response.data.wishlist 
+                : response.data.wishlist?.items || [];
+            set({ 
+                wishlist: {
+                    items: wishlistArray,
+                    itemCount: wishlistArray.length
+                }, 
+                isLoading: false 
+            });
         } catch (error: any) {
             set({
                 error: error.response?.data?.message || 'Failed to fetch wishlist',
@@ -36,8 +46,19 @@ export const useWishlistStore = create<WishlistState>((set) => ({
     addItem: async (productId: string) => {
         set({ isLoading: true, error: null });
         try {
-            const response = await wishlistService.addToWishlist(productId);
-            set({ wishlist: response.data.wishlist, isLoading: false });
+            await wishlistService.addToWishlist(productId);
+            // Refetch wishlist to get updated data
+            const response = await wishlistService.getWishlist();
+            const wishlistArray = Array.isArray(response.data.wishlist) 
+                ? response.data.wishlist 
+                : response.data.wishlist?.items || [];
+            set({ 
+                wishlist: {
+                    items: wishlistArray,
+                    itemCount: wishlistArray.length
+                }, 
+                isLoading: false 
+            });
             toast.success('Added to wishlist');
         } catch (error: any) {
             const errorMsg = error.response?.data?.message || 'Failed to add to wishlist';
@@ -47,10 +68,10 @@ export const useWishlistStore = create<WishlistState>((set) => ({
         }
     },
 
-    removeItem: async (itemId: string) => {
+    removeItem: async (productId: string) => {
         set({ isLoading: true, error: null });
         try {
-            await wishlistService.removeFromWishlist(itemId);
+            await wishlistService.removeFromWishlist(productId);
             // Refetch wishlist
             const response = await wishlistService.getWishlist();
             set({ wishlist: response.data.wishlist, isLoading: false });
@@ -63,10 +84,10 @@ export const useWishlistStore = create<WishlistState>((set) => ({
         }
     },
 
-    moveToCart: async (itemId: string, quantity = 1) => {
+    moveToCart: async (productId: string, quantity = 1) => {
         set({ isLoading: true, error: null });
         try {
-            await wishlistService.moveToCart(itemId, quantity);
+            await wishlistService.moveToCart(productId, quantity);
             // Refetch wishlist
             const response = await wishlistService.getWishlist();
             set({ wishlist: response.data.wishlist, isLoading: false });

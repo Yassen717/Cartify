@@ -30,23 +30,23 @@ export const getWishlist = async (): Promise<{ success: boolean; data: { wishlis
 export const addToWishlist = async (
     productId: string
 ): Promise<{ success: boolean; data: { wishlist: Wishlist } }> => {
-    const response = await api.post('/wishlist/items', { productId });
+    const response = await api.post('/wishlist', { productId });
     return response.data;
 };
 
 // Remove item from wishlist
 export const removeFromWishlist = async (
-    itemId: string
+    productId: string
 ): Promise<{ success: boolean; message: string }> => {
-    const response = await api.delete(`/wishlist/items/${itemId}`);
+    const response = await api.delete(`/wishlist/${productId}`);
     return response.data;
 };
 
 // Move item from wishlist to cart
 export const moveToCart = async (
-    itemId: string,
+    productId: string,
     quantity: number = 1
 ): Promise<{ success: boolean; message: string }> => {
-    const response = await api.post(`/wishlist/items/${itemId}/move-to-cart`, { quantity });
+    const response = await api.post(`/wishlist/${productId}/move-to-cart`, { quantity });
     return response.data;
 };
