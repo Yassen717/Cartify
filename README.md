@@ -1,6 +1,6 @@
 # Cartify - Modern E-Commerce Platform
 
-A full-stack e-commerce application built with React, TypeScript, Node.js, Express, and PostgreSQL.
+A full-stack e-commerce application built with React, TypeScript, Node.js, Express, and Prisma (SQLite/libSQL by default).
 
 ## 🎯 Project Overview
 
@@ -31,9 +31,9 @@ Cartify is a feature-rich e-commerce platform designed to provide an exceptional
 ## 🏗️ Tech Stack
 
 ### Frontend
-- **Framework**: React 18+ with TypeScript
+- **Framework**: React with TypeScript
 - **Build Tool**: Vite
-- **Routing**: React Router v6
+- **Routing**: React Router
 - **State Management**: Zustand / Context API
 - **Data Fetching**: TanStack Query (React Query)
 - **Styling**: CSS Modules / Styled Components
@@ -44,20 +44,17 @@ Cartify is a feature-rich e-commerce platform designed to provide an exceptional
 ### Backend
 - **Runtime**: Node.js 18+
 - **Framework**: Express.js with TypeScript
-- **Database**: PostgreSQL 15+
-- **ORM**: Prisma / TypeORM
+- **Database**: SQLite/libSQL (default via Prisma adapter)
+- **ORM**: Prisma
 - **Authentication**: JWT (JSON Web Tokens)
-- **Validation**: Zod / Joi
+- **Validation**: Zod
 - **File Upload**: Multer
 - **Image Processing**: Sharp
 
 ### DevOps & Tools
-- **Containerization**: Docker & Docker Compose
 - **Version Control**: Git
-- **API Documentation**: Swagger / OpenAPI
-- **Testing**: Jest, React Testing Library, Playwright
-- **CI/CD**: GitHub Actions
 - **Code Quality**: ESLint, Prettier
+- **Caching (optional)**: Redis
 
 ## 📁 Project Structure
 
@@ -98,8 +95,8 @@ cartify/
 ### Prerequisites
 
 - Node.js 18+ and npm/yarn
-- PostgreSQL 15+
 - Git
+- (Optional) Redis
 
 ### Installation
 
@@ -114,9 +111,9 @@ cartify/
    cd backend
    npm install
    cp .env.example .env
-   # Configure your .env file with database credentials
-   npm run migrate
-   npm run seed
+   # Configure your .env file (DATABASE_URL defaults to a local SQLite file)
+   npm run prisma:migrate
+   npm run prisma:seed
    npm run dev
    ```
 
@@ -132,28 +129,17 @@ cartify/
 4. **Access the application**
    - Frontend: http://localhost:5173
    - Backend API: http://localhost:3000
-   - API Docs: http://localhost:3000/api-docs
 
 ## 📚 Documentation
 
-- [API Documentation](./backend/API.md)
-- [Frontend Guide](./frontend/README.md)
-- [Backend Guide](./backend/README.md)
-- [Deployment Guide](./DEPLOYMENT.md)
+- Frontend: `frontend/README.md`
+- Backend environment: `backend/.env.example`
 
 ## 🧪 Testing
 
 ```bash
-# Run frontend tests
-cd frontend
-npm run test
-
-# Run backend tests
-cd backend
-npm run test
-
-# Run e2e tests
-npm run test:e2e
+# Backend currently has no automated tests configured.
+# Frontend uses Vite + ESLint; add tests as needed.
 ```
 
 ## 🔒 Security Features
