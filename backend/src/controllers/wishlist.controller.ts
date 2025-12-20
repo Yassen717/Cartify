@@ -162,50 +162,66 @@ export const moveToCart = asyncHandler(
 
         const { productId } = req.params;
 
-        // Find wishlist item
-        const wishlistItem = await prisma.wishlist.findFirst({
-            where: {
-                userId: req.user.id,
-                productId,
-            },
-            include: {
-                product: true,
-            },
-        });
-
-        if (!wishlistItem) {
-            throw new NotFoundError('Product not in wishlist');
-        }
-
-        // Check stock
-        if (wishlistItem.product.stockQty < 1) {
-            throw new ConflictError('Product is out of stock');
-        }
-
-        // Find or create cart
-        let cart = await prisma.cart.findUnique({
-            where: { userId: req.user.id },
-        });
-
-        if (!cart) {
-            cart = await prisma.cart.create({
-                data: { userId: req.user.id },
+        await prisma.$transaction(async (tx) => {
+            // Find wishlist item
+            const wishlistItem = await tx.wishlist.findFirst({
+                where: {
+                    userId: req.user!.id,
+                    productId,
+                },
+                include: {
+                    product: true,
+                },
             });
-        }
 
-        // Add to cart
-        await prisma.cartItem.create({
-            data: {
-                cartId: cart.id,
-                productId,
-                quantity: 1,
-                priceAtAdd: wishlistItem.product.price,
-            },
-        });
+            if (!wishlistItem) {
+                throw new NotFoundError('Product not in wishlist');
+            }
 
-        // Remove from wishlist
-        await prisma.wishlist.delete({
-            where: { id: wishlistItem.id },
+            // Check stock
+            if (wishlistItem.product.stockQty < 1) {
+                throw new ConflictError('Product is out of stock');
+            }
+
+            // Find or create cart
+            const cart =
+                (await tx.cart.findUnique({ where: { userId: req.user!.id } })) ||
+                (await tx.cart.create({ data: { userId: req.user!.id } }));
+
+            // Merge into existing cart line when possible
+            const existingItem = await tx.cartItem.findFirst({
+                where: {
+                    cartId: cart.id,
+                    productId,
+                    variantId: null,
+                },
+            });
+
+            if (existingItem) {
+                const newQuantity = existingItem.quantity + 1;
+                if (wishlistItem.product.stockQty < newQuantity) {
+                    throw new ConflictError('Insufficient stock for requested quantity');
+                }
+
+                await tx.cartItem.update({
+                    where: { id: existingItem.id },
+                    data: { quantity: newQuantity },
+                });
+            } else {
+                await tx.cartItem.create({
+                    data: {
+                        cartId: cart.id,
+                        productId,
+                        quantity: 1,
+                        priceAtAdd: wishlistItem.product.price,
+                    },
+                });
+            }
+
+            // Remove from wishlist
+            await tx.wishlist.delete({
+                where: { id: wishlistItem.id },
+            });
         });
 
         res.json({
