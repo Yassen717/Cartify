@@ -73,21 +73,34 @@ export const getProducts = asyncHandler(
             prisma.product.count({ where }),
         ]);
 
-        // Calculate average rating for each product
-        const productsWithRatings = await Promise.all(
-            products.map(async (product) => {
-                const avgRating = await prisma.review.aggregate({
-                    where: { productId: product.id },
-                    _avg: { rating: true },
-                });
+        const productIds = products.map((p) => p.id);
 
-                return {
-                    ...product,
-                    averageRating: avgRating._avg.rating || 0,
-                    reviewCount: product._count.reviews,
-                };
+        const ratings = productIds.length
+            ? await prisma.review.groupBy({
+                by: ['productId'],
+                where: {
+                    productId: {
+                        in: productIds,
+                    },
+                },
+                _avg: {
+                    rating: true,
+                },
             })
-        );
+            : [];
+
+        const avgRatingByProductId = new Map<string, number>();
+        for (const row of ratings) {
+            avgRatingByProductId.set(row.productId, row._avg.rating ?? 0);
+        }
+
+        const productsWithRatings = products.map((product) => {
+            return {
+                ...product,
+                averageRating: avgRatingByProductId.get(product.id) ?? 0,
+                reviewCount: product._count.reviews,
+            };
+        });
 
         res.json({
             success: true,
