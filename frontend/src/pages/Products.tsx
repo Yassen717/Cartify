@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { FiFilter, FiGrid, FiList, FiHeart, FiShoppingCart } from 'react-icons/fi';
 import { Button, Card } from '../components/ui';
 import { useCartStore } from '../stores/cartStore';
@@ -16,6 +16,7 @@ export const Products = () => {
     const [showFilters, setShowFilters] = useState(false);
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [searchParams, setSearchParams] = useSearchParams();
     const [pagination, setPagination] = useState({
         page: 1,
         limit: 12,
@@ -30,6 +31,7 @@ export const Products = () => {
         sortBy: 'createdAt',
         sortOrder: 'desc' as 'asc' | 'desc',
     });
+    const [searchInput, setSearchInput] = useState('');
 
     const { addItem } = useCartStore();
     const { addItem: addToWishlist, wishlist, fetchWishlist } = useWishlistStore();
@@ -41,6 +43,18 @@ export const Products = () => {
             fetchWishlist();
         }
     }, [isAuthenticated, fetchWishlist]);
+
+    // Sync URL -> local search filter
+    useEffect(() => {
+        const urlSearch = searchParams.get('search') || '';
+
+        setSearchInput(urlSearch);
+        setFilters((prev) => {
+            if (prev.search === urlSearch) return prev;
+            return { ...prev, search: urlSearch };
+        });
+        setPagination((prev) => ({ ...prev, page: 1 }));
+    }, [searchParams]);
 
     useEffect(() => {
         fetchProducts();
@@ -144,6 +158,12 @@ export const Products = () => {
                                 <button
                                     className="clear-filters"
                                     onClick={() => {
+                                        setSearchInput('');
+                                        setSearchParams((prev) => {
+                                            const next = new URLSearchParams(prev);
+                                            next.delete('search');
+                                            return next;
+                                        });
                                         setFilters({
                                             search: '',
                                             categoryId: '',
@@ -157,6 +177,59 @@ export const Products = () => {
                                 >
                                     Clear All
                                 </button>
+                            </div>
+
+                            {/* Search */}
+                            <div className="filter-group">
+                                <h4>Search</h4>
+                                <div className="price-inputs">
+                                    <input
+                                        type="search"
+                                        placeholder="Search products"
+                                        className="price-input"
+                                        value={searchInput}
+                                        onChange={(e) => setSearchInput(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                const trimmed = searchInput.trim();
+
+                                                setFilters((prev) => ({ ...prev, search: trimmed }));
+                                                setPagination((prev) => ({ ...prev, page: 1 }));
+                                                setSearchParams((prev) => {
+                                                    const next = new URLSearchParams(prev);
+                                                    if (trimmed) {
+                                                        next.set('search', trimmed);
+                                                    } else {
+                                                        next.delete('search');
+                                                    }
+                                                    return next;
+                                                });
+                                            }
+                                        }}
+                                    />
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => {
+                                            const trimmed = searchInput.trim();
+
+                                            setFilters((prev) => ({ ...prev, search: trimmed }));
+                                            setPagination((prev) => ({ ...prev, page: 1 }));
+                                            setSearchParams((prev) => {
+                                                const next = new URLSearchParams(prev);
+                                                if (trimmed) {
+                                                    next.set('search', trimmed);
+                                                } else {
+                                                    next.delete('search');
+                                                }
+                                                return next;
+                                            });
+                                        }}
+                                    >
+                                        Apply
+                                    </Button>
+                                </div>
                             </div>
 
                             {/* Categories */}

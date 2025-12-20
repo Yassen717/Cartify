@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { FiShoppingCart, FiHeart, FiUser, FiSearch, FiMenu, FiX } from 'react-icons/fi';
-import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { FiShoppingCart, FiUser, FiSearch, FiMenu, FiX } from 'react-icons/fi';
+import React, { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { useCartStore } from '../../stores/cartStore';
 import './Header.css';
@@ -9,9 +9,11 @@ import './Header.css';
 export const Header = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+    const [searchValue, setSearchValue] = useState('');
     const [isScrolled, setIsScrolled] = useState(false);
     const { isAuthenticated, user } = useAuthStore();
     const { cart, fetchCart } = useCartStore();
+    const navigate = useNavigate();
 
     // Scroll detection for header styling
     React.useEffect(() => {
@@ -22,6 +24,20 @@ export const Header = () => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    React.useEffect(() => {
+        if (isAuthenticated) {
+            fetchCart();
+        }
+    }, [isAuthenticated, fetchCart]);
+
+    const handleSearchSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const trimmed = searchValue.trim();
+
+        navigate(trimmed ? `/products?search=${encodeURIComponent(trimmed)}` : '/products');
+        setIsSearchExpanded(false);
+    };
 
     return (
         <motion.header
@@ -48,9 +64,26 @@ export const Header = () => {
                     <div className="spacer"></div>
 
                     {/* Search Bar */}
-                    <div className={`search-bar ${isSearchExpanded ? 'expanded' : ''}`}>
-                        <FiSearch className="search-icon" />
-                    </div>
+                    <form
+                        className={`search-bar ${isSearchExpanded ? 'expanded' : ''}`}
+                        onSubmit={handleSearchSubmit}
+                    >
+                        <button
+                            type="button"
+                            className="search-toggle"
+                            onClick={() => setIsSearchExpanded((v) => !v)}
+                            aria-label="Toggle search"
+                        >
+                            <FiSearch className="search-icon" />
+                        </button>
+                        <input
+                            className="search-input"
+                            type="search"
+                            value={searchValue}
+                            onChange={(e) => setSearchValue(e.target.value)}
+                            placeholder="Search products"
+                        />
+                    </form>
 
                     {/* Actions */}
                     <div className="header-actions">
@@ -65,7 +98,7 @@ export const Header = () => {
                         )}
                         <Link to="/cart" className="action-btn cart-btn">
                             <FiShoppingCart />
-                            <span className="badge">0</span>
+                            <span className="badge">{cart?.items?.length || 0}</span>
                         </Link>
                     </div>
 
