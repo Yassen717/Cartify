@@ -2,12 +2,35 @@ import { Request, Response, NextFunction } from 'express';
 import { redisClient } from '../config/redis';
 import { logger } from '../utils/logger';
 
+ const CACHE_PREFIX = 'cache:v1';
+
+ const stableSort = (value: unknown): unknown => {
+     if (Array.isArray(value)) {
+         return value.map((v) => stableSort(v));
+     }
+
+     if (value && typeof value === 'object') {
+         const obj = value as Record<string, unknown>;
+         const sorted: Record<string, unknown> = {};
+         for (const key of Object.keys(obj).sort()) {
+             sorted[key] = stableSort(obj[key]);
+         }
+         return sorted;
+     }
+
+     return value;
+ };
+
+ const stableStringify = (value: unknown): string => {
+     return JSON.stringify(stableSort(value));
+ };
+
 // Cache key generation
 export const generateCacheKey = (req: Request): string => {
     const { path, query, params } = req;
-    const queryString = JSON.stringify(query);
-    const paramsString = JSON.stringify(params);
-    return `cache:${path}:${queryString}:${paramsString}`;
+    const queryString = stableStringify(query);
+    const paramsString = stableStringify(params);
+    return `${CACHE_PREFIX}:${path}:${queryString}:${paramsString}`;
 };
 
 // Cache middleware factory
@@ -64,7 +87,7 @@ export const invalidateCache = {
     // Invalidate all product-related cache
     products: async (): Promise<void> => {
         try {
-            const deleted = await redisClient.delPattern('cache:/api/products*');
+            const deleted = await redisClient.delPattern(`${CACHE_PREFIX}:/api/products:*`);
             logger.info(`Invalidated ${deleted} product cache entries`);
         } catch (error) {
             logger.error('Failed to invalidate product cache:', error);
@@ -74,8 +97,8 @@ export const invalidateCache = {
     // Invalidate specific product cache
     product: async (productId: string): Promise<void> => {
         try {
-            await redisClient.delPattern(`cache:/api/products/${productId}*`);
-            await redisClient.delPattern('cache:/api/products?*');
+            await redisClient.delPattern(`${CACHE_PREFIX}:/api/products/${productId}:*`);
+            await redisClient.delPattern(`${CACHE_PREFIX}:/api/products:*`);
             logger.info(`Invalidated cache for product ${productId}`);
         } catch (error) {
             logger.error('Failed to invalidate product cache:', error);
@@ -85,18 +108,18 @@ export const invalidateCache = {
     // Invalidate category cache
     categories: async (): Promise<void> => {
         try {
-            const deleted = await redisClient.delPattern('cache:/api/categories*');
+            const deleted = await redisClient.delPattern(`${CACHE_PREFIX}:/api/categories:*`);
             logger.info(`Invalidated ${deleted} category cache entries`);
         } catch (error) {
             logger.error('Failed to invalidate category cache:', error);
         }
     },
 
-    // Invalidate cart cache for a user
-    cart: async (userId: string): Promise<void> => {
+    // Invalidate cart cache
+    cart: async (): Promise<void> => {
         try {
-            await redisClient.del(`cache:/api/cart:${userId}`);
-            logger.info(`Invalidated cart cache for user ${userId}`);
+            await redisClient.delPattern(`${CACHE_PREFIX}:/api/cart:*`);
+            logger.info('Invalidated cart cache');
         } catch (error) {
             logger.error('Failed to invalidate cart cache:', error);
         }
