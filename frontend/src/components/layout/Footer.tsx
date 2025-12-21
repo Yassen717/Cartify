@@ -52,47 +52,45 @@ export const Footer = () => {
                             </div>
                         </div>
 
-                        {/* Shop Links */}
+                        {/* Shop Links (existing routes) */}
                         <div className="footer-section">
                             <h4>Shop</h4>
                             <ul className="footer-links">
-                                <li><Link to="/products">New Arrivals</Link></li>
-                                <li><Link to="/deals">Best Sellers</Link></li>
-                                <li><Link to="/categories">Living Room</Link></li>
-                                <li><Link to="/products">Bedroom</Link></li>
-                                <li><Link to="/products">Kitchen</Link></li>
+                                <li><Link to="/">Home</Link></li>
+                                <li><Link to="/products">Products</Link></li>
+                                <li><Link to="/categories">Categories</Link></li>
+                                <li><Link to="/deals">Deals</Link></li>
+                                <li><Link to="/checkout">Checkout</Link></li>
                             </ul>
                         </div>
 
-                        {/* Company Links */}
+                        {/* My Account (existing routes) */}
                         <div className="footer-section">
-                            <h4>Company</h4>
+                            <h4>My Account</h4>
                             <ul className="footer-links">
-                                <li><Link to="/about">Our Story</Link></li>
-                                <li><Link to="/sustainability">Sustainability</Link></li>
-                                <li><Link to="/careers">Careers</Link></li>
-                                <li><Link to="/press">Press</Link></li>
+                                <li><Link to="/login">Login</Link></li>
+                                <li><Link to="/register">Register</Link></li>
+                                <li><Link to="/profile">Profile</Link></li>
                             </ul>
                         </div>
 
-                        {/* Support Links */}
+                        {/* My Activity (existing routes) */}
                         <div className="footer-section">
-                            <h4>Support</h4>
+                            <h4>My Activity</h4>
                             <ul className="footer-links">
-                                <li><Link to="/contact">Contact Us</Link></li>
-                                <li><Link to="/faq">FAQs</Link></li>
-                                <li><Link to="/shipping">Shipping</Link></li>
-                                <li><Link to="/returns">Returns</Link></li>
+                                <li><Link to="/cart">Cart</Link></li>
+                                <li><Link to="/wishlist">Wishlist</Link></li>
+                                <li><Link to="/orders">Orders</Link></li>
                             </ul>
                         </div>
                     </div>
 
-                    {/* Bottom Bar */}
+                    {/* Bottom Bar - only existing links */}
                     <div className="footer-bottom">
                         <p>&copy; 2024 Maison. All rights reserved.</p>
                         <div className="footer-bottom-links">
-                            <Link to="/privacy">Privacy Policy</Link>
-                            <Link to="/terms">Terms of Service</Link>
+                            <Link to="/">Home</Link>
+                            <Link to="/products">Products</Link>
                         </div>
                     </div>
                 </div>
