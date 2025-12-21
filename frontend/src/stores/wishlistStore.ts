@@ -3,6 +3,35 @@ import * as wishlistService from '../services/wishlist.service';
 import type { Wishlist } from '../services/wishlist.service';
 import toast from 'react-hot-toast';
 
+const normalizeWishlist = (payload: any): Wishlist => {
+    const wishlistPayload = payload?.wishlist ?? payload;
+
+    if (Array.isArray(wishlistPayload)) {
+        return {
+            items: wishlistPayload,
+            itemCount: wishlistPayload.length,
+        };
+    }
+
+    if (wishlistPayload && Array.isArray(wishlistPayload.items)) {
+        return {
+            items: wishlistPayload.items,
+            itemCount: typeof wishlistPayload.itemCount === 'number'
+                ? wishlistPayload.itemCount
+                : wishlistPayload.items.length,
+        };
+    }
+
+    const items = Array.isArray(wishlistPayload?.data?.wishlist)
+        ? wishlistPayload.data.wishlist
+        : [];
+
+    return {
+        items,
+        itemCount: items.length,
+    };
+};
+
 interface WishlistState {
     wishlist: Wishlist | null;
     isLoading: boolean;
@@ -24,17 +53,7 @@ export const useWishlistStore = create<WishlistState>((set) => ({
         set({ isLoading: true, error: null });
         try {
             const response = await wishlistService.getWishlist();
-            // Backend returns array directly, convert to expected format
-            const wishlistArray = Array.isArray(response.data.wishlist) 
-                ? response.data.wishlist 
-                : response.data.wishlist?.items || [];
-            set({ 
-                wishlist: {
-                    items: wishlistArray,
-                    itemCount: wishlistArray.length
-                }, 
-                isLoading: false 
-            });
+            set({ wishlist: normalizeWishlist(response.data), isLoading: false });
         } catch (error: any) {
             set({
                 error: error.response?.data?.message || 'Failed to fetch wishlist',
@@ -49,16 +68,7 @@ export const useWishlistStore = create<WishlistState>((set) => ({
             await wishlistService.addToWishlist(productId);
             // Refetch wishlist to get updated data
             const response = await wishlistService.getWishlist();
-            const wishlistArray = Array.isArray(response.data.wishlist) 
-                ? response.data.wishlist 
-                : response.data.wishlist?.items || [];
-            set({ 
-                wishlist: {
-                    items: wishlistArray,
-                    itemCount: wishlistArray.length
-                }, 
-                isLoading: false 
-            });
+            set({ wishlist: normalizeWishlist(response.data), isLoading: false });
             toast.success('Added to wishlist');
         } catch (error: any) {
             const errorMsg = error.response?.data?.message || 'Failed to add to wishlist';
@@ -74,7 +84,7 @@ export const useWishlistStore = create<WishlistState>((set) => ({
             await wishlistService.removeFromWishlist(productId);
             // Refetch wishlist
             const response = await wishlistService.getWishlist();
-            set({ wishlist: response.data.wishlist, isLoading: false });
+            set({ wishlist: normalizeWishlist(response.data), isLoading: false });
             toast.success('Removed from wishlist');
         } catch (error: any) {
             const errorMsg = error.response?.data?.message || 'Failed to remove item';
@@ -90,7 +100,7 @@ export const useWishlistStore = create<WishlistState>((set) => ({
             await wishlistService.moveToCart(productId, quantity);
             // Refetch wishlist
             const response = await wishlistService.getWishlist();
-            set({ wishlist: response.data.wishlist, isLoading: false });
+            set({ wishlist: normalizeWishlist(response.data), isLoading: false });
             toast.success('Moved to cart');
         } catch (error: any) {
             const errorMsg = error.response?.data?.message || 'Failed to move to cart';
