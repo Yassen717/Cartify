@@ -75,16 +75,21 @@ export const getCategoryById = asyncHandler(
 // Get products by category slug
 export const getProductsByCategory = asyncHandler(
     async (req: Request, res: Response, _next: NextFunction) => {
-        const { slug } = req.params;
+        const identifier = req.params.slug || (req.params as any).id;
         const { page = '1', limit = '20' } = req.query;
 
         const pageNum = parseInt(page as string);
         const limitNum = parseInt(limit as string);
         const skip = (pageNum - 1) * limitNum;
 
-        // Find category
+        const isUuid = (value: string) =>
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+                value
+            );
+
+        // Find category (support both slug and id)
         const category = await prisma.category.findUnique({
-            where: { slug },
+            where: identifier && isUuid(identifier) ? { id: identifier } : { slug: identifier },
         });
 
         if (!category) {
