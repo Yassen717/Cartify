@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Button } from '../components/ui/Button';
 import { useQuery } from '@tanstack/react-query';
 import { FiHeart } from 'react-icons/fi';
 import { useWishlistStore } from '../stores/wishlistStore';
@@ -93,7 +94,9 @@ export const Home = () => {
                             space into a sanctuary of warmth and elegance.
                         </p>
                         <div className="hero-actions">
-                            <Link to="/products" className="btn-primary">Explore Collection</Link>
+                            <Link to="/products" style={{ textDecoration: 'none' }}>
+  <Button variant="primary" size="lg">Explore Collection</Button>
+</Link>
                             <button className="btn-secondary">View Lookbook</button>
                         </div>
                     </motion.div>
