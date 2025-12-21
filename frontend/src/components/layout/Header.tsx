@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiShoppingCart, FiUser, FiSearch, FiMenu, FiX } from 'react-icons/fi';
+import { FiShoppingCart, FiUser, FiSearch, FiMenu, FiX, FiHeart } from 'react-icons/fi';
 import React, { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { useCartStore } from '../../stores/cartStore';
+import { useWishlistStore } from '../../stores/wishlistStore';
 import './Header.css';
 
 export const Header = () => {
@@ -13,6 +14,7 @@ export const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const { isAuthenticated, user } = useAuthStore();
     const { cart, fetchCart } = useCartStore();
+    const { wishlist, fetchWishlist } = useWishlistStore();
     const navigate = useNavigate();
 
     // Scroll detection for header styling
@@ -28,8 +30,9 @@ export const Header = () => {
     React.useEffect(() => {
         if (isAuthenticated) {
             fetchCart();
+            fetchWishlist();
         }
-    }, [isAuthenticated, fetchCart]);
+    }, [isAuthenticated, fetchCart, fetchWishlist]);
 
     const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -96,6 +99,10 @@ export const Header = () => {
                                 <FiUser />
                             </Link>
                         )}
+                        <Link to="/wishlist" className="action-btn cart-btn" aria-label="Wishlist">
+                            <FiHeart />
+                            <span className="badge">{wishlist?.itemCount || 0}</span>
+                        </Link>
                         <Link to="/cart" className="action-btn cart-btn">
                             <FiShoppingCart />
                             <span className="badge">{cart?.items?.length || 0}</span>
@@ -123,6 +130,7 @@ export const Header = () => {
                         <Link to="/products" className="nav-link-mobile">Products</Link>
                         <Link to="/categories" className="nav-link-mobile">Categories</Link>
                         <Link to="/deals" className="nav-link-mobile">Deals</Link>
+                        <Link to="/wishlist" className="nav-link-mobile">Wishlist</Link>
                     </motion.nav>
                 )}
             </div>
