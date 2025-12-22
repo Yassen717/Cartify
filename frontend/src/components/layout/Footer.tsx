@@ -31,9 +31,9 @@ export const Footer = () => {
                         {/* Brand Section */}
                         <div className="footer-section">
                             <div className="footer-brand">
-                                <span className="footer-logo">Maison</span>
+                                <span className="footer-logo">Cartify</span>
                                 <p className="footer-tagline">
-                                    Curating timeless pieces that bring warmth and elegance to every space. Crafted with care, designed for life.
+                                    Your one‑stop shop for electronics, fashion, home, and more — great prices, fast delivery, and secure checkout.
                                 </p>
                             </div>
                             <div className="social-links">
@@ -87,7 +87,7 @@ export const Footer = () => {
 
                     {/* Bottom Bar - only existing links */}
                     <div className="footer-bottom">
-                        <p>&copy; 2024 Maison. All rights reserved.</p>
+                        <p>&copy; 2024 Cartify. All rights reserved.</p>
                         <div className="footer-bottom-links">
                             <Link to="/">Home</Link>
                             <Link to="/products">Products</Link>

@@ -84,20 +84,19 @@ export const Home = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
                     >
-                        <p className="hero-label">AUTUMN COLLECTION 2024</p>
+                        <p className="hero-label">NEW ARRIVALS 2024</p>
                         <h1 className="hero-title">
-                            Crafted for<br />
-                            <em>Everyday Living</em>
+                            Shop the best<br />
+                            <em>products online</em>
                         </h1>
                         <p className="hero-subtitle">
-                            Discover handpicked pieces that transform your<br />
-                            space into a sanctuary of warmth and elegance.
+                            Discover top products across electronics, fashion, home, and more.
                         </p>
                         <div className="hero-actions">
                             <Link to="/products" style={{ textDecoration: 'none' }}>
-  <Button variant="primary" size="lg">Explore Collection</Button>
+  <Button variant="primary" size="lg">Shop Now</Button>
 </Link>
-                            <button className="btn-secondary">View Lookbook</button>
+                            <Link to="/categories" className="btn-secondary" style={{ textDecoration: 'none' }}>Browse Categories</Link>
                         </div>
                     </motion.div>
                 </div>
@@ -107,15 +106,15 @@ export const Home = () => {
             <section className="categories-section">
                 <div className="container">
                     <div className="section-header-center">
-                        <p className="section-label">SHOP BY ROOM</p>
+                        <p className="section-label">SHOP BY CATEGORY</p>
                         <h2 className="section-title">Explore Categories</h2>
                     </div>
 
                     <div className="categories-grid">
                         {[
-                            { name: 'Living Room', count: '174 Products', image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&h=600&fit=crop' },
-                            { name: 'Lighting', count: '68 Products', image: 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?w=600&h=600&fit=crop' },
-                            { name: 'Textiles', count: '89 Products', image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=600&h=600&fit=crop' }
+                            { name: 'Electronics', count: '174 Products', image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&h=600&fit=crop' },
+                            { name: 'Fashion', count: '245 Products', image: 'https://images.unsplash.com/photo-1520975671168-79e20f967fd7?w=600&h=600&fit=crop' },
+                            { name: 'Home & Kitchen', count: '189 Products', image: 'https://images.unsplash.com/photo-1556911220-e15b29be8c95?w=600&h=600&fit=crop' }
                         ].map((category, i) => (
                             <motion.div
                                 key={category.name}
