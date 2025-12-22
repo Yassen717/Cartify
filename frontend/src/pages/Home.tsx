@@ -45,6 +45,12 @@ export const Home = () => {
         return `https://via.placeholder.com/500?text=${encodeURIComponent(product.name)}`;
     };
 
+    // Self-hosted placeholder for category images to avoid ORB blocks
+    const makeCategoryImage = (label: string) => {
+        const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'>\n<defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'><stop offset='0%' stop-color='#f3f4f6'/><stop offset='100%' stop-color='#e5e7eb'/></linearGradient></defs>\n<rect width='100%' height='100%' fill='url(#g)'/>\n<text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Inter, Arial' font-size='36' fill='#111827'>${label}</text></svg>`;
+        return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+    };
+
     // Check if product is in wishlist
     const isInWishlist = (productId: string) => {
         return wishlist?.items?.some(item => item.productId === productId) || false;
@@ -112,9 +118,9 @@ export const Home = () => {
 
                     <div className="categories-grid">
                         {[
-                            { name: 'Electronics', count: '174 Products', image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&h=600&fit=crop' },
-                            { name: 'Fashion', count: '245 Products', image: 'https://images.unsplash.com/photo-1520975671168-79e20f967fd7?w=600&h=600&fit=crop' },
-                            { name: 'Home & Kitchen', count: '189 Products', image: 'https://images.unsplash.com/photo-1556911220-e15b29be8c95?w=600&h=600&fit=crop' }
+                            { name: 'Electronics', count: '174 Products', image: makeCategoryImage('Electronics') },
+                            { name: 'Fashion', count: '245 Products', image: makeCategoryImage('Fashion') },
+                            { name: 'Home & Kitchen', count: '189 Products', image: makeCategoryImage('Home & Kitchen') }
                         ].map((category, i) => (
                             <motion.div
                                 key={category.name}
