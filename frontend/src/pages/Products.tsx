@@ -34,7 +34,7 @@ export const Products = () => {
     const [searchInput, setSearchInput] = useState('');
 
     const { addItem } = useCartStore();
-    const { addItem: addToWishlist, wishlist, fetchWishlist } = useWishlistStore();
+    const { addItem: addToWishlist, removeItem, wishlist, fetchWishlist } = useWishlistStore();
     const { isAuthenticated } = useAuthStore();
 
     // Fetch wishlist on mount if authenticated
@@ -109,16 +109,20 @@ export const Products = () => {
     const handleWishlistClick = async (e: React.MouseEvent, productId: string) => {
         e.preventDefault();
         e.stopPropagation();
-        
+
         if (!isAuthenticated) {
-            toast.error('Please login to add items to wishlist');
+            toast.error('Please login to manage your wishlist');
             return;
         }
-        
+
         try {
-            await addToWishlist(productId);
+            if (isInWishlist(productId)) {
+                await removeItem(productId);
+            } else {
+                await addToWishlist(productId);
+            }
         } catch (error) {
-            // Error handled in store
+            // Error handled in store via toast
         }
     };
 
