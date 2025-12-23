@@ -127,7 +127,7 @@ export const addToWishlist = asyncHandler(
             },
         });
 
-        res.status(201).json({
+        return res.status(201).json({
             success: true,
             message: 'Product added to wishlist',
             data: { wishlistItem },
@@ -165,7 +165,7 @@ export const removeFromWishlist = asyncHandler(
             where: { id: wishlistItem.id },
         });
 
-        res.json({
+        return res.json({
             success: true,
             message: 'Product removed from wishlist',
         });
