@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { useQuery } from '@tanstack/react-query';
@@ -12,7 +12,7 @@ import toast from 'react-hot-toast';
 import './Home.css';
 
 export const Home = () => {
-    const { addItem: addToWishlist, wishlist, fetchWishlist } = useWishlistStore();
+    const { addItem: addToWishlist, removeItem, wishlist, fetchWishlist } = useWishlistStore();
     const { isAuthenticated } = useAuthStore();
 
     // Fetch featured products from API
@@ -60,16 +60,20 @@ export const Home = () => {
     const handleWishlistClick = async (e: React.MouseEvent, productId: string) => {
         e.preventDefault();
         e.stopPropagation();
-        
+
         if (!isAuthenticated) {
-            toast.error('Please login to add items to wishlist');
+            toast.error('Please login to manage your wishlist');
             return;
         }
-        
+
         try {
-            await addToWishlist(productId);
+            if (isInWishlist(productId)) {
+                await removeItem(productId);
+            } else {
+                await addToWishlist(productId);
+            }
         } catch (error) {
-            // Error handled in store
+            // Error handled in store via toast
         }
     };
 
@@ -100,8 +104,8 @@ export const Home = () => {
                         </p>
                         <div className="hero-actions">
                             <Link to="/products" style={{ textDecoration: 'none' }}>
-  <Button variant="primary" size="lg">Shop Now</Button>
-</Link>
+                                <Button variant="primary" size="lg">Shop Now</Button>
+                            </Link>
                             <Link to="/categories" className="btn-secondary" style={{ textDecoration: 'none' }}>Browse Categories</Link>
                         </div>
                     </motion.div>
@@ -189,7 +193,7 @@ export const Home = () => {
                                         <Link to={`/products/${product.id}`} className="product-card-link">
                                             <div className="product-image">
                                                 <img src={getProductImage(product)} alt={product.name} />
-                                                <button 
+                                                <button
                                                     className={`wishlist-btn ${productInWishlist ? 'active' : ''}`}
                                                     onClick={(e) => handleWishlistClick(e, product.id)}
                                                 >
