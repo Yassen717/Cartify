@@ -82,16 +82,31 @@ export const addToWishlist = asyncHandler(
             throw new NotFoundError('Product not found');
         }
 
-        // Check if already in wishlist
+        // Check if already in wishlist - IDEMPOTENT: return existing instead of error
         const existing = await prisma.wishlist.findFirst({
             where: {
                 userId: req.user.id,
                 productId,
             },
+            include: {
+                product: {
+                    include: {
+                        images: {
+                            where: { isPrimary: true },
+                            take: 1,
+                        },
+                    },
+                },
+            },
         });
 
         if (existing) {
-            throw new ConflictError('Product already in wishlist');
+            // Already in wishlist - return success with existing item (idempotent)
+            return res.status(200).json({
+                success: true,
+                message: 'Product already in wishlist',
+                data: { wishlistItem: existing },
+            });
         }
 
         // Add to wishlist
@@ -138,7 +153,11 @@ export const removeFromWishlist = asyncHandler(
         });
 
         if (!wishlistItem) {
-            throw new NotFoundError('Product not in wishlist');
+            // IDEMPOTENT: Item not in wishlist - return success anyway
+            return res.json({
+                success: true,
+                message: 'Product not in wishlist',
+            });
         }
 
         // Remove from wishlist
