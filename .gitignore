@@ -42,4 +42,6 @@ temp/
 tmp/
 
 # Documentation (local only)
-docs/
+docs/local/
+docs
+

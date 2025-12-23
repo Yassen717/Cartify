@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FiFilter, FiGrid, FiList, FiHeart, FiShoppingCart } from 'react-icons/fi';
-import { Button, Card } from '../components/ui';
+import { Button, Card, ProductCardSkeleton } from '../components/ui';
 import { useCartStore } from '../stores/cartStore';
 import { useWishlistStore } from '../stores/wishlistStore';
 import { useAuthStore } from '../stores/authStore';
@@ -309,7 +309,11 @@ export const Products = () => {
 
                         {/* Loading State */}
                         {isLoading ? (
-                            <div className="products-loading">Loading products...</div>
+                            <div className={`products-display ${viewMode}`}>
+                                {Array.from({ length: 12 }).map((_, i) => (
+                                    <ProductCardSkeleton key={i} />
+                                ))}
+                            </div>
                         ) : (
                             <>
                                 {/* Products Grid */}
@@ -329,7 +333,7 @@ export const Products = () => {
                                                             src={getProductImage(product)}
                                                             alt={product.name}
                                                         />
-                                                        <button 
+                                                        <button
                                                             className={`wishlist-btn ${isInWishlist(product.id) ? 'active' : ''}`}
                                                             onClick={(e) => handleWishlistClick(e, product.id)}
                                                         >

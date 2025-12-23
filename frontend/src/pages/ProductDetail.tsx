@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiShoppingCart, FiHeart, FiStar, FiMinus, FiPlus, FiTruck, FiShield, FiRotateCcw } from 'react-icons/fi';
-import { Button, Card } from '../components/ui';
+import { Button, Card, ProductDetailSkeleton } from '../components/ui';
 import { useCartStore } from '../stores/cartStore';
 import { useWishlistStore } from '../stores/wishlistStore';
 import { useAuthStore } from '../stores/authStore';
@@ -85,13 +85,7 @@ export const ProductDetail = () => {
     const isInWishlist = product ? (wishlist?.items?.some(item => item.productId === product.id) || false) : false;
 
     if (isLoading) {
-        return (
-            <div className="product-detail-page">
-                <div className="container">
-                    <div className="product-loading">Loading product...</div>
-                </div>
-            </div>
-        );
+        return <ProductDetailSkeleton />;
     }
 
     if (!product) {
