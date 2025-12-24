@@ -123,20 +123,92 @@
 .remove-btn {
     display: flex;
     align-items: center;
-    gap: var(--space-xs);
-    background: none;
-    border: none;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
     color: var(--error);
     cursor: pointer;
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    padding: var(--space-xs) var(--space-sm);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-full);
     transition: all var(--transition-fast);
+    position: relative;
+    flex-shrink: 0;
+}
+
+.remove-btn::after {
+    content: attr(title);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-5px);
+    background: var(--text-primary);
+    color: var(--white);
+    padding: 6px 12px;
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all var(--transition-fast);
+    z-index: 10;
+}
+
+.remove-btn::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid var(--text-primary);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+    z-index: 10;
+}
+
+.remove-btn:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.remove-btn:hover::before {
+    opacity: 1;
 }
 
 .remove-btn:hover {
-    background: rgba(239, 68, 68, 0.1);
+    background: rgba(239, 68, 68, 0.15);
+    border-color: var(--error);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+.remove-btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.2);
+}
+
+.remove-btn svg {
+    font-size: 20px;
+    transition: transform var(--transition-fast);
+}
+
+.remove-btn:hover svg {
+    transform: rotate(15deg) scale(1.15);
+}
+
+.remove-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.remove-btn:disabled:hover::after,
+.remove-btn:disabled:hover::before {
+    opacity: 0;
 }
 
 /* Item Total */

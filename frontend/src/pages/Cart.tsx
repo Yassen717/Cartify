@@ -130,8 +130,10 @@ export const Cart = () => {
                                             className="remove-btn"
                                             onClick={() => removeItem(item.id)}
                                             disabled={isLoading}
+                                            title="Remove from cart"
+                                            aria-label="Remove item"
                                         >
-                                            <FiTrash2 /> Remove
+                                            <FiTrash2 />
                                         </button>
                                     </div>
                                     <div className="item-total">
