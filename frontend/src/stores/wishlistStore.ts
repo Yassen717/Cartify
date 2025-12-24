@@ -66,16 +66,10 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
 
     addItem: async (productId: string) => {
         // Prevent duplicate concurrent requests for the same product
-        const { pendingOperations, wishlist } = get();
+        const { pendingOperations } = get();
 
         if (pendingOperations.has(productId)) {
             return; // Already processing this product
-        }
-
-        // Check if already in wishlist
-        if (wishlist?.items?.some(item => item.productId === productId)) {
-            toast.error('Already in wishlist');
-            return;
         }
 
         // Add to pending operations
@@ -105,16 +99,10 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
 
     removeItem: async (productId: string) => {
         // Prevent duplicate concurrent requests for the same product
-        const { pendingOperations, wishlist } = get();
+        const { pendingOperations } = get();
 
         if (pendingOperations.has(productId)) {
             return; // Already processing this product
-        }
-
-        // Check if actually in wishlist
-        if (!wishlist?.items?.some(item => item.productId === productId)) {
-            toast.error('Not in wishlist');
-            return;
         }
 
         // Add to pending operations
