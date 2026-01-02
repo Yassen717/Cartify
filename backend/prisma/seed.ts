@@ -11,6 +11,8 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
     console.log('🌱 Starting database seeding...');
 
+    let customer: { id: string; email: string } | null = null;
+
     // Only create test users in development
     if (process.env.NODE_ENV !== 'production') {
         // Generate secure random passwords
@@ -36,7 +38,7 @@ async function main() {
         console.log('⚠️  SAVE THIS PASSWORD - It will not be shown again!');
 
         const customerPasswordHash = await bcrypt.hash(customerPassword, 10);
-        const customer = await prisma.user.upsert({
+        customer = await prisma.user.upsert({
             where: { email: 'customer@example.com' },
             update: {},
             create: {
@@ -54,6 +56,10 @@ async function main() {
     } else {
         console.log('⚠️  Skipping test user creation in production');
         console.log('⚠️  Create admin users manually with strong passwords');
+        // Try to find existing customer for reviews
+        customer = await prisma.user.findFirst({
+            where: { role: 'CUSTOMER' },
+        });
     }
 
     // Create categories
@@ -139,14 +145,14 @@ async function main() {
         data: [
             {
                 productId: product1.id,
-                url: 'https://images.unsplash.com/photo-1592286927505-2fd3d9e95838',
+                url: '/product-1.webp',
                 altText: 'Premium Smartphone Pro - Front View',
                 position: 1,
                 isPrimary: true,
             },
             {
                 productId: product1.id,
-                url: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97',
+                url: '/product-1.webp',
                 altText: 'Premium Smartphone Pro - Back View',
                 position: 2,
                 isPrimary: false,
@@ -175,7 +181,7 @@ async function main() {
         data: [
             {
                 productId: product2.id,
-                url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8',
+                url: '/product-2.webp',
                 altText: 'UltraBook Pro 16 - Main View',
                 position: 1,
                 isPrimary: true,
@@ -204,8 +210,116 @@ async function main() {
         data: [
             {
                 productId: product3.id,
-                url: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c',
+                url: '/product-3.webp',
                 altText: 'Classic Cotton Shirt - Blue',
+                position: 1,
+                isPrimary: true,
+            },
+        ],
+    });
+
+    // Product 4 - Wireless Headphones
+    const product4 = await prisma.product.upsert({
+        where: { sku: 'AUDIO-WH-001' },
+        update: {},
+        create: {
+            name: 'Premium Wireless Headphones',
+            slug: 'premium-wireless-headphones',
+            description:
+                'High-quality wireless headphones with active noise cancellation, 30-hour battery life, and premium sound quality. Perfect for music lovers and professionals.',
+            price: 199.99,
+            comparePrice: 249.99,
+            stockQty: 75,
+            sku: 'AUDIO-WH-001',
+            brand: 'AudioTech',
+            categoryId: electronics.id,
+        },
+    });
+    console.log('✅ Created/Updated product 4:', product4.name);
+
+    // Delete existing images for product4 if any, then create new ones
+    await prisma.productImage.deleteMany({
+        where: { productId: product4.id },
+    });
+    
+    await prisma.productImage.createMany({
+        data: [
+            {
+                productId: product4.id,
+                url: '/product-4.webp',
+                altText: 'Premium Wireless Headphones',
+                position: 1,
+                isPrimary: true,
+            },
+        ],
+    });
+
+    // Product 5 - Running Shoes
+    const product5 = await prisma.product.upsert({
+        where: { sku: 'SHOE-RUN-001' },
+        update: {},
+        create: {
+            name: 'Professional Running Shoes',
+            slug: 'professional-running-shoes',
+            description:
+                'Lightweight running shoes with advanced cushioning technology. Designed for comfort and performance during long-distance runs. Available in multiple sizes.',
+            price: 129.99,
+            comparePrice: 179.99,
+            stockQty: 60,
+            sku: 'SHOE-RUN-001',
+            brand: 'SportMax',
+            categoryId: clothing.id,
+        },
+    });
+    console.log('✅ Created/Updated product 5:', product5.name);
+
+    // Delete existing images for product5 if any, then create new ones
+    await prisma.productImage.deleteMany({
+        where: { productId: product5.id },
+    });
+    
+    await prisma.productImage.createMany({
+        data: [
+            {
+                productId: product5.id,
+                url: '/product-5.webp',
+                altText: 'Professional Running Shoes',
+                position: 1,
+                isPrimary: true,
+            },
+        ],
+    });
+
+    // Product 6 - Smart Watch
+    const product6 = await prisma.product.upsert({
+        where: { sku: 'WATCH-SMART-001' },
+        update: {},
+        create: {
+            name: 'Smart Fitness Watch',
+            slug: 'smart-fitness-watch',
+            description:
+                'Feature-rich smartwatch with health monitoring, GPS tracking, and 7-day battery life. Water-resistant design perfect for active lifestyles.',
+            price: 299.99,
+            comparePrice: 349.99,
+            stockQty: 40,
+            sku: 'WATCH-SMART-001',
+            brand: 'TechBrand',
+            categoryId: electronics.id,
+        },
+    });
+    console.log('✅ Created/Updated product 6:', product6.name);
+
+    // Delete existing images for product6 if any, then create new ones
+    await prisma.productImage.deleteMany({
+        where: { productId: product6.id },
+    });
+    
+    await prisma.productImage.createMany({
+        data: [
+            {
+                productId: product6.id,
+                url: '/product-6.webp',
+                altText: 'Smart Fitness Watch',
                 position: 1,
                 isPrimary: true,
             },
@@ -215,6 +329,11 @@ async function main() {
     console.log('✅ Created sample products');
 
     // Create product variants for the shirt
+    // Delete existing variants first to avoid duplicates
+    await prisma.productVariant.deleteMany({
+        where: { productId: product3.id },
+    });
+    
     await prisma.productVariant.createMany({
         data: [
             {
@@ -254,32 +373,37 @@ async function main() {
 
     console.log('✅ Created product variants');
 
-    // Create some reviews
-    await prisma.review.create({
-        data: {
-            productId: product1.id,
-            userId: customer.id,
-            rating: 5,
-            title: 'Amazing phone!',
-            comment:
-                'This phone exceeded my expectations. The camera quality is outstanding and the battery life is incredible. Highly recommend!',
-            verifiedPurchase: true,
-            helpfulCount: 12,
-        },
-    });
+    // Create some reviews (only if customer exists)
+    if (customer) {
+        await prisma.review.create({
+            data: {
+                productId: product1.id,
+                userId: customer.id,
+                rating: 5,
+                title: 'Amazing phone!',
+                comment:
+                    'This phone exceeded my expectations. The camera quality is outstanding and the battery life is incredible. Highly recommend!',
+                verifiedPurchase: true,
+                helpfulCount: 12,
+            },
+        });
 
-    await prisma.review.create({
-        data: {
-            productId: product2.id,
-            userId: customer.id,
-            rating: 4,
-            title: 'Great laptop for work',
-            comment:
-                'Excellent performance for development work. The screen is beautiful and the build quality is top-notch. Only minor complaint is the price.',
-            verifiedPurchase: true,
-            helpfulCount: 8,
-        },
-    });
+        await prisma.review.create({
+            data: {
+                productId: product2.id,
+                userId: customer.id,
+                rating: 4,
+                title: 'Great laptop for work',
+                comment:
+                    'Excellent performance for development work. The screen is beautiful and the build quality is top-notch. Only minor complaint is the price.',
+                verifiedPurchase: true,
+                helpfulCount: 8,
+            },
+        });
+        console.log('✅ Created sample reviews');
+    } else {
+        console.log('⚠️  Skipping reviews creation - no customer user found');
+    }
 
     console.log('✅ Created sample reviews');
 
