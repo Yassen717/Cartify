@@ -28,10 +28,16 @@ Cartify is a feature-rich e-commerce platform designed to provide an exceptional
 - **Customer Service / Support**: Multiple channels including live chat, AI chatbot, and comprehensive FAQ
 - **Loyalty & Membership**: Rewards points tracking, exclusive deals, and personalized discounts
 
+### Admin Panel (New)
+- **Dashboard**: Real-time statistics on revenue, orders, and users
+- **Product Management**: Create, update, and delete products
+- **Order Management**: View and filter customer orders
+
 ## 🏗️ Tech Stack
 
 ### Frontend
 - **Framework**: React with TypeScript
+- **Teat Framework**: Vitest
 - **Build Tool**: Vite
 - **Routing**: React Router
 - **State Management**: Zustand / Context API
@@ -44,6 +50,7 @@ Cartify is a feature-rich e-commerce platform designed to provide an exceptional
 ### Backend
 - **Runtime**: Node.js 18+
 - **Framework**: Express.js with TypeScript
+- **Test Framework**: Vitest
 - **Database**: SQLite/libSQL (default via Prisma adapter)
 - **ORM**: Prisma
 - **Authentication**: JWT (JSON Web Tokens)
@@ -64,6 +71,7 @@ cartify/
 │   ├── src/
 │   │   ├── components/    # Reusable UI components
 │   │   ├── pages/         # Page components
+│   │   │   └── admin/     # Admin panel pages
 │   │   ├── hooks/         # Custom React hooks
 │   │   ├── services/      # API service layer
 │   │   ├── store/         # State management
@@ -75,6 +83,7 @@ cartify/
 │
 ├── backend/               # Node.js + Express backend
 │   ├── src/
+│   │   ├── __tests__/     # Unit tests
 │   │   ├── controllers/   # Route controllers
 │   │   ├── models/        # Database models
 │   │   ├── routes/        # API routes
@@ -138,8 +147,13 @@ cartify/
 ## 🧪 Testing
 
 ```bash
-# Backend currently has no automated tests configured.
-# Frontend uses Vite + ESLint; add tests as needed.
+# Backend
+cd backend
+npm test
+
+# Frontend
+cd frontend
+npm test
 ```
 
 ## 🔒 Security Features

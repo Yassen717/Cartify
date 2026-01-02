@@ -8,6 +8,7 @@ import { useWishlistStore } from '../stores/wishlistStore';
 import { useAuthStore } from '../stores/authStore';
 import * as productsService from '../services/products.service';
 import type { Product } from '../services/products.service';
+import { getProductImage } from '../utils/imageUtils';
 import toast from 'react-hot-toast';
 import './Products.css';
 
@@ -91,14 +92,6 @@ export const Products = () => {
         }
     };
 
-    // Helper function to get product image
-    const getProductImage = (product: Product) => {
-        if (product.images && product.images.length > 0) {
-            return product.images[0].url;
-        }
-        // Fallback to placeholder
-        return `https://via.placeholder.com/500?text=${encodeURIComponent(product.name)}`;
-    };
 
     // Check if product is in wishlist
     const isInWishlist = (productId: string) => {

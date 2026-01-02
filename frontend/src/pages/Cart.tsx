@@ -5,6 +5,7 @@ import { Button, Card } from '../components/ui';
 import { Link } from 'react-router-dom';
 import { useCartStore } from '../stores/cartStore';
 import { useAuthStore } from '../stores/authStore';
+import { getProductImage } from '../utils/imageUtils';
 import './Cart.css';
 
 export const Cart = () => {
@@ -97,7 +98,7 @@ export const Cart = () => {
                                 <Card padding="lg" className="cart-item">
                                     <div className="item-image">
                                         <img
-                                            src={item.product.images?.[0]?.url || 'https://via.placeholder.com/120'}
+                                            src={getProductImage(item.product)}
                                             alt={item.product.name}
                                         />
                                     </div>

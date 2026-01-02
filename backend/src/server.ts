@@ -115,7 +115,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // Health check endpoint
 app.get('/health', async (_req, res) => {
     const redisStatus = redisClient.isReady() ? 'connected' : 'disconnected';
-    
+
     res.json({
         success: true,
         message: 'Server is healthy',
@@ -177,6 +177,9 @@ app.use('/api/upload', uploadRoutes);
 // Order routes
 app.use('/api/orders', orderRoutes);
 
+import adminRoutes from './routes/admin.routes';
+app.use('/api/admin', adminRoutes);
+
 // Cache management routes
 import cacheRoutes from './routes/cache.routes';
 app.use('/api/cache', cacheRoutes);
@@ -205,10 +208,10 @@ const gracefulShutdown = async () => {
     try {
         await redisClient.disconnect();
         logger.info('Redis connection closed');
-        
+
         await prisma.$disconnect();
         logger.info('Database connection closed');
-        
+
         process.exit(0);
     } catch (error) {
         logger.error('Error during shutdown:', error);
@@ -225,10 +228,10 @@ const server = app.listen(PORT, async () => {
     logger.info(`📍 Health check: http://localhost:${PORT}/health`);
     logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
     logger.info(`🔒 CORS enabled for: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
-    
+
     // Connect to Redis
     await redisClient.connect();
-    
+
     // Warm cache if Redis is connected
     if (redisClient.isReady()) {
         await warmCache();

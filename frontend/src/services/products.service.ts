@@ -83,3 +83,21 @@ export const getProductReviews = async (
     });
     return response.data;
 };
+
+// Admin: Create product
+export const createProduct = async (data: any): Promise<{ success: boolean; data: { product: Product } }> => {
+    const response = await api.post('/products', data);
+    return response.data;
+};
+
+// Admin: Update product
+export const updateProduct = async (id: string, data: any): Promise<{ success: boolean; data: { product: Product } }> => {
+    const response = await api.put(`/products/${id}`, data);
+    return response.data;
+};
+
+// Admin: Delete product
+export const deleteProduct = async (id: string): Promise<{ success: boolean; message: string }> => {
+    const response = await api.delete(`/products/${id}`);
+    return response.data;
+};

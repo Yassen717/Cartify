@@ -8,6 +8,7 @@ import { useWishlistStore } from '../stores/wishlistStore';
 import { useAuthStore } from '../stores/authStore';
 import * as productsService from '../services/products.service';
 import type { Product } from '../services/products.service';
+import { getProductImageUrl, getLocalProductImage } from '../utils/imageUtils';
 import toast from 'react-hot-toast';
 import './ProductDetail.css';
 
@@ -97,8 +98,11 @@ export const ProductDetail = () => {
         : 0;
 
     const images = product.images && product.images.length > 0
-        ? product.images
-        : [{ id: '1', url: 'https://via.placeholder.com/600', altText: product.name, isPrimary: true }];
+        ? product.images.map((img, index) => ({
+            ...img,
+            url: getProductImageUrl(img.url, product.id, index)
+        }))
+        : [{ id: '1', url: getLocalProductImage(product.id, 0), altText: product.name, isPrimary: true }];
 
     return (
         <div className="product-detail-page">

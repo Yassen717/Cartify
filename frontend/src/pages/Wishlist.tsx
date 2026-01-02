@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button, Card } from '../components/ui';
 import { useWishlistStore } from '../stores/wishlistStore';
 import { useAuthStore } from '../stores/authStore';
+import { getProductImage } from '../utils/imageUtils';
 import './Wishlist.css';
 
 export const Wishlist = () => {
@@ -102,7 +103,7 @@ export const Wishlist = () => {
                                     <div className="wishlist-image">
                                         <Link to={`/products/${item.productId}`}>
                                             <img
-                                                src={item.product.images?.[0]?.url || 'https://via.placeholder.com/400'}
+                                                src={getProductImage(item.product)}
                                                 alt={item.product.name}
                                             />
                                         </Link>

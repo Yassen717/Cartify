@@ -20,6 +20,13 @@ const ProductDetail = lazy(() => import('./pages/ProductDetail').then(module => 
 const Checkout = lazy(() => import('./pages/Checkout').then(module => ({ default: module.Checkout })));
 const Orders = lazy(() => import('./pages/Orders').then(module => ({ default: module.Orders })));
 
+// Admin Lazy Imports
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
+const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
+const ProductsManagement = lazy(() => import('./pages/admin/ProductsManagement'));
+const OrdersManagement = lazy(() => import('./pages/admin/OrdersManagement'));
+const ProductForm = lazy(() => import('./pages/admin/ProductForm'));
+
 // Create a QueryClient instance
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -61,6 +68,16 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/register" element={<Register />} />
+
+              {/* Admin Routes */}
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="products" element={<ProductsManagement />} />
+                <Route path="products/new" element={<ProductForm />} />
+                <Route path="products/:id/edit" element={<ProductForm />} />
+                <Route path="orders" element={<OrdersManagement />} />
+              </Route>
             </Routes>
           </Suspense>
         </Layout>

@@ -6,6 +6,7 @@ import { useCartStore } from '../stores/cartStore';
 import { useAuthStore } from '../stores/authStore';
 import * as productsService from '../services/products.service';
 import type { Product } from '../services/products.service';
+import { getProductImage } from '../utils/imageUtils';
 import toast from 'react-hot-toast';
 import './Deals.css';
 
@@ -153,7 +154,7 @@ export const Deals = () => {
 
                                             <div className="deal-image">
                                                 <img
-                                                    src={product.images?.[0]?.url || 'https://via.placeholder.com/400'}
+                                                    src={getProductImage(product)}
                                                     alt={product.name}
                                                 />
                                             </div>

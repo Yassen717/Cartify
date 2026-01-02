@@ -8,6 +8,7 @@ import { useWishlistStore } from '../stores/wishlistStore';
 import { useAuthStore } from '../stores/authStore';
 import * as productsService from '../services/products.service';
 import type { Product } from '../services/products.service';
+import { getProductImage } from '../utils/imageUtils';
 import toast from 'react-hot-toast';
 import './Home.css';
 
@@ -36,14 +37,6 @@ export const Home = () => {
         }
     }, [isAuthenticated, fetchWishlist]);
 
-    // Helper function to get product image
-    const getProductImage = (product: Product) => {
-        if (product.images && product.images.length > 0) {
-            return product.images[0].url;
-        }
-        // Fallback to placeholder
-        return `https://via.placeholder.com/500?text=${encodeURIComponent(product.name)}`;
-    };
 
     // Self-hosted placeholder for category images to avoid ORB blocks
     const makeCategoryImage = (label: string) => {
