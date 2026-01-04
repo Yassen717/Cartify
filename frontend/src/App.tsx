@@ -26,6 +26,7 @@ const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
 const ProductsManagement = lazy(() => import('./pages/admin/ProductsManagement'));
 const OrdersManagement = lazy(() => import('./pages/admin/OrdersManagement'));
 const ProductForm = lazy(() => import('./pages/admin/ProductForm'));
+const NotFound = lazy(() => import('./pages/NotFound').then(module => ({ default: module.NotFound })));
 
 // Create a QueryClient instance
 const queryClient = new QueryClient({
@@ -78,6 +79,9 @@ function App() {
                 <Route path="products/:id/edit" element={<ProductForm />} />
                 <Route path="orders" element={<OrdersManagement />} />
               </Route>
+
+              {/* 404 Catch-all Route */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
         </Layout>
