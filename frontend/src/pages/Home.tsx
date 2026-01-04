@@ -80,7 +80,7 @@ export const Home = () => {
             <section className="hero">
                 <div className="hero-image">
                     <img
-                        src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1600&h=800&fit=crop"
+                        src="/home-page.webp"
                         alt="Hero"
                     />
                     <div className="hero-overlay"></div>
