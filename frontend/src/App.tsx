@@ -34,18 +34,14 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
     },
   },
 });
 
 function ScrollToTop() {
   const location = useLocation();
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location.pathname, location.search]);
-
+  useEffect(() => { window.scrollTo(0, 0); }, [location.pathname, location.search]);
   return null;
 }
 
@@ -55,7 +51,7 @@ function App() {
       <Router>
         <ScrollToTop />
         <Layout>
-          <Suspense fallback={<LoadingFallback />}>
+          <Suspense fallback={<LoadingFallback />}> 
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/products" element={<Products />} />
@@ -69,10 +65,9 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/register" element={<Register />} />
 
-              {/* Admin Routes */}
-              <Route path="/admin" element={<AdminLayout />}>
+              {/* Admin nested routes under a single AdminLayout route */}
+              <Route path="/admin" element={<AdminLayout />}> 
                 <Route index element={<Dashboard />} />
                 <Route path="products" element={<ProductsManagement />} />
                 <Route path="products/new" element={<ProductForm />} />
@@ -94,18 +89,8 @@ function App() {
               color: 'var(--text-primary)',
               border: '1px solid var(--border-color)',
             },
-            success: {
-              iconTheme: {
-                primary: 'var(--success)',
-                secondary: 'var(--white)',
-              },
-            },
-            error: {
-              iconTheme: {
-                primary: 'var(--error)',
-                secondary: 'var(--white)',
-              },
-            },
+            success: { iconTheme: { primary: 'var(--success)', secondary: 'var(--white)' } },
+            error: { iconTheme: { primary: 'var(--error)', secondary: 'var(--white)' } },
           }}
         />
       </Router>

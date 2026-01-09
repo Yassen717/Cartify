@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiShoppingCart, FiUser, FiSearch, FiMenu, FiX, FiHeart } from 'react-icons/fi';
+import { FiShoppingCart, FiUser, FiSearch, FiMenu, FiX, FiHeart, FiLayout } from 'react-icons/fi';
 import React, { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { useCartStore } from '../../stores/cartStore';
@@ -91,9 +91,14 @@ export const Header = () => {
                     {/* Actions */}
                     <div className="header-actions">
                         {isAuthenticated && user ? (
-                            <Link to="/profile" className="action-btn">
-                                <FiUser />
-                            </Link>
+                            <>
+                                <Link to="/admin" className="action-btn" title="Dashboard">
+                                    <FiLayout />
+                                </Link>
+                                <Link to="/profile" className="action-btn">
+                                    <FiUser />
+                                </Link>
+                            </>
                         ) : (
                             <Link to="/login" className="action-btn">
                                 <FiUser />
@@ -130,6 +135,9 @@ export const Header = () => {
                         <Link to="/products" className="nav-link-mobile">Products</Link>
                         <Link to="/categories" className="nav-link-mobile">Categories</Link>
                         <Link to="/deals" className="nav-link-mobile">Deals</Link>
+                        {isAuthenticated && (
+                            <Link to="/admin" className="nav-link-mobile">Dashboard</Link>
+                        )}
                         <Link to="/wishlist" className="nav-link-mobile">Wishlist</Link>
                     </motion.nav>
                 )}
