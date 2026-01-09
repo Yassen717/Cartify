@@ -1,129 +1,362 @@
-import { useEffect, useState } from 'react';
-import { getDashboardStats, DashboardStats } from '../../services/admin.service';
-import { FiDollarSign, FiShoppingBag, FiUsers, FiBox } from 'react-icons/fi';
-import { getProductImage } from '../../utils/imageUtils';
-import toast from 'react-hot-toast';
+import React, { useEffect, useState } from 'react';
+import { getDashboardStats } from '../../services/admin.service';
 
-const StatCard = ({ title, value, icon: Icon, color }: any) => (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
-        <div>
-            <p className="text-sm text-gray-500 font-medium">{title}</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
-        </div>
-        <div className={`p-3 rounded-lg ${color}`}>
-            <Icon className="w-6 h-6 text-white" />
-        </div>
-    </div>
-);
+type DashboardStats = {
+  counts: { users: number; products: number; orders: number };
+  revenue: number;
+  recentOrders: any[];
+  lowStockProducts: any[];
+};
 
-const Dashboard = () => {
-    const [stats, setStats] = useState<DashboardStats | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+const Dashboard: React.FC = () => {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const response = await getDashboardStats();
-                setStats(response.data);
-            } catch (error) {
-                toast.error('Failed to load dashboard stats');
-            } finally {
-                setIsLoading(false);
-            }
-        };
+  useEffect(() => {
+    let mounted = true;
+    getDashboardStats()
+      .then((res) => {
+        if (mounted) {
+          setStats(res.data as DashboardStats);
+        }
+      })
+      .catch((err: any) => {
+        if (mounted) {
+          const msg = err?.response?.data?.message || 'Failed to load dashboard stats';
+          setError(msg);
+        }
+      })
+      .finally(() => {
+        if (mounted) {
+          setLoading(false);
+        }
+      });
+    return () => { mounted = false; };
+  }, []);
 
-        fetchStats();
-    }, []);
+  const containerStyle: React.CSSProperties = {
+    background: '#f8fafc',
+    minHeight: '100vh',
+    padding: '32px',
+  };
 
-    if (isLoading) return <div className="p-8">Loading stats...</div>;
-    if (!stats) return null;
+  const headerStyle: React.CSSProperties = {
+    marginBottom: '32px',
+  };
 
+  const headingStyle: React.CSSProperties = {
+    fontSize: '28px',
+    fontWeight: 700,
+    color: '#111827',
+    margin: 0,
+  };
+
+  const gridStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+    gap: '24px',
+    marginBottom: '32px',
+  };
+
+  const cardStyle: React.CSSProperties = {
+    background: '#ffffff',
+    borderRadius: '16px',
+    padding: '24px',
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+    border: '1px solid #e5e7eb',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    transition: 'all 0.2s ease',
+    cursor: 'pointer',
+  };
+
+  const cardHoverStyle: React.CSSProperties = {
+    transform: 'translateY(-4px)',
+    boxShadow: '0 4px 6px 0 rgba(0, 0, 0, 0.15)',
+  };
+
+  const cardHeaderStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    marginBottom: '8px',
+  };
+
+  const iconStyle: React.CSSProperties = {
+    width: '48px',
+    height: '48px',
+    borderRadius: '12px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '24px',
+  };
+
+  const labelStyle: React.CSSProperties = {
+    fontSize: '14px',
+    fontWeight: 500,
+    color: '#64748b',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+  };
+
+  const valueStyle: React.CSSProperties = {
+    fontSize: '32px',
+    fontWeight: 700,
+    color: '#111827',
+  };
+
+  const twoColStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gap: '24px',
+  };
+
+  const panelStyle: React.CSSProperties = {
+    background: '#ffffff',
+    borderRadius: '16px',
+    padding: '24px',
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+    border: '1px solid #e5e7eb',
+  };
+
+  const panelTitleStyle: React.CSSProperties = {
+    fontSize: '20px',
+    fontWeight: 600,
+    color: '#111827',
+    marginBottom: '16px',
+  };
+
+  const listStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  };
+
+  const listItemStyle: React.CSSProperties = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '12px 0',
+    borderBottom: '1px solid #f3f4f6',
+    borderRadius: '8px',
+    transition: 'all 0.2s ease',
+  };
+
+  const listItemHoverStyle: React.CSSProperties = {
+    background: '#f9fafb',
+  };
+
+  const primaryTextStyle: React.CSSProperties = {
+    fontWeight: 600,
+    color: '#111827',
+  };
+
+  const secondaryTextStyle: React.CSSProperties = {
+    fontSize: '14px',
+    color: '#6b7280',
+  };
+
+  const emptyStateStyle: React.CSSProperties = {
+    padding: '48px',
+    textAlign: 'center',
+    color: '#6b7280',
+  };
+
+  const errorCardStyle: React.CSSProperties = {
+    background: '#fef2f2',
+    border: '1px solid #fecaca',
+    borderRadius: '16px',
+    padding: '24px',
+    textAlign: 'center',
+  };
+
+  const errorTextStyle: React.CSSProperties = {
+    color: '#b91c1c',
+    marginBottom: '16px',
+    fontSize: '16px',
+  };
+
+  const retryButtonStyle: React.CSSProperties = {
+    background: '#b91c1c',
+    color: '#ffffff',
+    border: 'none',
+    borderRadius: '8px',
+    padding: '12px 24px',
+    fontSize: '14px',
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+  };
+
+  const retryButtonHoverStyle: React.CSSProperties = {
+    background: '#c2410c',
+  };
+
+  if (loading) {
     return (
-        <div className="space-y-6">
-            <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard
-                    title="Total Revenue"
-                    value={`$${stats.revenue.toLocaleString()}`}
-                    icon={FiDollarSign}
-                    color="bg-green-500"
-                />
-                <StatCard
-                    title="Total Orders"
-                    value={stats.counts.orders}
-                    icon={FiShoppingBag}
-                    color="bg-blue-500"
-                />
-                <StatCard
-                    title="Active Users"
-                    value={stats.counts.users}
-                    icon={FiUsers}
-                    color="bg-purple-500"
-                />
-                <StatCard
-                    title="Products"
-                    value={stats.counts.products}
-                    icon={FiBox}
-                    color="bg-orange-500"
-                />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-                {/* Recent Orders */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <h2 className="text-lg font-bold text-gray-900 mb-4">Recent Orders</h2>
-                    <div className="space-y-4">
-                        {stats.recentOrders.map((order: any) => (
-                            <div key={order.id} className="flex items-center justify-between py-3 border-b last:border-0">
-                                <div>
-                                    <p className="font-medium text-gray-900">{order.user.firstName} {order.user.lastName}</p>
-                                    <p className="text-sm text-gray-500">{order.orderNumber}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="font-medium text-gray-900">${Number(order.total).toFixed(2)}</p>
-                                    <span className={`text-xs px-2 py-1 rounded-full ${order.status === 'DELIVERED' ? 'bg-green-100 text-green-700' :
-                                            order.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
-                                                'bg-yellow-100 text-yellow-700'
-                                        }`}>
-                                        {order.status}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Low Stock Alerts */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <h2 className="text-lg font-bold text-gray-900 mb-4">Low Stock Alerts</h2>
-                    <div className="space-y-4">
-                        {stats.lowStockProducts.map((product) => (
-                            <div key={product.id} className="flex items-center space-x-4 py-3 border-b last:border-0">
-                                <img
-                                    src={getProductImage(product)}
-                                    alt={product.name}
-                                    className="w-12 h-12 rounded-lg object-cover"
-                                />
-                                <div className="flex-1">
-                                    <p className="font-medium text-gray-900 line-clamp-1">{product.name}</p>
-                                    <p className="text-sm text-red-600 font-medium">
-                                        Only {product.stockQty} left
-                                    </p>
-                                </div>
-                                <button className="text-blue-600 text-sm font-medium hover:underline">
-                                    Restock
-                                </button>
-                            </div>
-                        ))}
-                        {stats.lowStockProducts.length === 0 && (
-                            <p className="text-gray-500 text-center py-4">No low stock items</p>
-                        )}
-                    </div>
-                </div>
-            </div>
+      <div style={containerStyle}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '200px' }}>
+          <div style={{ width: '48px', height: '48px', border: '4px solid #e5e7eb', borderTop: '4px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
         </div>
+      </div>
     );
+  }
+
+  if (error) {
+    return (
+      <div style={containerStyle}>
+        <div style={errorCardStyle}>
+          <div style={errorTextStyle}>{error}</div>
+          <button 
+            style={retryButtonStyle}
+            onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.currentTarget.style.background = '#c2410c';
+            }}
+            onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.currentTarget.style.background = '#b91c1c';
+            }}
+            onClick={() => { setLoading(true); setError(null); }}
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div style={containerStyle}>
+        <div style={emptyStateStyle}>No dashboard data available</div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={containerStyle}>
+      <div style={headerStyle}>
+        <h1 style={headingStyle}>Dashboard Overview</h1>
+      </div>
+
+      <div style={gridStyle}>
+        <div style={cardStyle} onMouseEnter={(e) => Object.assign(e.currentTarget.style, cardHoverStyle)} onMouseLeave={(e) => Object.assign(e.currentTarget.style, {})}>
+          <div style={cardHeaderStyle}>
+            <div style={{ ...iconStyle, background: '#dbeafe' }}>💰</div>
+            <span style={labelStyle}>Total Revenue</span>
+          </div>
+          <div style={valueStyle}>${stats.revenue?.toLocaleString?.() ?? '0'}</div>
+        </div>
+
+        <div style={cardStyle} onMouseEnter={(e) => Object.assign(e.currentTarget.style, cardHoverStyle)} onMouseLeave={(e) => Object.assign(e.currentTarget.style, {})}>
+          <div style={cardHeaderStyle}>
+            <div style={{ ...iconStyle, background: '#93c5fd' }}>📦</div>
+            <span style={labelStyle}>Total Orders</span>
+          </div>
+          <div style={valueStyle}>{stats.counts.orders}</div>
+        </div>
+
+        <div style={cardStyle} onMouseEnter={(e) => Object.assign(e.currentTarget.style, cardHoverStyle)} onMouseLeave={(e) => Object.assign(e.currentTarget.style, {})}>
+          <div style={cardHeaderStyle}>
+            <div style={{ ...iconStyle, background: '#a78bfa' }}>👥</div>
+            <span style={labelStyle}>Active Users</span>
+          </div>
+          <div style={valueStyle}>{stats.counts.users}</div>
+        </div>
+
+        <div style={cardStyle} onMouseEnter={(e) => Object.assign(e.currentTarget.style, cardHoverStyle)} onMouseLeave={(e) => Object.assign(e.currentTarget.style, {})}>
+          <div style={cardHeaderStyle}>
+            <div style={{ ...iconStyle, background: '#10b981' }}>📦</div>
+            <span style={labelStyle}>Products</span>
+          </div>
+          <div style={valueStyle}>{stats.counts.products}</div>
+        </div>
+      </div>
+
+      <div style={twoColStyle}>
+        <div style={panelStyle}>
+          <h2 style={panelTitleStyle}>📦 Recent Orders</h2>
+          <div style={listStyle}>
+            {stats.recentOrders && stats.recentOrders.length > 0 ? (
+              stats.recentOrders.map((order: any) => (
+                <div 
+                  key={order.id} 
+                  style={listItemStyle}
+                  onMouseEnter={(e) => Object.assign(e.currentTarget.style, listItemHoverStyle)}
+                  onMouseLeave={(e) => Object.assign(e.currentTarget.style, {})}
+                >
+                  <div>
+                    <span style={primaryTextStyle}>
+                      {order.user?.firstName ?? ''} {order.user?.lastName ?? ''}
+                    </span>
+                    <span style={secondaryTextStyle}>{order.orderNumber}</span>
+                  </div>
+                  <span style={{ ...valueStyle, fontSize: '18px' }}>${Number(order.total).toFixed(2)}</span>
+                </div>
+              ))
+            ) : (
+              <div style={emptyStateStyle}>No recent orders yet</div>
+            )}
+          </div>
+        </div>
+
+        <div style={panelStyle}>
+          <h2 style={panelTitleStyle}>⚠️ Low Stock Alerts</h2>
+          <div style={listStyle}>
+            {stats.lowStockProducts && stats.lowStockProducts.length > 0 ? (
+              stats.lowStockProducts.map((p: any) => (
+                <div 
+                  key={p.id} 
+                  style={listItemStyle}
+                  onMouseEnter={(e) => Object.assign(e.currentTarget.style, listItemHoverStyle)}
+                  onMouseLeave={(e) => Object.assign(e.currentTarget.style, {})}
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <span style={{ ...valueStyle, fontSize: '16px' }}>{p.name}</span>
+                    <span style={{ ...secondaryTextStyle, color: '#dc2626', fontWeight: 500 }}>
+                      Only {p.stockQty} left
+                    </span>
+                  </div>
+                  <button 
+                    style={{ 
+                      background: '#3b82f6',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '6px 12px',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      e.currentTarget.style.background = '#2563eb';
+                    }}
+                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      e.currentTarget.style.background = '#3b82f6';
+                    }}
+                  >
+                    Restock
+                  </button>
+                </div>
+              ))
+            ) : (
+              <div style={emptyStateStyle}>All products are well stocked ✅</div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
+  );
 };
 
 export default Dashboard;

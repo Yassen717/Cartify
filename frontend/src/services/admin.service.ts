@@ -1,6 +1,30 @@
 import api from './api';
-import { User } from './auth.service';
-import { Product } from './products.service';
+
+export interface Product {
+    id: string;
+    name: string;
+    slug: string;
+    description: string;
+    price: number;
+    comparePrice?: number;
+    stockQty: number;
+    sku: string;
+    brand?: string;
+    categoryId: string;
+    category?: {
+        id: string;
+        name: string;
+        slug: string;
+    };
+    images?: {
+        id: string;
+        url: string;
+        altText: string;
+        isPrimary: boolean;
+    }[];
+    averageRating?: number;
+    reviewCount?: number;
+}
 
 export interface DashboardStats {
     counts: {
