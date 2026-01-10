@@ -179,7 +179,7 @@ export const Products = () => {
                             {/* Search */}
                             <div className="filter-group">
                                 <h4>Search</h4>
-                                <div className="price-inputs">
+                                <div className="search-inputs">
                                     <input
                                         type="search"
                                         placeholder="Search products"

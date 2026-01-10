@@ -64,7 +64,7 @@
 }
 
 .filters-sidebar .card {
-    padding: 0;
+    padding: var(--space-md);
 }
 
 .filters-header {
@@ -145,6 +145,19 @@
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
     gap: var(--space-md);
+}
+
+.search-inputs {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.search-inputs .price-input {
+    flex: 1;
+}
+
+.search-inputs .btn {
+    flex-shrink: 0;
 }
 
 .price-input {
