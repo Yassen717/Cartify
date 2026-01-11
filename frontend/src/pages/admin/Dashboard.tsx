@@ -66,7 +66,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard">
-      <div className="header" style={{ marginBottom: 8 }}>
+      <div className="header">
         <h1>Dashboard Overview</h1>
       </div>
 
@@ -76,7 +76,7 @@ const Dashboard: React.FC = () => {
             <span className="card-title">Total Revenue</span>
             <span className="card-value">${stats.revenue?.toLocaleString?.() ?? '0'}</span>
           </div>
-          <div className="card-icon" style={{ background: '#dbeafe' }}>💰</div>
+          <div className="card-icon">💰</div>
         </div>
 
         <div className="card" aria-label="Total Orders">
@@ -84,7 +84,7 @@ const Dashboard: React.FC = () => {
             <span className="card-title">Total Orders</span>
             <span className="card-value">{stats.counts.orders}</span>
           </div>
-          <div className="card-icon" style={{ background: '#93c5fd' }}>📦</div>
+          <div className="card-icon">📦</div>
         </div>
 
         <div className="card" aria-label="Active Users">
@@ -92,7 +92,7 @@ const Dashboard: React.FC = () => {
             <span className="card-title">Active Users</span>
             <span className="card-value">{stats.counts.users}</span>
           </div>
-          <div className="card-icon" style={{ background: '#a78bfa' }}>👥</div>
+          <div className="card-icon">👥</div>
         </div>
 
         <div className="card" aria-label="Products">
@@ -100,7 +100,7 @@ const Dashboard: React.FC = () => {
             <span className="card-title">Products</span>
             <span className="card-value">{stats.counts.products}</span>
           </div>
-          <div className="card-icon" style={{ background: '#10b981' }}>🗂️</div>
+          <div className="card-icon">🗂️</div>
         </div>
       </div>
 
@@ -130,7 +130,7 @@ const Dashboard: React.FC = () => {
             <div className="order-list">
               {stats.lowStockProducts.map((p: any) => (
                 <div key={p.id} className="lowstock">
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <div>
                     <span className="product-name">{p.name}</span>
                     <span className="stock-info">Only {p.stockQty} left</span>
                   </div>
