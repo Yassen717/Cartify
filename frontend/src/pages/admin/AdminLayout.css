@@ -27,7 +27,7 @@
 .sidebar-title {
   font-size: 28px;
   font-weight: 800;
-  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -81,9 +81,9 @@
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+  background: var(--gradient-primary);
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: var(--shadow-primary);
 }
 
 .nav-icon {
@@ -184,7 +184,7 @@
     transition: transform 0.3s ease;
     z-index: 100;
   }
-  
+
   .sidebar.open {
     transform: translateX(0);
   }
