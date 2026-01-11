@@ -25,6 +25,7 @@ const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
 const ProductsManagement = lazy(() => import('./pages/admin/ProductsManagement'));
 const OrdersManagement = lazy(() => import('./pages/admin/OrdersManagement'));
+const UsersManagement = lazy(() => import('./pages/admin/UsersManagement'));
 const ProductForm = lazy(() => import('./pages/admin/ProductForm'));
 const NotFound = lazy(() => import('./pages/NotFound').then(module => ({ default: module.NotFound })));
 
@@ -51,7 +52,7 @@ function App() {
       <Router>
         <ScrollToTop />
         <Layout>
-          <Suspense fallback={<LoadingFallback />}> 
+          <Suspense fallback={<LoadingFallback />}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/products" element={<Products />} />
@@ -67,12 +68,13 @@ function App() {
               <Route path="/register" element={<Register />} />
 
               {/* Admin nested routes under a single AdminLayout route */}
-              <Route path="/admin" element={<AdminLayout />}> 
+              <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<Dashboard />} />
                 <Route path="products" element={<ProductsManagement />} />
                 <Route path="products/new" element={<ProductForm />} />
                 <Route path="products/:id/edit" element={<ProductForm />} />
                 <Route path="orders" element={<OrdersManagement />} />
+                <Route path="users" element={<UsersManagement />} />
               </Route>
 
               {/* 404 Catch-all Route */}
