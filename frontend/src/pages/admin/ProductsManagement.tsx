@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiTrash2, FiSearch } from 'react-icons/fi';
 import { getProducts, deleteProduct } from '../../services/products.service';
-import { Product } from '../../services/products.service'; // Assuming Product type is exported
+import type { Product } from '../../services/products.service';
 import { getProductImage } from '../../utils/imageUtils';
 import toast from 'react-hot-toast';
+import './ProductsManagement.css';
 
 const ProductsManagement = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -45,88 +46,82 @@ const ProductsManagement = () => {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-                <Link
-                    to="/admin/products/new"
-                    className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
+        <div className="products-management">
+            <div className="products-header">
+                <h1>Products</h1>
+                <Link to="/admin/products/new" className="add-product-btn">
                     <FiPlus />
                     <span>Add Product</span>
                 </Link>
             </div>
 
-            {/* Search */}
-            <div className="relative">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <div className="search-container">
+                <FiSearch className="search-icon" />
                 <input
                     type="text"
                     placeholder="Search products..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="search-input"
                 />
             </div>
 
-            {/* Table */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <table className="w-full text-left">
-                    <thead className="bg-gray-50 border-b">
+            <div className="table-container">
+                <table className="products-table">
+                    <thead>
                         <tr>
-                            <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Product</th>
-                            <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Price</th>
-                            <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Stock</th>
-                            <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Category</th>
-                            <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Actions</th>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Category</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody>
                         {isLoading ? (
                             <tr>
-                                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">Loading...</td>
+                                <td colSpan={5} className="products-loading">Loading...</td>
                             </tr>
                         ) : products.length === 0 ? (
                             <tr>
-                                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">No products found</td>
+                                <td colSpan={5} className="products-empty">No products found</td>
                             </tr>
                         ) : (
                             products.map((product) => (
-                                <tr key={product.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center space-x-3">
+                                <tr key={product.id}>
+                                    <td>
+                                        <div className="product-cell">
                                             <img
                                                 src={getProductImage(product)}
                                                 alt={product.name}
-                                                className="w-10 h-10 rounded-lg object-cover"
+                                                className="product-image"
                                             />
-                                            <div>
-                                                <p className="font-medium text-gray-900">{product.name}</p>
-                                                <p className="text-xs text-gray-500">SKU: {product.sku}</p>
+                                            <div className="product-info">
+                                                <span className="product-name">{product.name}</span>
+                                                <span className="product-sku">SKU: {product.sku}</span>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 text-gray-600">${Number(product.price).toFixed(2)}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.stockQty <= 5 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-                                            }`}>
+                                    <td>${Number(product.price).toFixed(2)}</td>
+                                    <td>
+                                        <span className={`stock-badge ${product.stockQty <= 5 ? 'low' : 'good'}`}>
                                             {product.stockQty} in stock
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 text-gray-600">
+                                    <td>
                                         {((product as any).category?.name) || 'Uncategorized'}
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center space-x-3">
+                                    <td>
+                                        <div className="action-buttons">
                                             <Link
                                                 to={`/admin/products/${product.id}/edit`}
-                                                className="text-gray-400 hover:text-blue-600 transition-colors"
+                                                className="action-btn edit"
                                             >
                                                 <FiEdit2 />
                                             </Link>
                                             <button
                                                 onClick={() => handleDelete(product.id)}
-                                                className="text-gray-400 hover:text-red-600 transition-colors"
+                                                className="action-btn delete"
                                             >
                                                 <FiTrash2 />
                                             </button>
@@ -139,22 +134,21 @@ const ProductsManagement = () => {
                 </table>
             </div>
 
-            {/* Pagination */}
-            <div className="flex justify-center space-x-2">
+            <div className="pagination">
                 <button
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="px-4 py-2 border rounded-lg disabled:opacity-50"
+                    className="pagination-btn"
                 >
                     Previous
                 </button>
-                <div className="flex items-center text-gray-600">
+                <span className="pagination-info">
                     Page {page} of {totalPages}
-                </div>
+                </span>
                 <button
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
-                    className="px-4 py-2 border rounded-lg disabled:opacity-50"
+                    className="pagination-btn"
                 >
                     Next
                 </button>
