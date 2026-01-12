@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import path from 'path';
+import cookieParser from 'cookie-parser';
 
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { requestLogger, logger } from './utils/logger';
@@ -88,6 +89,7 @@ app.use(requestLogger);
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 
 // HTTPS enforcement in production
 if (process.env.NODE_ENV === 'production') {
@@ -111,6 +113,12 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // ============================================================================
 // ROUTES
 // ============================================================================
+
+// CSRF token endpoint
+import { setCsrfToken } from './middleware/csrf';
+app.get('/api/csrf-token', setCsrfToken, (_req, res) => {
+    res.json({ csrfToken: res.locals.csrfToken });
+});
 
 // Health check endpoint
 app.get('/health', async (_req, res) => {
