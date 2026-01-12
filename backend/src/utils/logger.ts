@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { sanitizeForLog } from './sanitize';
 
 // Request logging middleware
 export const requestLogger = (req: Request, res: Response, next: NextFunction) => {
@@ -25,17 +26,21 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
 // Simple logger utility
 export const logger = {
     info: (message: string, ...args: any[]) => {
-        console.log(`ℹ️  [INFO] ${message}`, ...args);
+        const sanitized = args.map(arg => sanitizeForLog(arg));
+        console.log(`ℹ️  [INFO] ${message}`, ...sanitized);
     },
     warn: (message: string, ...args: any[]) => {
-        console.warn(`⚠️  [WARN] ${message}`, ...args);
+        const sanitized = args.map(arg => sanitizeForLog(arg));
+        console.warn(`⚠️  [WARN] ${message}`, ...sanitized);
     },
     error: (message: string, ...args: any[]) => {
-        console.error(`❌ [ERROR] ${message}`, ...args);
+        const sanitized = args.map(arg => sanitizeForLog(arg));
+        console.error(`❌ [ERROR] ${message}`, ...sanitized);
     },
     debug: (message: string, ...args: any[]) => {
         if (process.env.NODE_ENV === 'development') {
-            console.log(`🐛 [DEBUG] ${message}`, ...args);
+            const sanitized = args.map(arg => sanitizeForLog(arg));
+            console.log(`🐛 [DEBUG] ${message}`, ...sanitized);
         }
     },
 };
