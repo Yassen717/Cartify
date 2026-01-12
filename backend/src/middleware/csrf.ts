@@ -9,7 +9,7 @@ export const generateCsrfToken = (): string => {
     return crypto.randomBytes(32).toString('hex');
 };
 
-export const setCsrfToken = (req: Request, res: Response, next: NextFunction) => {
+export const setCsrfToken = (_req: Request, res: Response, next: NextFunction) => {
     const token = generateCsrfToken();
     
     res.cookie('csrf-token', token, {
@@ -23,7 +23,7 @@ export const setCsrfToken = (req: Request, res: Response, next: NextFunction) =>
     next();
 };
 
-export const verifyCsrfToken = (req: Request, res: Response, next: NextFunction) => {
+export const verifyCsrfToken = (req: Request, _res: Response, next: NextFunction) => {
     // Skip CSRF for GET, HEAD, OPTIONS
     if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
         return next();
