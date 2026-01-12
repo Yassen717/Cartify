@@ -32,9 +32,11 @@ app.use(helmet({
             scriptSrc: ["'self'"],
             imgSrc: ["'self'", "data:", "https:", "blob:"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            connectSrc: ["'self'"],
+            connectSrc: ["'self'", process.env.CORS_ORIGIN || 'http://localhost:5173'],
             frameSrc: ["'none'"],
             objectSrc: ["'none'"],
+            baseUri: ["'self'"],
+            formAction: ["'self'"],
             upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
         },
     },
@@ -42,6 +44,14 @@ app.use(helmet({
         maxAge: 31536000, // 1 year
         includeSubDomains: true,
         preload: true,
+    },
+    frameguard: {
+        action: 'deny',
+    },
+    noSniff: true,
+    xssFilter: true,
+    referrerPolicy: {
+        policy: 'strict-origin-when-cross-origin',
     },
 }));
 
