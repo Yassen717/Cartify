@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { getProductById } from '../../services/products.service';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import './ProductForm.css';
 
 const ProductForm = () => {
     const { id } = useParams();
@@ -52,81 +53,94 @@ const ProductForm = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto space-y-6">
-            <h1 className="text-2xl font-bold text-gray-900">
-                {isEditMode ? 'Edit Product' : 'Add New Product'}
-            </h1>
+        <div className="product-form-container">
+            <div className="product-form-header">
+                <h1 className="product-form-title">
+                    {isEditMode ? 'Edit Product' : 'Add New Product'}
+                </h1>
+                <p className="product-form-subtitle">
+                    {isEditMode ? 'Update product information' : 'Create a new product for your store'}
+                </p>
+            </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="product-form">
                 {/* Name */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Name</label>
+                <div className="form-group">
+                    <label className="form-label">Product Name</label>
                     <input
                         {...register('name', { required: 'Name is required' })}
                         type="text"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+                        className="form-input"
+                        placeholder="Enter product name"
                     />
-                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message as string}</p>}
+                    {errors.name && <p className="form-error">{errors.name.message as string}</p>}
                 </div>
 
                 {/* Description */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Description</label>
+                <div className="form-group">
+                    <label className="form-label">Description</label>
                     <textarea
                         {...register('description', { required: 'Description is required' })}
                         rows={4}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+                        className="form-textarea"
+                        placeholder="Describe your product..."
                     />
-                    {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message as string}</p>}
+                    {errors.description && <p className="form-error">{errors.description.message as string}</p>}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="form-row">
                     {/* Price */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Price</label>
+                    <div className="form-group">
+                        <label className="form-label">Price ($)</label>
                         <input
                             {...register('price', { required: 'Price is required', min: 0 })}
                             type="number"
                             step="0.01"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+                            className="form-input"
+                            placeholder="0.00"
                         />
+                        {errors.price && <p className="form-error">{errors.price.message as string}</p>}
                     </div>
 
                     {/* Stock */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Stock Quantity</label>
+                    <div className="form-group">
+                        <label className="form-label">Stock Quantity</label>
                         <input
                             {...register('stockQty', { required: 'Stock is required', min: 0 })}
                             type="number"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+                            className="form-input"
+                            placeholder="0"
                         />
+                        {errors.stockQty && <p className="form-error">{errors.stockQty.message as string}</p>}
                     </div>
                 </div>
 
                 {/* SKU */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">SKU</label>
+                <div className="form-group">
+                    <label className="form-label">SKU</label>
                     <input
                         {...register('sku', { required: 'SKU is required' })}
                         type="text"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+                        className="form-input"
+                        placeholder="PROD-001"
                     />
+                    {errors.sku && <p className="form-error">{errors.sku.message as string}</p>}
                 </div>
 
-                <div className="pt-4 flex justify-end space-x-3">
+                <div className="form-actions">
                     <button
                         type="button"
                         onClick={() => navigate('/admin/products')}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                        className="btn-secondary"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                        className="btn-primary"
                     >
-                        {isLoading ? 'Saving...' : 'Save Product'}
+                        {isLoading ? 'Saving...' : (isEditMode ? 'Update Product' : 'Create Product')}
                     </button>
                 </div>
             </form>
