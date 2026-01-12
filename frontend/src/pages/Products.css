@@ -61,10 +61,16 @@
     top: 100px;
     height: fit-content;
     transition: transform var(--transition-base);
+    background: var(--white);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
 }
 
 .filters-sidebar .card {
-    padding: var(--space-md);
+    padding: 0;
+    border: none;
+    box-shadow: none;
 }
 
 .filters-header {
@@ -72,12 +78,14 @@
     justify-content: space-between;
     align-items: center;
     padding: var(--space-lg);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
 }
 
 .filters-header h3 {
     font-size: var(--text-lg);
     margin: 0;
+    color: var(--primary);
+    font-weight: var(--font-bold);
 }
 
 .clear-filters {
@@ -97,7 +105,7 @@
 
 .filter-group {
     padding: var(--space-lg);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
 }
 
 .filter-group:last-child {
@@ -108,6 +116,7 @@
     font-size: var(--text-base);
     margin-bottom: var(--space-md);
     font-weight: var(--font-semibold);
+    color: var(--text-primary);
 }
 
 .category-list {
@@ -152,12 +161,44 @@
     gap: var(--space-sm);
 }
 
-.search-inputs .price-input {
+.search-inputs input {
     flex: 1;
+    padding: var(--space-sm) var(--space-md);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--beige-50);
+    color: var(--text-primary);
+    font-size: var(--text-sm);
+    transition: all var(--transition-fast);
+}
+
+.search-inputs input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(139, 92, 66, 0.1);
+}
+
+.search-inputs input::placeholder {
+    color: var(--gray-400);
 }
 
 .search-inputs .btn {
     flex-shrink: 0;
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--primary);
+    color: var(--white);
+    border: 2px solid var(--primary);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.search-inputs .btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-primary);
 }
 
 .price-input {
