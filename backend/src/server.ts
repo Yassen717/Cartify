@@ -63,27 +63,6 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Rate limiting - General API (more lenient in development)
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: process.env.NODE_ENV === 'production' ? 100 : 1000, // Higher limit in dev
-    message: 'Too many requests from this IP, please try again later.',
-    standardHeaders: true,
-    legacyHeaders: false,
-});
-app.use('/api/', limiter);
-
-// Strict rate limiting for authentication endpoints
-// In development, allow more attempts to avoid blocking local testing
-const authLimiter = rateLimit({
-    windowMs: process.env.NODE_ENV === 'production' ? 15 * 60 * 1000 : 5 * 60 * 1000, // 15 min prod, 5 min dev
-    max: process.env.NODE_ENV === 'production' ? 5 : 50, // much higher limit in dev
-    message: 'Too many authentication attempts from this IP, please try again after a short while.',
-    standardHeaders: true,
-    legacyHeaders: false,
-    skipSuccessfulRequests: true, // Don't count successful requests
-});
-
 // ============================================================================
 // LOGGING & PARSING MIDDLEWARE
 // ============================================================================
@@ -101,6 +80,41 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
+// CSRF token endpoint (before rate limiting)
+import { setCsrfToken, verifyCsrfToken } from './middleware/csrf';
+app.get('/api/csrf-token', setCsrfToken, (_req, res) => {
+    res.json({ success: true, csrfToken: res.locals.csrfToken });
+});
+
+// Rate limiting - General API (more lenient in development)
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: process.env.NODE_ENV === 'production' ? 100 : 1000, // Higher limit in dev
+    message: 'Too many requests from this IP, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req) => req.path === '/api/csrf-token', // Skip rate limiting for CSRF endpoint
+});
+app.use('/api/', limiter);
+
+// Strict rate limiting for authentication endpoints
+// In development, allow more attempts to avoid blocking local testing
+const authLimiter = rateLimit({
+    windowMs: process.env.NODE_ENV === 'production' ? 15 * 60 * 1000 : 5 * 60 * 1000, // 15 min prod, 5 min dev
+    max: process.env.NODE_ENV === 'production' ? 5 : 50, // much higher limit in dev
+    message: 'Too many authentication attempts from this IP, please try again after a short while.',
+    standardHeaders: true,
+    legacyHeaders: false,
+    skipSuccessfulRequests: true, // Don't count successful requests
+});
+
+// ============================================================================
+// STATIC FILES
+// ============================================================================
+
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // HTTPS enforcement in production
 if (process.env.NODE_ENV === 'production') {
     app.use((req, res, next) => {
@@ -114,21 +128,8 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // ============================================================================
-// STATIC FILES
-// ============================================================================
-
-// Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
-// ============================================================================
 // ROUTES
 // ============================================================================
-
-// CSRF token endpoint
-import { setCsrfToken, verifyCsrfToken } from './middleware/csrf';
-app.get('/api/csrf-token', setCsrfToken, (_req, res) => {
-    res.json({ success: true, csrfToken: res.locals.csrfToken });
-});
 
 // Health check endpoint
 app.get('/health', async (_req, res) => {
