@@ -93,9 +93,14 @@ const limiter = rateLimit({
     message: 'Too many requests from this IP, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
-    skip: (req) => req.path === '/api/csrf-token', // Skip rate limiting for CSRF endpoint
 });
-app.use('/api/', limiter);
+// Apply rate limiting to all /api routes EXCEPT /api/csrf-token
+app.use((req, res, next) => {
+    if (req.path === '/api/csrf-token') {
+        return next();
+    }
+    limiter(req, res, next);
+});
 
 // Strict rate limiting for authentication endpoints
 // In development, allow more attempts to avoid blocking local testing
