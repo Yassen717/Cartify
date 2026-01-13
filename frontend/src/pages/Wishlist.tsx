@@ -67,7 +67,7 @@ export const Wishlist = () => {
                         <h2>Your wishlist is empty</h2>
                         <p>Save items you love for later</p>
                         <Link to="/products">
-                            <Button size="lg" leftIcon={<FiArrowRight />}>
+                            <Button size="lg" rightIcon={<FiArrowRight />}>
                                 Start Shopping
                             </Button>
                         </Link>
