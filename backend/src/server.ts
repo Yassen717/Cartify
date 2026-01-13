@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { requestLogger, logger } from './utils/logger';
+import { setCsrfToken, verifyCsrfToken } from './middleware/csrf';
 import prisma from './config/database';
 import { redisClient } from './config/redis';
 import { warmCache } from './middleware/cache';
@@ -80,8 +81,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// CSRF token endpoint (before rate limiting)
-import { setCsrfToken, verifyCsrfToken } from './middleware/csrf';
+// CSRF token endpoint (MUST be before rate limiting)
 app.get('/api/csrf-token', setCsrfToken, (_req, res) => {
     res.json({ success: true, csrfToken: res.locals.csrfToken });
 });

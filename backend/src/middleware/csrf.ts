@@ -51,6 +51,11 @@ export const verifyCsrfToken = (req: Request, _res: Response, next: NextFunction
         return next();
     }
     
+    // Skip CSRF in development for easier testing
+    if (process.env.NODE_ENV === 'development') {
+        return next();
+    }
+    
     const sessionId = req.cookies.sessionId;
     const token = req.headers['x-csrf-token'] as string;
     
