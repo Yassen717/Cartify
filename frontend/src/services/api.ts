@@ -6,7 +6,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 let csrfToken: string | null = null;
 
 // Fetch CSRF token
-const fetchCsrfToken = async (): Promise<string> => {
+const fetchCsrfToken = async (): Promise<string | null> => {
     try {
         const response = await axios.get('http://localhost:3000/api/csrf-token', {
             withCredentials: true,
@@ -14,8 +14,8 @@ const fetchCsrfToken = async (): Promise<string> => {
         csrfToken = response.data.csrfToken;
         return csrfToken;
     } catch (error) {
-        console.error('Failed to fetch CSRF token:', error);
-        throw error;
+        console.warn('Failed to fetch CSRF token (continuing without it):', error);
+        return null;
     }
 };
 
@@ -31,13 +31,16 @@ const api = axios.create({
 // Request interceptor - add auth token and CSRF token to requests
 api.interceptors.request.use(
     async (config) => {
-        // Add CSRF token for non-GET requests
+        // Add CSRF token for non-GET requests (only in production)
         if (config.method && !['get', 'head', 'options'].includes(config.method.toLowerCase())) {
-            if (!csrfToken) {
-                await fetchCsrfToken();
-            }
-            if (csrfToken) {
-                config.headers['x-csrf-token'] = csrfToken;
+            // Only fetch CSRF in production or if explicitly needed
+            if (import.meta.env.PROD) {
+                if (!csrfToken) {
+                    await fetchCsrfToken();
+                }
+                if (csrfToken) {
+                    config.headers['x-csrf-token'] = csrfToken;
+                }
             }
         }
         
