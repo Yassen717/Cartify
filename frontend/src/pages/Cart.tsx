@@ -171,9 +171,11 @@ export const Cart = () => {
                                 <span className="total-amount">${total.toFixed(2)}</span>
                             </div>
 
-                            <Button fullWidth size="lg" rightIcon={<FiArrowRight />}>
-                                Proceed to Checkout
-                            </Button>
+                            <Link to="/checkout">
+                                <Button fullWidth size="lg" rightIcon={<FiArrowRight />}>
+                                    Proceed to Checkout
+                                </Button>
+                            </Link>
 
                             <Link to="/products" className="continue-shopping">
                                 Continue Shopping

@@ -103,6 +103,13 @@
     width: 100%;
 }
 
+.checkout-loading {
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+}
+
 @media (max-width: 768px) {
     .checkout-grid {
         grid-template-columns: 1fr;

@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 import './Checkout.css';
 
 export const Checkout = () => {
-    const { items, total } = useCartStore();
+    const { cart, fetchCart } = useCartStore();
     const { isAuthenticated } = useAuthStore();
     const navigate = useNavigate();
 
@@ -43,11 +43,16 @@ export const Checkout = () => {
     useEffect(() => {
         if (!isAuthenticated) {
             navigate('/login');
+            return;
         }
-        if (items.length === 0) {
+        fetchCart();
+    }, [isAuthenticated, navigate, fetchCart]);
+
+    useEffect(() => {
+        if (cart && (!cart.items || cart.items.length === 0)) {
             navigate('/cart');
         }
-    }, [isAuthenticated, items, navigate]);
+    }, [cart, navigate]);
 
     const handlePlaceOrder = async () => {
         setIsLoading(true);
@@ -68,10 +73,20 @@ export const Checkout = () => {
         }
     };
 
-    const subtotal = total();
+    const subtotal = cart?.subtotal || 0;
     const tax = subtotal * 0.1;
     const shipping = subtotal > 50 ? 0 : 9.99;
     const orderTotal = subtotal + tax + shipping;
+
+    if (!cart || !cart.items) {
+        return (
+            <div className="checkout-page">
+                <div className="container">
+                    <div className="checkout-loading">Loading...</div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="checkout-page">
@@ -168,7 +183,7 @@ export const Checkout = () => {
                         <Card>
                             <h2>Order Summary</h2>
                             <div className="order-items">
-                                {items.map((item) => (
+                                {cart.items.map((item) => (
                                     <div key={item.id} className="order-item">
                                         <span>{item.product?.name} × {item.quantity}</span>
                                         <span>${(item.priceAtAdd * item.quantity).toFixed(2)}</span>
