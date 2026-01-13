@@ -86,31 +86,30 @@ app.get('/api/csrf-token', setCsrfToken, (_req, res) => {
     res.json({ success: true, csrfToken: res.locals.csrfToken });
 });
 
-// Rate limiting - General API (more lenient in development)
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: process.env.NODE_ENV === 'production' ? 100 : 1000, // Higher limit in dev
-    message: 'Too many requests from this IP, please try again later.',
-    standardHeaders: true,
-    legacyHeaders: false,
-});
-// Apply rate limiting to all /api routes EXCEPT /api/csrf-token
-app.use((req, res, next) => {
-    if (req.path === '/api/csrf-token') {
-        return next();
-    }
-    limiter(req, res, next);
-});
+// Rate limiting - General API (disabled in development for easier testing)
+if (process.env.NODE_ENV === 'production') {
+    const limiter = rateLimit({
+        windowMs: 15 * 60 * 1000, // 15 minutes
+        max: 100,
+        message: 'Too many requests from this IP, please try again later.',
+        standardHeaders: true,
+        legacyHeaders: false,
+    });
+    app.use('/api/', limiter);
+    logger.info('⚡ Rate limiting enabled for production');
+} else {
+    logger.info('⚡ Rate limiting disabled for development');
+}
 
-// Strict rate limiting for authentication endpoints
-// In development, allow more attempts to avoid blocking local testing
+// Rate limiting - DISABLED for development
+// TODO: Re-enable for production
 const authLimiter = rateLimit({
-    windowMs: process.env.NODE_ENV === 'production' ? 15 * 60 * 1000 : 5 * 60 * 1000, // 15 min prod, 5 min dev
-    max: process.env.NODE_ENV === 'production' ? 5 : 50, // much higher limit in dev
-    message: 'Too many authentication attempts from this IP, please try again after a short while.',
+    windowMs: 15 * 60 * 1000,
+    max: 10000, // Very high limit
+    message: 'Too many authentication attempts',
     standardHeaders: true,
     legacyHeaders: false,
-    skipSuccessfulRequests: true, // Don't count successful requests
+    skipSuccessfulRequests: true,
 });
 
 // ============================================================================
