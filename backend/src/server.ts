@@ -125,9 +125,9 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // ============================================================================
 
 // CSRF token endpoint
-import { setCsrfToken } from './middleware/csrf';
+import { setCsrfToken, verifyCsrfToken } from './middleware/csrf';
 app.get('/api/csrf-token', setCsrfToken, (_req, res) => {
-    res.json({ csrfToken: res.locals.csrfToken });
+    res.json({ success: true, csrfToken: res.locals.csrfToken });
 });
 
 // Health check endpoint
@@ -172,10 +172,10 @@ import wishlistRoutes from './routes/wishlist.routes';
 import uploadRoutes from './routes/upload.routes';
 import orderRoutes from './routes/order.routes';
 
-// Auth routes with strict rate limiting
+// Auth routes with strict rate limiting and CSRF protection
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', verifyCsrfToken, authRoutes);
 
 // Product routes
 app.use('/api/products', productsRoutes);
@@ -183,20 +183,20 @@ app.use('/api/products', productsRoutes);
 // Category routes
 app.use('/api/categories', categoriesRoutes);
 
-// Cart routes
-app.use('/api/cart', cartRoutes);
+// Cart routes with CSRF protection
+app.use('/api/cart', verifyCsrfToken, cartRoutes);
 
-// Wishlist routes
-app.use('/api/wishlist', wishlistRoutes);
+// Wishlist routes with CSRF protection
+app.use('/api/wishlist', verifyCsrfToken, wishlistRoutes);
 
 // Upload routes
 app.use('/api/upload', uploadRoutes);
 
-// Order routes
-app.use('/api/orders', orderRoutes);
+// Order routes with CSRF protection
+app.use('/api/orders', verifyCsrfToken, orderRoutes);
 
 import adminRoutes from './routes/admin.routes';
-app.use('/api/admin', adminRoutes);
+app.use('/api/admin', verifyCsrfToken, adminRoutes);
 
 // Cache management routes
 import cacheRoutes from './routes/cache.routes';

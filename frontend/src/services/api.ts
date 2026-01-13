@@ -2,17 +2,45 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
+// CSRF token cache
+let csrfToken: string | null = null;
+
+// Fetch CSRF token
+const fetchCsrfToken = async (): Promise<string> => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/csrf-token`, {
+            withCredentials: true,
+        });
+        csrfToken = response.data.csrfToken;
+        return csrfToken;
+    } catch (error) {
+        console.error('Failed to fetch CSRF token:', error);
+        throw error;
+    }
+};
+
 // Create axios instance
 const api = axios.create({
     baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true, // Enable cookies
 });
 
-// Request interceptor - add auth token to requests
+// Request interceptor - add auth token and CSRF token to requests
 api.interceptors.request.use(
-    (config) => {
+    async (config) => {
+        // Add CSRF token for non-GET requests
+        if (config.method && !['get', 'head', 'options'].includes(config.method.toLowerCase())) {
+            if (!csrfToken) {
+                await fetchCsrfToken();
+            }
+            if (csrfToken) {
+                config.headers['x-csrf-token'] = csrfToken;
+            }
+        }
+        
         // Try to get token from localStorage first
         let token = localStorage.getItem('accessToken');
         
@@ -49,6 +77,17 @@ api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
+        
+        // Handle CSRF token errors
+        if (error.response?.status === 403 && error.response?.data?.message?.includes('CSRF')) {
+            // Fetch new CSRF token and retry
+            csrfToken = null;
+            await fetchCsrfToken();
+            if (csrfToken) {
+                originalRequest.headers['x-csrf-token'] = csrfToken;
+                return api(originalRequest);
+            }
+        }
 
         // If error is 401 and we haven't tried to refresh yet
         if (error.response?.status === 401 && !originalRequest._retry) {
