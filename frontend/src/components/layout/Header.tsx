@@ -64,8 +64,6 @@ export const Header = () => {
                         <Link to="/deals" className="nav-link">Deals</Link>
                     </nav>
 
-                    <div className="spacer"></div>
-
                     {/* Search Bar */}
                     <form
                         className={`search-bar ${isSearchExpanded ? 'expanded' : ''}`}
@@ -87,6 +85,8 @@ export const Header = () => {
                             placeholder="Search products"
                         />
                     </form>
+
+                    <div className="spacer"></div>
 
                     {/* Actions */}
                     <div className="header-actions">
