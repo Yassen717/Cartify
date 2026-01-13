@@ -322,15 +322,22 @@ npm run test:coverage       # Generate coverage report
 
 ## 🔒 Security Features
 
+- **CSRF Protection**: Token-based protection for all state-changing operations
 - **Authentication**: JWT-based with refresh token rotation
-- **Password Security**: Bcrypt hashing with salt rounds
-- **Rate Limiting**: Dual-layer rate limiting (general API + strict auth endpoints)
-- **Input Validation**: Zod schemas for all endpoints
+- **Password Security**: Strong complexity requirements + Bcrypt hashing
+- **Rate Limiting**: Multi-layer rate limiting (API, auth, uploads)
+- **Input Validation**: Comprehensive Zod schemas for all endpoints
+- **File Upload Security**: Strict validation, secure filenames, size limits
 - **CORS**: Configured for specific origins with credential support
 - **Security Headers**: Helmet middleware with CSP configuration
 - **HTTPS Enforcement**: Automatic redirect in production
 - **SQL Injection Prevention**: Prisma ORM with parameterized queries
 - **XSS Protection**: Content Security Policy and input sanitization
+- **Log Sanitization**: Automatic redaction of sensitive data in logs
+
+📖 **For detailed security information, see [SECURITY.md](./SECURITY.md)**
+
+📦 **For production deployment, see [DEPLOYMENT.md](./DEPLOYMENT.md)**
 
 ## 📈 Performance Optimizations
 
