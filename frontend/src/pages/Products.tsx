@@ -33,6 +33,7 @@ export const Products = () => {
         sortOrder: 'desc' as 'asc' | 'desc',
     });
     const [searchInput, setSearchInput] = useState('');
+    const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
 
     const { addItem } = useCartStore();
     const { addItem: addToWishlist, removeItem, wishlist, fetchWishlist } = useWishlistStore();
@@ -58,8 +59,21 @@ export const Products = () => {
     }, [searchParams]);
 
     useEffect(() => {
+        fetchCategories();
+    }, []);
+
+    useEffect(() => {
         fetchProducts();
     }, [pagination.page, filters]);
+
+    const fetchCategories = async () => {
+        try {
+            const response = await productsService.getCategories();
+            setCategories(response.data.categories);
+        } catch (error) {
+            console.error('Failed to load categories');
+        }
+    };
 
     const fetchProducts = async () => {
         setIsLoading(true);
@@ -119,7 +133,7 @@ export const Products = () => {
         }
     };
 
-    const categories = ['All', 'Electronics', 'Fashion', 'Home', 'Sports'];
+
 
     return (
         <div className="products-page">
@@ -233,16 +247,25 @@ export const Products = () => {
                             <div className="filter-group">
                                 <h4>Categories</h4>
                                 <div className="category-list">
+                                    <button
+                                        className={`category-item ${!filters.categoryId ? 'active' : ''}`}
+                                        onClick={() => {
+                                            setFilters({ ...filters, categoryId: '' });
+                                            setPagination({ ...pagination, page: 1 });
+                                        }}
+                                    >
+                                        All
+                                    </button>
                                     {categories.map((cat) => (
                                         <button
-                                            key={cat}
-                                            className={`category-item ${!filters.categoryId && cat === 'All' ? 'active' : ''}`}
+                                            key={cat.id}
+                                            className={`category-item ${filters.categoryId === cat.id ? 'active' : ''}`}
                                             onClick={() => {
-                                                setFilters({ ...filters, categoryId: cat === 'All' ? '' : cat });
+                                                setFilters({ ...filters, categoryId: cat.id });
                                                 setPagination({ ...pagination, page: 1 });
                                             }}
                                         >
-                                            {cat}
+                                            {cat.name}
                                         </button>
                                     ))}
                                 </div>

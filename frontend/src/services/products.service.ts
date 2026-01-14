@@ -84,6 +84,12 @@ export const getProductReviews = async (
     return response.data;
 };
 
+// Get all categories
+export const getCategories = async (): Promise<{ success: boolean; data: { categories: Array<{ id: string; name: string; slug: string }> } }> => {
+    const response = await api.get('/categories');
+    return response.data;
+};
+
 // Admin: Create product
 export const createProduct = async (data: any): Promise<{ success: boolean; data: { product: Product } }> => {
     const response = await api.post('/products', data);
