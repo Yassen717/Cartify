@@ -137,6 +137,15 @@ export const Products = () => {
 
     return (
         <div className="products-page">
+            {/* Mobile Filter Backdrop */}
+            {showFilters && (
+                <div 
+                    className="backdrop" 
+                    onClick={() => setShowFilters(false)}
+                    style={{ display: window.innerWidth > 1024 ? 'none' : 'block' }}
+                />
+            )}
+            
             <div className="container">
                 {/* Header */}
                 <div className="products-header">
@@ -166,28 +175,37 @@ export const Products = () => {
                         <Card padding="lg">
                             <div className="filters-header">
                                 <h3>Filters</h3>
-                                <button
-                                    className="clear-filters"
-                                    onClick={() => {
-                                        setSearchInput('');
-                                        setSearchParams((prev) => {
-                                            const next = new URLSearchParams(prev);
-                                            next.delete('search');
-                                            return next;
-                                        });
-                                        setFilters({
-                                            search: '',
-                                            categoryId: '',
-                                            minPrice: '',
-                                            maxPrice: '',
-                                            sortBy: 'createdAt',
-                                            sortOrder: 'desc',
-                                        });
-                                        setPagination({ ...pagination, page: 1 });
-                                    }}
-                                >
-                                    Clear All
-                                </button>
+                                <div style={{ display: 'flex', gap: 'var(--space-md)', alignItems: 'center' }}>
+                                    <button
+                                        className="clear-filters"
+                                        onClick={() => {
+                                            setSearchInput('');
+                                            setSearchParams((prev) => {
+                                                const next = new URLSearchParams(prev);
+                                                next.delete('search');
+                                                return next;
+                                            });
+                                            setFilters({
+                                                search: '',
+                                                categoryId: '',
+                                                minPrice: '',
+                                                maxPrice: '',
+                                                sortBy: 'createdAt',
+                                                sortOrder: 'desc',
+                                            });
+                                            setPagination({ ...pagination, page: 1 });
+                                        }}
+                                    >
+                                        Clear All
+                                    </button>
+                                    <button
+                                        className="mobile-close-btn"
+                                        onClick={() => setShowFilters(false)}
+                                        style={{ display: window.innerWidth > 1024 ? 'none' : 'flex' }}
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Search */}
