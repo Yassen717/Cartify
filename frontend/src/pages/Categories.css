@@ -29,7 +29,7 @@
 /* Categories Grid */
 .categories-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: var(--space-xl);
     margin-bottom: var(--space-3xl);
 }
@@ -180,12 +180,32 @@
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+    .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 768px) {
+    .categories-page {
+        padding: var(--space-xl) 0;
+    }
+
     .categories-grid {
         grid-template-columns: 1fr;
+        gap: var(--space-lg);
     }
 
     .category-image {
         height: 200px;
+    }
+
+    .featured-actions {
+        flex-direction: column;
+    }
+
+    .featured-btn {
+        width: 100%;
+        justify-content: center;
     }
 }
