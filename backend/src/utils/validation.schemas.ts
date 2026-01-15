@@ -56,7 +56,7 @@ export const createProductSchema = z.object({
     brand: z.string().max(100, 'Brand name is too long').optional(),
     categoryId: z.string().uuid('Invalid category ID'),
     images: z.array(z.object({
-        url: z.string().url(),
+        url: z.string().min(1, 'Image URL is required'),
         altText: z.string().optional(),
         position: z.number().int().min(0).default(0),
         isPrimary: z.boolean().default(false),
