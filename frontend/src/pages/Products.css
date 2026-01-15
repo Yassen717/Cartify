@@ -64,17 +64,10 @@
     max-height: calc(100vh - 140px);
     overflow-y: auto;
     transition: transform var(--transition-base);
-    background: var(--white);
-    border: 2px solid var(--border-color);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-md);
+    /* content layout is handled by the inner Card */
 }
 
-.filters-sidebar .card {
-    padding: 0;
-    border: none;
-    box-shadow: none;
-}
+/* Removed .filters-sidebar .card override to let Card component control its own padding/styles */
 
 .filters-header {
     display: flex;
