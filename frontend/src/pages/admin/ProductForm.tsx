@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { getProductById } from '../../services/products.service';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { DEFAULT_PLACEHOLDER } from '../../utils/imageUtils';
 import './ProductForm.css';
 
 interface Category {
@@ -53,7 +54,17 @@ const ProductForm = () => {
     const onSubmit = async (data: any) => {
         setIsLoading(true);
         try {
-            const payload = {
+            // Build payload with type assertion for optional images
+            const payload: {
+                name: string;
+                description: string;
+                price: number;
+                stockQty: number;
+                sku: string;
+                categoryId: string;
+                slug: string;
+                images?: { url: string; altText: string }[];
+            } = {
                 name: data.name,
                 description: data.description,
                 price: parseFloat(data.price),
@@ -62,9 +73,12 @@ const ProductForm = () => {
                 categoryId: data.categoryId,
                 slug: data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
             };
-            
-            console.log('Submitting payload:', payload);
-            
+
+            // Add default placeholder image for new products
+            if (!isEditMode) {
+                payload.images = [{ url: DEFAULT_PLACEHOLDER, altText: data.name }];
+            }
+
             if (isEditMode) {
                 await api.put(`/products/${id}`, payload);
                 toast.success('Product updated successfully');
@@ -75,7 +89,7 @@ const ProductForm = () => {
             navigate('/admin/products');
         } catch (error: any) {
             console.error('Product creation error:', error.response?.data);
-            const errorMsg = error.response?.data?.errors 
+            const errorMsg = error.response?.data?.errors
                 ? error.response.data.errors.map((e: any) => `${e.field}: ${e.message}`).join(', ')
                 : error.response?.data?.message || 'Failed to save product';
             toast.error(errorMsg);

@@ -2,6 +2,9 @@
  * Utility functions for handling product images
  */
 
+// Default placeholder image for new products without images
+export const DEFAULT_PLACEHOLDER = '/Placeholder.webp';
+
 // Available product images in public folder
 const PRODUCT_IMAGES = [
     '/product-1.webp',
