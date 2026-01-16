@@ -101,12 +101,11 @@ if (process.env.NODE_ENV === 'production') {
     logger.info('⚡ Rate limiting disabled for development');
 }
 
-// Rate limiting - DISABLED for development
-// TODO: Re-enable for production
+// Rate limiting - Auth endpoints (strict in production)
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 10000, // Very high limit
-    message: 'Too many authentication attempts',
+    max: process.env.NODE_ENV === 'production' ? 5 : 10000,
+    message: 'Too many authentication attempts, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
     skipSuccessfulRequests: true,
