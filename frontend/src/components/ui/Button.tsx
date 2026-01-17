@@ -64,7 +64,7 @@ export const Button = ({
                 </span>
             )}
             {!isLoading && leftIcon && <span className="btn-icon">{leftIcon}</span>}
-            <span>{children}</span>
+            <span className="btn-text">{children}</span>
             {!isLoading && rightIcon && <span className="btn-icon">{rightIcon}</span>}
         </motion.button>
     );
