@@ -417,3 +417,34 @@ img {
   z-index: var(--z-modal);
   animation: fadeIn var(--transition-fast);
 }
+
+/* ============================================================================
+   GLOBAL BUTTON ICON FIX - Ensures consistent icon alignment
+   ============================================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn .btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15em;
+  line-height: 0;
+  flex-shrink: 0;
+}
+
+.btn .btn-icon svg {
+  display: block;
+  width: 1em;
+  height: 1em;
+}
+
+.btn .btn-text {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.2;
+}
