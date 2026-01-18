@@ -1,5 +1,25 @@
 /* ============================================================================
    DESIGN TOKENS - Enhanced for Premium UI/UX
+   ============================================================================
+   
+   CRITICAL DEPENDENCIES - Read before modifying:
+   
+   1. SPACING TOKENS (--space-*):
+      - Card.css uses these for padding classes:
+        • card-padding-sm = --space-md
+        • card-padding-md = --space-lg  
+        • card-padding-lg = --space-xl
+      - If you change spacing, update components using negative margins
+   
+   2. COMPONENT RELATIONSHIPS:
+      - Products.css filters use negative margins matching Card padding
+      - Wishlist.css image containers depend on --bg-secondary
+   
+   3. BREAKPOINTS:
+      - Mobile: max-width 768px
+      - Tablet: max-width 1024px
+      - Desktop: above 1024px
+   
    ============================================================================ */
 
 /* Import Google Fonts - Maison Style */

@@ -69,7 +69,19 @@
     transform: translateY(-2px);
 }
 
-/* Padding */
+/* =====================================================
+   CARD PADDING - CRITICAL VALUES
+   These values are used by other components for negative margin calculations.
+   If you change these, also update:
+   - Products.css (.filters-header, .filter-group)
+   - utilities.css (.card-extend-* classes)
+   
+   Mapping: padding prop -> CSS class -> value
+   - "none" -> card-padding-none -> 0
+   - "sm"   -> card-padding-sm   -> --space-md
+   - "md"   -> card-padding-md   -> --space-lg
+   - "lg"   -> card-padding-lg   -> --space-xl
+   ===================================================== */
 .card-padding-none {
     padding: 0;
 }
