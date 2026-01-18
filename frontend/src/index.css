@@ -1,6 +1,9 @@
 /* Import design tokens */
 @import './styles/tokens.css';
 
+/* Import utility classes */
+@import './styles/utilities.css';
+
 /* ============================================================================
    RESET & BASE STYLES
    ============================================================================ */

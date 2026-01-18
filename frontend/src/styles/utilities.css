@@ -1,0 +1,240 @@
+/* =====================================================
+   UTILITY CLASSES - DEFENSIVE CSS PATTERNS
+   
+   These utilities provide consistent, reusable styles
+   that help prevent layout breakages.
+   
+   USAGE: Import in main.tsx or index.css
+   ===================================================== */
+
+/* -----------------------------------------------------
+   IMAGE CONTAINERS
+   Always use these for images to prevent layout shifts
+   ----------------------------------------------------- */
+.img-container {
+    position: relative;
+    overflow: hidden;
+    background: var(--bg-secondary);
+}
+
+.img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.img-container--square {
+    aspect-ratio: 1 / 1;
+}
+
+.img-container--landscape {
+    aspect-ratio: 16 / 9;
+}
+
+.img-container--portrait {
+    aspect-ratio: 3 / 4;
+}
+
+/* -----------------------------------------------------
+   CARD CONTENT EXTENDERS
+   Use negative margins to extend content to card edges
+   Must match Card component padding values from Card.css
+   ----------------------------------------------------- */
+.card-extend-sm {
+    margin-left: calc(-1 * var(--space-md));
+    margin-right: calc(-1 * var(--space-md));
+    padding-left: var(--space-md);
+    padding-right: var(--space-md);
+}
+
+.card-extend-md {
+    margin-left: calc(-1 * var(--space-lg));
+    margin-right: calc(-1 * var(--space-lg));
+    padding-left: var(--space-lg);
+    padding-right: var(--space-lg);
+}
+
+.card-extend-lg {
+    margin-left: calc(-1 * var(--space-xl));
+    margin-right: calc(-1 * var(--space-xl));
+    padding-left: var(--space-xl);
+    padding-right: var(--space-xl);
+}
+
+/* Full width extension (all sides) */
+.card-extend-full-sm {
+    margin: calc(-1 * var(--space-md));
+    padding: var(--space-md);
+}
+
+.card-extend-full-md {
+    margin: calc(-1 * var(--space-lg));
+    padding: var(--space-lg);
+}
+
+.card-extend-full-lg {
+    margin: calc(-1 * var(--space-xl));
+    padding: var(--space-xl);
+}
+
+/* -----------------------------------------------------
+   FLEX UTILITIES
+   Common flexbox patterns
+   ----------------------------------------------------- */
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.flex-start {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.flex-shrink-0 {
+    flex-shrink: 0;
+}
+
+/* -----------------------------------------------------
+   GRID UTILITIES
+   Responsive grid patterns
+   ----------------------------------------------------- */
+.grid-auto-fill {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--grid-min-width, 260px), 1fr));
+    gap: var(--space-lg);
+}
+
+.grid-auto-fit {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(var(--grid-min-width, 260px), 1fr));
+    gap: var(--space-lg);
+}
+
+/* -----------------------------------------------------
+   TEXT TRUNCATION
+   Prevent text overflow issues
+   ----------------------------------------------------- */
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.text-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.text-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* -----------------------------------------------------
+   SPACING UTILITIES
+   Consistent margin/padding helpers
+   ----------------------------------------------------- */
+.mt-auto { margin-top: auto; }
+.mb-auto { margin-bottom: auto; }
+.ml-auto { margin-left: auto; }
+.mr-auto { margin-right: auto; }
+
+.gap-xs { gap: var(--space-xs); }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.gap-lg { gap: var(--space-lg); }
+.gap-xl { gap: var(--space-xl); }
+
+/* -----------------------------------------------------
+   VISIBILITY & ACCESSIBILITY
+   ----------------------------------------------------- */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Responsive visibility */
+@media (max-width: 1024px) {
+    .hide-tablet { display: none !important; }
+    .show-tablet { display: block !important; }
+}
+
+@media (max-width: 768px) {
+    .hide-mobile { display: none !important; }
+    .show-mobile { display: block !important; }
+}
+
+/* -----------------------------------------------------
+   INTERACTIVE STATES
+   Consistent hover/focus styles
+   ----------------------------------------------------- */
+.hover-lift {
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.hover-scale {
+    transition: transform var(--transition-fast);
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+/* -----------------------------------------------------
+   LOADING STATES
+   Skeleton and shimmer effects
+   ----------------------------------------------------- */
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--bg-secondary) 0%,
+        var(--bg-tertiary, var(--bg-primary)) 50%,
+        var(--bg-secondary) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite;
+    border-radius: var(--radius-md);
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
