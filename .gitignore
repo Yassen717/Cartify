@@ -10,7 +10,7 @@ coverage/
 # Production
 build/
 dist/
-
+.github/instructions.md
 # Environment variables
 .env
 .env.local
