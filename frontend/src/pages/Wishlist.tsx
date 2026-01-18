@@ -105,6 +105,10 @@ export const Wishlist = () => {
                                             <img
                                                 src={getProductImage(item.product)}
                                                 alt={item.product.name}
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.src = '/Placeholder.webp';
+                                                }}
                                             />
                                         </Link>
 
