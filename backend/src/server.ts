@@ -3,7 +3,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 
@@ -13,12 +12,10 @@ import { setCsrfToken, verifyCsrfToken } from './middleware/csrf';
 import prisma from './config/database';
 import { redisClient } from './config/redis';
 import { warmCache } from './middleware/cache';
-
-// Load environment variables
-dotenv.config();
+import { env } from './config/env'; // Validates environment variables on import
 
 const app: Application = express();
-const PORT = process.env.PORT || 3000;
+const PORT = env.PORT;
 
 // ============================================================================
 // SECURITY MIDDLEWARE
@@ -33,12 +30,12 @@ app.use(helmet({
             scriptSrc: ["'self'"],
             imgSrc: ["'self'", "data:", "https:", "blob:"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            connectSrc: ["'self'", process.env.CORS_ORIGIN || 'http://localhost:5173'],
+            connectSrc: ["'self'", env.CORS_ORIGIN],
             frameSrc: ["'none'"],
             objectSrc: ["'none'"],
             baseUri: ["'self'"],
             formAction: ["'self'"],
-            upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
+            upgradeInsecureRequests: env.NODE_ENV === 'production' ? [] : null,
         },
     },
     hsts: {
@@ -58,7 +55,7 @@ app.use(helmet({
 
 // CORS Configuration
 const corsOptions = {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+    origin: env.CORS_ORIGIN,
     credentials: true,
     optionsSuccessStatus: 200,
 };
@@ -69,7 +66,7 @@ app.use(cors(corsOptions));
 // ============================================================================
 
 // Morgan - HTTP request logger (only in development)
-if (process.env.NODE_ENV === 'development') {
+if (env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
@@ -87,7 +84,7 @@ app.get('/api/csrf-token', setCsrfToken, (_req, res) => {
 });
 
 // Rate limiting - General API (disabled in development for easier testing)
-if (process.env.NODE_ENV === 'production') {
+if (env.NODE_ENV === 'production') {
     const limiter = rateLimit({
         windowMs: 15 * 60 * 1000, // 15 minutes
         max: 100,
@@ -104,7 +101,7 @@ if (process.env.NODE_ENV === 'production') {
 // Rate limiting - Auth endpoints (strict in production)
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: process.env.NODE_ENV === 'production' ? 5 : 10000,
+    max: env.NODE_ENV === 'production' ? 5 : 10000,
     message: 'Too many authentication attempts, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
@@ -119,7 +116,7 @@ const authLimiter = rateLimit({
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // HTTPS enforcement in production
-if (process.env.NODE_ENV === 'production') {
+if (env.NODE_ENV === 'production') {
     app.use((req, res, next) => {
         if (req.header('x-forwarded-proto') !== 'https') {
             res.redirect(301, `https://${req.header('host')}${req.url}`);
@@ -248,8 +245,8 @@ process.on('SIGINT', gracefulShutdown);
 const server = app.listen(PORT, async () => {
     logger.info(`🚀 Server is running on port ${PORT}`);
     logger.info(`📍 Health check: http://localhost:${PORT}/health`);
-    logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-    logger.info(`🔒 CORS enabled for: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
+    logger.info(`🌍 Environment: ${env.NODE_ENV}`);
+    logger.info(`🔒 CORS enabled for: ${env.CORS_ORIGIN}`);
 
     // Connect to Redis
     await redisClient.connect();

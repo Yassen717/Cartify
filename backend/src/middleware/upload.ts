@@ -4,6 +4,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import rateLimit from 'express-rate-limit';
 import { BadRequestError } from '../utils/errors';
+import { env } from '../config/env';
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, '../../uploads');
@@ -73,8 +74,7 @@ export const deleteFile = (filePath: string): void => {
 
 // Helper to get file URL
 export const getFileUrl = (filename: string): string => {
-    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
-    return `${baseUrl}/uploads/${filename}`;
+    return `${env.BASE_URL}/uploads/${filename}`;
 };
 
 // Rate limiter for upload endpoints

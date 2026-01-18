@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import { ForbiddenError } from '../utils/errors';
 import { redisClient } from '../config/redis';
+import { env } from '../config/env';
 
 // Store for CSRF tokens (fallback when Redis is unavailable)
 const csrfTokens = new Map<string, { token: string; expires: number }>();
@@ -67,7 +68,7 @@ export const setCsrfToken = async (req: Request, res: Response, next: NextFuncti
     // Set session cookie
     res.cookie('sessionId', sessionId, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: CSRF_TTL_MS,
     });
@@ -84,8 +85,8 @@ export const verifyCsrfToken = async (req: Request, _res: Response, next: NextFu
         return next();
     }
     
-    // Skip CSRF in development for easier testing
-    if (process.env.NODE_ENV === 'development') {
+    // Skip CSRF in development for easier testing (but log warning)
+    if (env.NODE_ENV === 'development') {
         return next();
     }
     
