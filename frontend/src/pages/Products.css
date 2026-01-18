@@ -57,6 +57,12 @@
 }
 
 /* Filters Sidebar */
+/* =====================================================
+   FILTERS SIDEBAR - CRITICAL LAYOUT SECTION
+   DO NOT modify margin/padding values without checking:
+   1. Card component padding (see Card.css: card-padding-lg uses --space-xl)
+   2. Mobile responsive behavior (see @media max-width: 1024px below)
+   ===================================================== */
 .filters-sidebar {
     position: sticky;
     top: 120px;
@@ -64,15 +70,14 @@
     max-height: calc(100vh - 140px);
     overflow-y: auto;
     transition: transform var(--transition-base);
-    /* content layout is handled by the inner Card */
 }
-
-/* Removed .filters-sidebar .card override to let Card component control its own padding/styles */
 
 .filters-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin: calc(-1 * var(--space-xl));
+    margin-bottom: var(--space-lg);
     padding: var(--space-lg);
     border-bottom: 2px solid var(--border-color);
 }
@@ -121,12 +126,14 @@
 }
 
 .filter-group {
+    margin: 0 calc(-1 * var(--space-xl));
     padding: var(--space-lg);
     border-bottom: 2px solid var(--border-color);
 }
 
 .filter-group:last-child {
     border-bottom: none;
+    margin-bottom: calc(-1 * var(--space-xl));
 }
 
 .filter-group h4 {
@@ -176,14 +183,16 @@
 .search-inputs {
     display: flex;
     gap: var(--space-sm);
+    align-items: stretch;
 }
 
 .search-inputs input {
     flex: 1;
+    min-width: 0;
     padding: var(--space-sm) var(--space-md);
     border: 2px solid var(--border-color);
     border-radius: var(--radius-md);
-    background: var(--beige-50);
+    background: var(--bg-secondary);
     color: var(--text-primary);
     font-size: var(--text-sm);
     transition: all var(--transition-fast);
@@ -312,7 +321,10 @@
     gap: var(--space-lg);
 }
 
-/* Product Item */
+/* =====================================================
+   PRODUCT CARDS - CRITICAL LAYOUT SECTION
+   Card height and image containers are interdependent
+   ===================================================== */
 .product-item {
     height: 100%;
 }
@@ -330,6 +342,7 @@
     flex-direction: column;
 }
 
+/* CRITICAL: Image container must have explicit height and background */
 .product-image-container {
     position: relative;
     width: 100%;
@@ -565,6 +578,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+
+    .mobile-close-btn {
+        display: flex;
     }
 }
 

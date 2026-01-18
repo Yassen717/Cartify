@@ -215,7 +215,6 @@ export const Products = () => {
                                     <input
                                         type="search"
                                         placeholder="Search products"
-                                        className="price-input"
                                         value={searchInput}
                                         onChange={(e) => setSearchInput(e.target.value)}
                                         onKeyDown={(e) => {
@@ -366,6 +365,10 @@ export const Products = () => {
                                                         <img
                                                             src={getProductImage(product)}
                                                             alt={product.name}
+                                                            onError={(e) => {
+                                                                const target = e.target as HTMLImageElement;
+                                                                target.src = '/Placeholder.webp';
+                                                            }}
                                                         />
                                                         <button
                                                             className={`wishlist-btn ${isInWishlist(product.id) ? 'active' : ''}`}
