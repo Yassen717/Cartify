@@ -60,7 +60,10 @@
     font-size: var(--text-lg);
 }
 
-/* Wishlist Grid */
+/* =====================================================
+   WISHLIST GRID - CRITICAL LAYOUT SECTION
+   Image containers MUST have explicit dimensions and background
+   ===================================================== */
 .wishlist-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -72,11 +75,13 @@
     overflow: hidden;
 }
 
+/* CRITICAL: Image container must have background for loading state */
 .wishlist-image {
     position: relative;
     width: 100%;
     height: 300px;
     overflow: hidden;
+    background: var(--bg-secondary);
 }
 
 .wishlist-image img {
@@ -84,6 +89,12 @@
     height: 100%;
     object-fit: cover;
     transition: transform var(--transition-slow);
+}
+
+.wishlist-image a {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 .wishlist-item:hover .wishlist-image img {
