@@ -14,3 +14,5 @@ export { LoadingFallback } from './LoadingFallback';
 export { ProductCardSkeleton } from './ProductCardSkeleton';
 
 export { ProductDetailSkeleton } from './ProductDetailSkeleton';
+
+export { PaymentForm } from './PaymentForm';
