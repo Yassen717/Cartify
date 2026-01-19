@@ -466,15 +466,15 @@ export const Checkout = () => {
                         <div className="security-badges">
                             <div className="badge">
                                 <span className="badge-icon">🔒</span>
-                                <span>Secure Checkout</span>
+                                <span>Secure<br/>Checkout</span>
                             </div>
                             <div className="badge">
-                                <span className="badge-icon">✓</span>
-                                <span>SSL Encrypted</span>
+                                <span className="badge-icon">🛡️</span>
+                                <span>SSL<br/>Encrypted</span>
                             </div>
                             <div className="badge">
-                                <span className="badge-icon">↩</span>
-                                <span>Easy Returns</span>
+                                <span className="badge-icon">↩️</span>
+                                <span>Easy<br/>Returns</span>
                             </div>
                         </div>
                     </div>
