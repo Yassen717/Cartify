@@ -38,6 +38,8 @@
     cursor: pointer;
     overflow: hidden;
     transition: all var(--transition-base);
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 .category-image {
@@ -52,6 +54,8 @@
     height: 100%;
     object-fit: cover;
     transition: transform var(--transition-slow);
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 .category-card:hover .category-image img {
