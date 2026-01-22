@@ -28,13 +28,23 @@ export const Categories = () => {
         }
     };
 
-    const categoryImages = {
-        Electronics: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=600&h=400&fit=crop',
-        Fashion: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&h=400&fit=crop',
-        'Home & Garden': 'https://images.unsplash.com/photo-1484101403633-562f891dc89a?w=600&h=400&fit=crop',
-        Sports: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&h=400&fit=crop',
-        Books: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&h=400&fit=crop',
-        Toys: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&h=400&fit=crop',
+    const categoryImages: Record<string, string> = {
+        // Local images from public/categories
+        'Cameras': '/categories/cameras.webp',
+        'Clothing': '/categories/Clothes.webp',
+        'Clothes': '/categories/Clothes.webp',
+        'Home & Kitchen': '/categories/home-kitchen.webp',
+        'Home & Garden': '/categories/home-kitchen.webp',
+        'Laptops': '/categories/laptops.webp',
+        "Men's Wear": '/categories/Men\'s-Wear.webp',
+        'Peripherals': '/categories/peripherals.webp',
+        'Smartphones': '/categories/smartphones.webp',
+        'Electronics': '/categories/electronics.webp',
+        // Fallback images from Unsplash
+        'Fashion': 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&h=400&fit=crop',
+        'Sports': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&h=400&fit=crop',
+        'Books': 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&h=400&fit=crop',
+        'Toys': 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&h=400&fit=crop',
     };
 
     return (
@@ -74,6 +84,8 @@ export const Categories = () => {
                                                     <img
                                                         src={category.image || categoryImages[category.name as keyof typeof categoryImages] || 'https://via.placeholder.com/600x400'}
                                                         alt={category.name}
+                                                        loading="lazy"
+                                                        decoding="async"
                                                     />
                                                     <div className="category-overlay">
                                                         <FiArrowRight className="category-arrow" />
