@@ -147,10 +147,58 @@
     cursor: pointer;
     transition: all var(--transition-fast);
     font-size: var(--text-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    min-width: 140px;
+    justify-content: center;
 }
 
-.newsletter-btn:hover {
+.newsletter-btn:hover:not(:disabled) {
     background: var(--gray-800);
+}
+
+.newsletter-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.newsletter-btn.subscribed {
+    background: var(--success);
+    color: var(--white);
+}
+
+.newsletter-btn .spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.newsletter-input:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.newsletter-contact {
+    display: block;
+    margin-top: var(--space-sm);
+}
+
+.newsletter-contact a {
+    color: var(--primary);
+    text-decoration: underline;
+    transition: color var(--transition-fast);
+}
+
+.newsletter-contact a:hover {
+    color: var(--primary-dark);
 }
 
 /* Bottom Bar */

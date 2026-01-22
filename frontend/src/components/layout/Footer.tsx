@@ -1,8 +1,60 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiFacebook, FiTwitter, FiInstagram, FiGithub } from 'react-icons/fi';
+import { FiFacebook, FiTwitter, FiInstagram, FiGithub, FiCheck, FiLoader } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 import './Footer.css';
 
 export const Footer = () => {
+    const [email, setEmail] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubscribed, setIsSubscribed] = useState(false);
+
+    const validateEmail = (email: string) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    };
+
+    const handleSubscribe = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!email.trim()) {
+            toast.error('Please enter your email address');
+            return;
+        }
+
+        if (!validateEmail(email)) {
+            toast.error('Please enter a valid email address');
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        // Simulate API call for newsletter subscription
+        // In a real app, this would call your backend API
+        try {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Store subscription in localStorage (for portfolio demo)
+            const subscriptions = JSON.parse(localStorage.getItem('newsletter_subscriptions') || '[]');
+            if (!subscriptions.includes(email)) {
+                subscriptions.push(email);
+                localStorage.setItem('newsletter_subscriptions', JSON.stringify(subscriptions));
+            }
+
+            setIsSubscribed(true);
+            toast.success('Thank you for subscribing! 🎉');
+            
+            // Reset after 3 seconds
+            setTimeout(() => {
+                setIsSubscribed(false);
+                setEmail('');
+            }, 3000);
+        } catch {
+            toast.error('Failed to subscribe. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <>
             {/* Newsletter Section */}
@@ -10,17 +62,38 @@ export const Footer = () => {
                 <div className="container">
                     <div className="newsletter-content">
                         <p className="newsletter-subtitle">Subscribe to receive updates on new arrivals, exclusive offers, and design inspiration delivered to your inbox.</p>
-                        <div className="newsletter-form">
+                        <form className="newsletter-form" onSubmit={handleSubscribe}>
                             <input
                                 type="email"
                                 placeholder="Enter your email"
                                 className="newsletter-input"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                disabled={isSubmitting || isSubscribed}
                             />
-                            <button className="newsletter-btn">
-                                Subscribe →
+                            <button 
+                                type="submit" 
+                                className={`newsletter-btn ${isSubscribed ? 'subscribed' : ''}`}
+                                disabled={isSubmitting || isSubscribed}
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <FiLoader className="spinner" /> Subscribing...
+                                    </>
+                                ) : isSubscribed ? (
+                                    <>
+                                        <FiCheck /> Subscribed!
+                                    </>
+                                ) : (
+                                    'Subscribe →'
+                                )}
                             </button>
-                        </div>
-                        <p className="newsletter-disclaimer">By subscribing, you agree to our Privacy Policy. Unsubscribe anytime.</p>
+                        </form>
+                        <p className="newsletter-disclaimer">
+                            By subscribing, you agree to our Privacy Policy. Unsubscribe anytime.
+                            <br />
+                            <span className="newsletter-contact">Questions? Contact us at <a href="mailto:engyassenibrahim@gmail.com">engyassenibrahim@gmail.com</a></span>
+                        </p>
                     </div>
                 </div>
             </section>
