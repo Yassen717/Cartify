@@ -76,34 +76,23 @@ export const createProductSchema = z.object({
 
 export const updateProductSchema = createProductSchema.partial();
 
+// Helper to transform empty strings to undefined
+const emptyToUndefined = (val: unknown) => (val === '' ? undefined : val);
+
 export const productQuerySchema = z.object({
-    page: z.preprocess(
-        (val) => (typeof val === 'string' && val.match(/^\d+$/) ? Number(val) : 1),
-        z.number().int().positive().default(1)
+    page: z.coerce.number().int().positive().catch(1),
+    limit: z.coerce.number().int().positive().catch(20),
+    search: z.string().optional().transform(emptyToUndefined),
+    categoryId: z.string().optional().transform(emptyToUndefined),
+    minPrice: z.string().optional().transform(emptyToUndefined).pipe(z.coerce.number().positive().optional().catch(undefined)),
+    maxPrice: z.string().optional().transform(emptyToUndefined).pipe(z.coerce.number().positive().optional().catch(undefined)),
+    sortBy: z.string().optional().transform(val => 
+        val && ['price', 'createdAt', 'name'].includes(val) ? val : 'createdAt'
     ),
-    limit: z.preprocess(
-        (val) => (typeof val === 'string' && val.match(/^\d+$/) ? Number(val) : 20),
-        z.number().int().positive().default(20)
+    sortOrder: z.string().optional().transform(val => 
+        val && ['asc', 'desc'].includes(val) ? val : 'desc'
     ),
-    search: z.preprocess(
-        (val) => (typeof val === 'string' && val !== '' ? val : undefined),
-        z.string().optional()
-    ),
-    categoryId: z.preprocess(
-        (val) => (typeof val === 'string' && val !== '' ? val : undefined),
-        z.string().uuid().optional()
-    ),
-    minPrice: z.preprocess(
-        (val) => (typeof val === 'string' && val !== '' && val.match(/^\d+(\.\d+)?$/) ? Number(val) : undefined),
-        z.number().positive().optional()
-    ),
-    maxPrice: z.preprocess(
-        (val) => (typeof val === 'string' && val !== '' && val.match(/^\d+(\.\d+)?$/) ? Number(val) : undefined),
-        z.number().positive().optional()
-    ),
-    sortBy: z.enum(['price', 'createdAt', 'name']).default('createdAt'),
-    sortOrder: z.enum(['asc', 'desc']).default('desc'),
-});
+}).passthrough();
 
 // ============================================================================
 // CART VALIDATION SCHEMAS
