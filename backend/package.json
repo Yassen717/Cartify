@@ -20,8 +20,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@prisma/adapter-libsql": "^7.0.1",
-    "@prisma/client": "^7.0.1",
+    "@prisma/client": "^6.19.2",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
