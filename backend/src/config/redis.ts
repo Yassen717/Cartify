@@ -84,7 +84,8 @@ class RedisClient {
         if (!this.isReady()) return null;
         
         try {
-            return await this.client!.get(key);
+            const result = await this.client!.get(key);
+            return result as string | null;
         } catch (error) {
             logger.error(`Redis GET error for key ${key}:`, error);
             return null;
