@@ -83,6 +83,33 @@ app.get('/api/csrf-token', setCsrfToken, (_req, res) => {
     res.json({ success: true, csrfToken: res.locals.csrfToken });
 });
 
+// Health check endpoint
+app.get('/health', async (req, res) => {
+    try {
+        // Check database connection
+        await prisma.$queryRaw`SELECT 1`;
+        
+        // Check Redis connection
+        const redisStatus = redisClient.isReady();
+        
+        res.status(200).json({
+            status: 'OK',
+            timestamp: new Date().toISOString(),
+            database: 'connected',
+            redis: redisStatus ? 'connected' : 'disconnected',
+            uptime: process.uptime(),
+            memory: process.memoryUsage(),
+            environment: env.NODE_ENV
+        });
+    } catch (error) {
+        res.status(503).json({
+            status: 'ERROR',
+            timestamp: new Date().toISOString(),
+            error: 'Service temporarily unavailable'
+        });
+    }
+});
+
 // Rate limiting - General API (disabled in development for easier testing)
 if (env.NODE_ENV === 'production') {
     const limiter = rateLimit({

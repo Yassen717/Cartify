@@ -1,5 +1,58 @@
 # Production Deployment Guide
 
+## 🚀 Koyeb Deployment
+
+### Pre-Deployment Setup
+
+1. **Set up PostgreSQL database** (e.g., using Koyeb PostgreSQL service or external provider)
+2. **Set up Redis** (optional but recommended for caching)
+3. **Configure environment variables** in Koyeb dashboard
+
+### Required Environment Variables for Koyeb
+
+```env
+# Environment
+NODE_ENV=production
+
+# Database (PostgreSQL required)
+DATABASE_URL=postgresql://user:password@host:5432/cartify?schema=public
+
+# JWT Secrets (generate with: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))")
+JWT_SECRET=<your-generated-64-byte-secret>
+JWT_REFRESH_SECRET=<your-generated-64-byte-refresh-secret>
+JWT_EXPIRES_IN=1h
+JWT_REFRESH_EXPIRES_IN=7d
+
+# CORS - Set to your frontend domain
+CORS_ORIGIN=https://yourdomain.com
+
+# Server Base URL (will be provided by Koyeb)
+BASE_URL=https://your-koyeb-app.koyeb.app
+
+# Redis (optional)
+REDIS_URL=redis://your-redis-host:6379
+```
+
+### Deployment Steps
+
+1. **Push your code to GitHub**
+2. **Connect your GitHub repository to Koyeb**
+3. **Configure the deployment**:
+   - Set the service type to "Web Service"
+   - Set the port to 8000
+   - Add the environment variables above
+   - Health check endpoint: `/health`
+4. **Deploy**
+
+The deployment uses:
+- ✅ Dockerfile in the root directory
+- ✅ `.koyeb/config.toml` configuration
+- ✅ Automatic database migrations
+- ✅ Health checks
+- ✅ Production optimizations
+
+---
+
 ## 🚀 Pre-Deployment Checklist
 
 ### 1. Environment Configuration
