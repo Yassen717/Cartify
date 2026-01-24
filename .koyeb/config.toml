@@ -1,12 +1,8 @@
 [build]
-  # Dockerfile is in the root directory (builds backend)
+  # Build context is the backend directory
+  context = "backend"
   dockerfile = "Dockerfile"
 
 [deploy]
   # Health check endpoint
   health_check = "/health"
-  
-  # Port configuration
-  ports = [
-    { port = 8000, protocol = "http" }
-  ]

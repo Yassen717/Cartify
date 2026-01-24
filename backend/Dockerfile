@@ -1,19 +1,27 @@
 FROM node:20-alpine
 
-RUN apk add --no-cache python3 make g++ libc6-compat
+RUN apk add --no-cache python3 make g++ libc6-compat openssl
 
 WORKDIR /app
 
+# Copy package files
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --only=production
 
-COPY . .
+# Copy source code
+COPY . ./
+
+# Make start script executable
+RUN chmod +x start.sh
+
+# Generate Prisma client
 RUN npx prisma generate
+
+# Build the application
 RUN npm run build
 
 ENV NODE_ENV=production
-ENV PORT=3000
 
-EXPOSE 3000
+EXPOSE 8000
 
-CMD ["node", "dist/server.js"]
+CMD ["./start.sh"]
