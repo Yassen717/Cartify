@@ -1,6 +1,9 @@
 # Build stage
 FROM node:20-alpine AS builder
 
+# Install build dependencies for native modules (bcrypt, sharp)
+RUN apk add --no-cache python3 make g++ libc6-compat
+
 WORKDIR /app
 
 # Copy package files
@@ -20,6 +23,9 @@ RUN npm run build
 
 # Production stage
 FROM node:20-alpine AS production
+
+# Install runtime dependencies for sharp
+RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
