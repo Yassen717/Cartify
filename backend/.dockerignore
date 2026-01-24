@@ -1,0 +1,49 @@
+# Dependencies
+node_modules
+npm-debug.log
+
+# Build output (we copy from builder stage)
+# dist
+
+# Development files
+*.ts
+!*.d.ts
+src/
+tsconfig.json
+vitest.config.ts
+nodemon.json
+
+# Test files
+**/__tests__
+*.test.ts
+*.spec.ts
+coverage/
+
+# Environment files (will be set in Koyeb)
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Development database
+*.db
+*.db-journal
+
+# Test output
+test_output.txt
+auth_test_output.txt
