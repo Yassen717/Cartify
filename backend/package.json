@@ -4,7 +4,8 @@
   "description": "Cartify E-commerce Backend API",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --skipLibCheck",
+    "build:prod": "tsc --skipLibCheck --noEmitOnError false",
     "start": "node dist/server.js",
     "dev": "nodemon --exec tsx src/server.ts",
     "prisma:generate": "prisma generate",

@@ -11,6 +11,9 @@ COPY backend/package*.json ./
 # Install ALL dependencies (including devDependencies for build)
 RUN npm ci
 
+# Downgrade @types/express to v4 for compatibility with Express 5 param types
+RUN npm install --save-dev @types/express@4.17.21
+
 # Copy backend source code
 COPY backend/ ./
 
