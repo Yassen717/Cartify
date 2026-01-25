@@ -52,9 +52,11 @@ export const Orders = () => {
                         <div className="empty-state">
                             <h3>No orders yet</h3>
                             <p>Start shopping to create your first order!</p>
-                            <Button as={Link} to="/products">
-                                Browse Products
-                            </Button>
+                            <Link to="/products">
+                                <Button>
+                                    Browse Products
+                                </Button>
+                            </Link>
                         </div>
                     </Card>
                 ) : (
@@ -99,14 +101,14 @@ export const Orders = () => {
                                             <span>Total:</span>
                                             <strong>${Number(order.total).toFixed(2)}</strong>
                                         </div>
-                                        <Button
-                                            as={Link}
-                                            to={`/orders/${order.id}`}
-                                            variant="outline"
-                                            size="sm"
-                                        >
-                                            View Details
-                                        </Button>
+                                        <Link to={`/orders/${order.id}`}>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                            >
+                                                View Details
+                                            </Button>
+                                        </Link>
                                     </div>
                                 </Card>
                             </motion.div>

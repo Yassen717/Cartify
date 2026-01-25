@@ -1,4 +1,5 @@
-import { InputHTMLAttributes, ReactNode, useState } from 'react';
+import type { InputHTMLAttributes, ReactNode } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import './Input.css';
 

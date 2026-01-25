@@ -58,7 +58,7 @@ const AdminLayout: React.FC = () => {
           </button>
           <div className="user-info" aria-label="Logged in as">
             <span className="user-info-label">Logged in as</span>
-            <span className="user-info-email">{user.email}</span>
+            <span className="user-info-email">{user?.email}</span>
           </div>
         </div>
       </aside>

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
 import { FiHeart, FiShoppingCart, FiTrash2, FiArrowRight } from 'react-icons/fi';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button, Card } from '../components/ui';
 import { useWishlistStore } from '../stores/wishlistStore';
 import { useAuthStore } from '../stores/authStore';
@@ -11,7 +11,6 @@ import './Wishlist.css';
 export const Wishlist = () => {
     const { wishlist, isLoading, fetchWishlist, removeItem, moveToCart } = useWishlistStore();
     const { isAuthenticated } = useAuthStore();
-    const navigate = useNavigate();
 
     useEffect(() => {
         if (isAuthenticated) {

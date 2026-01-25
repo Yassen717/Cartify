@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import * as cartService from '../services/cart.service';
-import type { Cart, CartItem } from '../services/cart.service';
+import type { Cart } from '../services/cart.service';
 import toast from 'react-hot-toast';
 
 interface CartState {

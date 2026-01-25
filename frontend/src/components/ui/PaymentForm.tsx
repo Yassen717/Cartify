@@ -28,7 +28,7 @@ interface PaymentFormProps {
 
 type PaymentStep = 'form' | 'processing' | 'success' | 'error';
 
-export const PaymentForm = ({ amount, onPaymentSuccess, onPaymentError, disabled }: PaymentFormProps) => {
+export const PaymentForm = ({ amount, onPaymentSuccess, onPaymentError: _onPaymentError, disabled }: PaymentFormProps) => {
     const [cardNumber, setCardNumber] = useState('');
     const [cardHolder, setCardHolder] = useState('');
     const [expiryDate, setExpiryDate] = useState('');

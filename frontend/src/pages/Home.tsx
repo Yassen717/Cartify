@@ -7,7 +7,6 @@ import { FiHeart } from 'react-icons/fi';
 import { useWishlistStore } from '../stores/wishlistStore';
 import { useAuthStore } from '../stores/authStore';
 import * as productsService from '../services/products.service';
-import type { Product } from '../services/products.service';
 import { getProductImage } from '../utils/imageUtils';
 import toast from 'react-hot-toast';
 import './Home.css';

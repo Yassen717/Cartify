@@ -1,8 +1,8 @@
-import { motion } from 'framer-motion';
-import { HTMLAttributes, ReactNode } from 'react';
+import { motion, type HTMLMotionProps } from 'framer-motion';
+import type { ReactNode } from 'react';
 import './Card.css';
 
-export interface CardProps extends HTMLAttributes<HTMLDivElement> {
+export interface CardProps extends Omit<HTMLMotionProps<'div'>, 'children'> {
     variant?: 'default' | 'glass' | 'gradient' | 'outlined' | 'elevated';
     hover?: boolean;
     padding?: 'none' | 'sm' | 'md' | 'lg';

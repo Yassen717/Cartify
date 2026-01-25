@@ -10,7 +10,7 @@ import './Cart.css';
 
 export const Cart = () => {
     const { cart, isLoading, fetchCart, updateItem, removeItem, clearCart } = useCartStore();
-    const { isAuthenticated, user } = useAuthStore();
+    const { isAuthenticated } = useAuthStore();
 
     useEffect(() => {
         if (isAuthenticated) {

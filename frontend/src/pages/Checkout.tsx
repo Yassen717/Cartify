@@ -107,7 +107,7 @@ export const Checkout = () => {
                 paymentMethod: 'credit_card',
             };
 
-            const response = await orderService.createOrder(orderData);
+            await orderService.createOrder(orderData);
             await clearCart();
             toast.success('Order placed successfully!');
             navigate(`/orders`);
