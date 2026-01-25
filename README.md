@@ -392,10 +392,8 @@ The application uses Prisma ORM with the following main models:
 - **Shopping**: Cart, CartItem, Wishlist, Address
 - **Orders**: Order, OrderItem, OrderTracking
 - **Reviews & Ratings**: Review, ReviewImage, ReviewVote
-- **Support**: SupportTicket, SupportMessage
-- **Notifications**: Notification, NotificationPreference
-- **Loyalty**: LoyaltyPoints, LoyaltyTransaction
-- **Returns**: Return, ReturnItem
+
+*Note: The database schema also includes models for Support, Notifications, Loyalty, and Returns as placeholders for future development.*
 
 ## 🚧 Database Migrations
 
