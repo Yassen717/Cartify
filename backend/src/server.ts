@@ -17,6 +17,11 @@ import { env } from './config/env'; // Validates environment variables on import
 const app: Application = express();
 const PORT = env.PORT;
 
+// Trust proxy for deployment behind reverse proxies (Koyeb, Vercel, etc.)
+if (env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1);
+}
+
 // ============================================================================
 // SECURITY MIDDLEWARE
 // ============================================================================
