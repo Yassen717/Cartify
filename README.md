@@ -1,6 +1,16 @@
 # Cartify - Modern E-Commerce Platform
 
-A full-stack e-commerce application built with React, TypeScript, Node.js, Express, and Prisma.
+🛒 **[Live Demo: https://cartify-gold.vercel.app](https://cartify-gold.vercel.app)**
+
+A full-stack e-commerce application built with React, TypeScript, Node.js, Express, and Prisma. Deployed on Vercel (frontend), Koyeb (backend), and Neon (PostgreSQL database).
+
+## 🌐 Live Deployment
+
+| Service | Platform | URL |
+|---------|----------|-----|
+| Frontend | Vercel | [https://cartify-gold.vercel.app](https://cartify-gold.vercel.app) |
+| Backend API | Koyeb | `https://revolutionary-farah-yassen-projects-c5696215.koyeb.app` |
+| Database | Neon | PostgreSQL (managed) |
 
 ## 🎯 Project Overview
 
@@ -48,14 +58,20 @@ Cartify is a feature-rich e-commerce platform designed to provide an exceptional
 ### Backend
 - **Runtime**: Node.js 18+
 - **Framework**: Express 5.1.0 with TypeScript
-- **Database**: SQLite (via Prisma adapter, can be configured for PostgreSQL/MySQL)
+- **Database**: PostgreSQL (Neon) via Prisma
 - **ORM**: Prisma 7.0.1
 - **Authentication**: JWT (JSON Web Tokens) with refresh token rotation
 - **Validation**: Zod 4.1.13
 - **File Upload**: Multer 2.0.2
 - **Image Processing**: Sharp 0.34.5
-- **Caching**: Redis 5.10.0 with custom middleware
+- **Caching**: Redis 5.10.0 with custom middleware (optional)
 - **Testing**: Vitest 4.0.16, Supertest 7.1.4
+
+### Deployment
+- **Frontend Hosting**: Vercel
+- **Backend Hosting**: Koyeb
+- **Database**: Neon (PostgreSQL)
+- **CI/CD**: Automatic deployments via GitHub
 
 ### DevOps & Tools
 - **Version Control**: Git
@@ -219,6 +235,8 @@ cartify/
    - Frontend: http://localhost:5173
    - Backend API: http://localhost:3000
    - Health Check: http://localhost:3000/health
+
+   Or visit the **live demo**: [https://cartify-gold.vercel.app](https://cartify-gold.vercel.app)
 
 ## 🔧 Configuration
 
@@ -412,4 +430,4 @@ This project is licensed under the MIT License.
 
 ---
 
-Built with ❤️
+Built with ❤️ by [Yassen Ibrahim](https://github.com/Yassen717)
