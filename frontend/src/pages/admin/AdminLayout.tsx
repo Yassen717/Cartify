@@ -15,11 +15,20 @@ const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isAdmin = user?.role === 'ADMIN';
+
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
+    } else if (!isAdmin) {
+      navigate('/');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isAdmin, navigate]);
+
+  // Don't render admin UI while redirecting
+  if (!isAuthenticated || !isAdmin) {
+    return null;
+  }
 
   const navItems = [
     { path: '/admin', icon: FiGrid, label: 'Dashboard' },

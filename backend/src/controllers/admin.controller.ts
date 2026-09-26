@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import prisma from '../config/database';
 import { asyncHandler } from '../middleware/errorHandler';
+import { parsePagination } from '../utils/pagination';
 
 /**
  * Get dashboard statistics
@@ -84,10 +85,8 @@ export const getDashboardStats = asyncHandler(
  */
 export const getAllOrders = asyncHandler(
     async (req: Request, res: Response, _next: NextFunction) => {
-        const { page = '1', limit = '10', status } = req.query;
-        const pageNum = parseInt(page as string);
-        const limitNum = parseInt(limit as string);
-        const skip = (pageNum - 1) * limitNum;
+        const { status } = req.query;
+        const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query);
 
         const where: any = {};
         if (status) {
@@ -138,10 +137,8 @@ export const getAllOrders = asyncHandler(
  */
 export const getAllUsers = asyncHandler(
     async (req: Request, res: Response, _next: NextFunction) => {
-        const { page = '1', limit = '10', search } = req.query;
-        const pageNum = parseInt(page as string);
-        const limitNum = parseInt(limit as string);
-        const skip = (pageNum - 1) * limitNum;
+        const { search } = req.query;
+        const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query);
 
         const where: any = {};
         if (search) {

@@ -2,24 +2,18 @@
 node_modules
 npm-debug.log
 
-# Build output (we copy from builder stage)
-# dist
-
-# Development files
-*.ts
-!*.d.ts
-src/
-tsconfig.json
-vitest.config.ts
-nodemon.json
+# Build output (rebuilt inside the image)
+dist
 
 # Test files
 **/__tests__
 *.test.ts
 *.spec.ts
 coverage/
+vitest.config.ts
+nodemon.json
 
-# Environment files (will be set in Koyeb)
+# Environment files (set in the platform dashboard)
 .env
 .env.*
 !.env.example

@@ -25,7 +25,7 @@ export interface AuthResponse {
     data: {
         user: User;
         accessToken: string;
-        refreshToken: string;
+        refreshToken?: string;
     };
 }
 
@@ -41,10 +41,9 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
     return response.data;
 };
 
-// Logout user
+// Logout user - refresh token is sent via httpOnly cookie
 export const logout = async (): Promise<void> => {
-    const refreshToken = localStorage.getItem('refreshToken');
-    await api.post('/auth/logout', { refreshToken });
+    await api.post('/auth/logout');
 };
 
 // Get current user profile

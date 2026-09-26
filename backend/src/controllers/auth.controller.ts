@@ -14,6 +14,34 @@ import {
     verifyRefreshToken,
 } from '../utils/jwt';
 import { logger } from '../utils/logger';
+import { env } from '../config/env';
+
+const REFRESH_COOKIE_NAME = 'refreshToken';
+const REFRESH_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+const refreshCookieOptions = {
+    httpOnly: true,
+    secure: env.NODE_ENV === 'production',
+    sameSite: (env.NODE_ENV === 'production' ? 'none' : 'lax') as 'none' | 'lax',
+    maxAge: REFRESH_TOKEN_TTL_MS,
+    path: '/api/auth',
+};
+
+const setRefreshCookie = (res: Response, token: string): void => {
+    res.cookie(REFRESH_COOKIE_NAME, token, refreshCookieOptions);
+};
+
+const clearRefreshCookie = (res: Response): void => {
+    res.clearCookie(REFRESH_COOKIE_NAME, {
+        httpOnly: refreshCookieOptions.httpOnly,
+        secure: refreshCookieOptions.secure,
+        sameSite: refreshCookieOptions.sameSite,
+        path: refreshCookieOptions.path,
+    });
+};
+
+const getRefreshTokenFromRequest = (req: Request): string | undefined =>
+    req.cookies?.[REFRESH_COOKIE_NAME] || req.body?.refreshToken;
 
 // Register new user
 export const register = asyncHandler(
@@ -63,8 +91,7 @@ export const register = asyncHandler(
         const refreshToken = generateRefreshToken(user.id);
 
         // Save refresh token
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+        const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
 
         await prisma.refreshToken.create({
             data: {
@@ -73,6 +100,8 @@ export const register = asyncHandler(
                 expiresAt,
             },
         });
+
+        setRefreshCookie(res, refreshToken);
 
         logger.info(`New user registered: ${user.email}`);
 
@@ -119,8 +148,7 @@ export const login = asyncHandler(
         const refreshToken = generateRefreshToken(user.id);
 
         // Save refresh token
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 7);
+        const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
 
         await prisma.refreshToken.create({
             data: {
@@ -129,6 +157,8 @@ export const login = asyncHandler(
                 expiresAt,
             },
         });
+
+        setRefreshCookie(res, refreshToken);
 
         logger.info(`User logged in: ${user.email}`);
 
@@ -151,10 +181,10 @@ export const login = asyncHandler(
     }
 );
 
-// Refresh access token
+// Refresh access token - rotates the refresh token on every use
 export const refresh = asyncHandler(
     async (req: Request, res: Response, _next: NextFunction) => {
-        const { refreshToken } = req.body;
+        const refreshToken = getRefreshTokenFromRequest(req);
 
         if (!refreshToken) {
             throw new BadRequestError('Refresh token is required');
@@ -165,6 +195,7 @@ export const refresh = asyncHandler(
         try {
             decoded = verifyRefreshToken(refreshToken);
         } catch (error) {
+            clearRefreshCookie(res);
             throw new UnauthorizedError('Invalid or expired refresh token');
         }
 
@@ -189,10 +220,34 @@ export const refresh = asyncHandler(
         });
 
         if (!storedToken) {
-            throw new UnauthorizedError('Invalid or expired refresh token');
+            // A cryptographically valid token that is no longer in the database was
+            // already rotated or revoked. Treat as possible theft: revoke every
+            // session for this user.
+            await prisma.refreshToken.deleteMany({
+                where: { userId: decoded.userId },
+            });
+            clearRefreshCookie(res);
+            throw new UnauthorizedError('Refresh token reuse detected. Please login again.');
         }
 
-        // Generate new access token
+        // Rotate: invalidate the presented token and issue a new one
+        await prisma.refreshToken.delete({
+            where: { id: storedToken.id },
+        });
+
+        const newRefreshToken = generateRefreshToken(storedToken.user.id);
+        const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
+
+        await prisma.refreshToken.create({
+            data: {
+                userId: storedToken.user.id,
+                token: newRefreshToken,
+                expiresAt,
+            },
+        });
+
+        setRefreshCookie(res, newRefreshToken);
+
         const accessToken = generateAccessToken(
             storedToken.user.id,
             storedToken.user.email,
@@ -204,6 +259,7 @@ export const refresh = asyncHandler(
             message: 'Token refreshed successfully',
             data: {
                 accessToken,
+                refreshToken: newRefreshToken,
             },
         });
     }
@@ -212,7 +268,7 @@ export const refresh = asyncHandler(
 // Logout user
 export const logout = asyncHandler(
     async (req: Request, res: Response, _next: NextFunction) => {
-        const { refreshToken } = req.body;
+        const refreshToken = getRefreshTokenFromRequest(req);
 
         if (refreshToken) {
             // Delete refresh token from database
@@ -220,6 +276,8 @@ export const logout = asyncHandler(
                 where: { token: refreshToken },
             });
         }
+
+        clearRefreshCookie(res);
 
         res.json({
             success: true,
@@ -337,6 +395,8 @@ export const changePassword = asyncHandler(
         await prisma.refreshToken.deleteMany({
             where: { userId: req.user.id },
         });
+
+        clearRefreshCookie(res);
 
         logger.info(`Password changed for user: ${user.email}`);
 

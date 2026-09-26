@@ -17,7 +17,7 @@ import { env } from './config/env'; // Validates environment variables on import
 const app: Application = express();
 const PORT = env.PORT;
 
-// Trust proxy for deployment behind reverse proxies (Koyeb, Vercel, etc.)
+// Trust proxy for deployment behind reverse proxies (Render, Vercel, etc.)
 if (env.NODE_ENV === 'production') {
     app.set('trust proxy', 1);
 }
@@ -162,22 +162,6 @@ if (env.NODE_ENV === 'production') {
 // ============================================================================
 // ROUTES
 // ============================================================================
-
-// Health check endpoint
-app.get('/health', async (_req, res) => {
-    const redisStatus = redisClient.isReady() ? 'connected' : 'disconnected';
-
-    res.json({
-        success: true,
-        message: 'Server is healthy',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-        services: {
-            database: 'connected',
-            redis: redisStatus,
-        },
-    });
-});
 
 // API Info endpoint
 app.get('/', (_req, res) => {

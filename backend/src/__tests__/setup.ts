@@ -1,12 +1,14 @@
-import { PrismaClient } from '@prisma/client';
-import { mockDeep, DeepMockProxy } from 'vitest-mock-extended';
+import type { PrismaClient } from '@prisma/client';
 import { vi, beforeEach } from 'vitest';
 
 // Mock Prisma Client
-vi.mock('../config/database', () => ({
-    __esModule: true,
-    default: mockDeep<PrismaClient>(),
-}));
+vi.mock('../config/database', async () => {
+    const { mockDeep } = await import('vitest-mock-extended');
+    return {
+        __esModule: true,
+        default: mockDeep<PrismaClient>(),
+    };
+});
 
 // Mock logger to avoid cluttering test output
 vi.mock('../utils/logger', () => ({

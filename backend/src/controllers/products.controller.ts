@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import prisma from '../config/database';
 import { asyncHandler } from '../middleware/errorHandler';
 import { NotFoundError, BadRequestError } from '../utils/errors';
+import { parsePagination } from '../utils/pagination';
 import { logger } from '../utils/logger';
 import { invalidateCache } from '../middleware/cache';
 
@@ -9,8 +10,6 @@ import { invalidateCache } from '../middleware/cache';
 export const getProducts = asyncHandler(
     async (req: Request, res: Response, _next: NextFunction) => {
         const {
-            page = '1',
-            limit = '20',
             search,
             categoryId,
             minPrice,
@@ -19,9 +18,14 @@ export const getProducts = asyncHandler(
             sortOrder = 'desc',
         } = req.query;
 
-        const pageNum = parseInt(page as string);
-        const limitNum = parseInt(limit as string);
-        const skip = (pageNum - 1) * limitNum;
+        const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query);
+
+        // Whitelist sort params (validateQuery normalizes them, but stay safe
+        // even if the raw query values reach here)
+        const sortField = ['price', 'createdAt', 'name'].includes(sortBy as string)
+            ? (sortBy as string)
+            : 'createdAt';
+        const sortDir = sortOrder === 'asc' ? 'asc' : 'desc';
 
         // Build where clause
         const where: any = {};
@@ -50,7 +54,7 @@ export const getProducts = asyncHandler(
                 where,
                 skip,
                 take: limitNum,
-                orderBy: { [sortBy as string]: sortOrder },
+                orderBy: { [sortField]: sortDir },
                 include: {
                     category: {
                         select: {
@@ -121,6 +125,9 @@ export const getProducts = asyncHandler(
 export const getProductById = asyncHandler(
     async (req: Request, res: Response, _next: NextFunction) => {
         const { id } = req.params;
+        if (typeof id !== 'string') {
+            throw new BadRequestError('Invalid product ID');
+        }
 
         const product = await prisma.product.findUnique({
             where: { id },
@@ -344,11 +351,7 @@ export const deleteProduct = asyncHandler(
 export const getProductReviews = asyncHandler(
     async (req: Request, res: Response, _next: NextFunction) => {
         const { id } = req.params;
-        const { page = '1', limit = '10' } = req.query;
-
-        const pageNum = parseInt(page as string);
-        const limitNum = parseInt(limit as string);
-        const skip = (pageNum - 1) * limitNum;
+        const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query);
 
         const [reviews, total] = await Promise.all([
             prisma.review.findMany({

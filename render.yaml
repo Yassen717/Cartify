@@ -1,0 +1,47 @@
+# Render Blueprint — Cartify backend (free tier)
+# Deploy: Render dashboard → New → Blueprint → pick this repo.
+# You'll be prompted for the sync:false vars below on first deploy.
+
+services:
+  # ── Backend API (Docker build from root Dockerfile) ──────────────
+  - type: web
+    name: cartify-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: ./
+    plan: free
+    region: frankfurt          # pick the region closest to your Neon DB
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL      # Neon pooled connection string (postgresql://...)
+        sync: false
+      - key: JWT_SECRET        # 64+ chars: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 1h
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: CORS_ORIGIN       # exact frontend origin, no trailing slash
+        value: https://cartify-gold.vercel.app
+      - key: BASE_URL          # public URL of THIS service; fix after 1st deploy
+        value: https://cartify-api.onrender.com
+      - key: REDIS_URL         # auto-injected from the Key Value service below
+        fromService:
+          type: keyvalue
+          name: cartify-cache
+          property: connectionString
+
+  # ── Cache (Redis-compatible; free tier is in-memory, 25 MB) ──────
+  # Optional: app degrades gracefully without it. Delete this block
+  # and the REDIS_URL env var above to skip it.
+  - type: keyvalue
+    name: cartify-cache
+    plan: free
+    region: frankfurt
+    ipAllowList: []                # private network only — required field
+    maxmemoryPolicy: allkeys-lru
+    persistenceMode: off           # free tier has no disk persistence anyway

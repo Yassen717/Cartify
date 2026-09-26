@@ -19,6 +19,7 @@ import {
     createProductSchema,
     updateProductSchema,
     productQuerySchema,
+    paginationQuerySchema,
     createReviewSchema,
     updateReviewSchema,
     voteReviewSchema,
@@ -27,10 +28,10 @@ import { cacheMiddleware } from '../middleware/cache';
 
 const router = Router();
 
-// Public routes with caching
-router.get('/', cacheMiddleware(300), getProducts); // 5 min cache
+// Public routes with caching and validated query params
+router.get('/', validateQuery(productQuerySchema), cacheMiddleware(300), getProducts); // 5 min cache
 router.get('/:id', cacheMiddleware(600), getProductById); // 10 min cache
-router.get('/:id/reviews', cacheMiddleware(300), getProductReviews); // 5 min cache
+router.get('/:id/reviews', validateQuery(paginationQuerySchema), cacheMiddleware(300), getProductReviews); // 5 min cache
 
 // Review routes
 router.post('/:id/reviews', authenticate, validateBody(createReviewSchema), createReview);

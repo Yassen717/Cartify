@@ -6,8 +6,8 @@ import rateLimit from 'express-rate-limit';
 import { BadRequestError } from '../utils/errors';
 import { env } from '../config/env';
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../../uploads');
+// Ensure uploads directory exists (files are served at /uploads/products/<name>)
+const uploadsDir = path.join(__dirname, '../../uploads/products');
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
 }

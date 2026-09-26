@@ -1,6 +1,14 @@
 import axios from 'axios';
 
+declare module 'axios' {
+    export interface AxiosRequestConfig {
+        /** Skip the 401 -> refresh -> retry flow for this request (used by the refresh call itself) */
+        _skipAuthRetry?: boolean;
+    }
+}
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const AUTH_STORAGE_KEY = 'auth-storage';
 
 // CSRF token cache
 let csrfToken: string | null = null;
@@ -25,8 +33,90 @@ const api = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
-    withCredentials: true, // Enable cookies
+    withCredentials: true, // Enable cookies (refresh token + session)
 });
+
+// --- Token storage helpers -------------------------------------------------
+// Access token lives ONLY in zustand's persisted 'auth-storage'.
+// The refresh token is never stored in JS-accessible storage; the backend
+// sends it as an httpOnly cookie scoped to /api/auth.
+
+const getStoredAccessToken = (): string | null => {
+    // Legacy raw key written by older versions of the app
+    const legacyToken = localStorage.getItem('accessToken');
+    if (legacyToken) return legacyToken;
+
+    try {
+        const authStorage = localStorage.getItem(AUTH_STORAGE_KEY);
+        if (authStorage) {
+            const parsed = JSON.parse(authStorage);
+            return parsed?.state?.accessToken || null;
+        }
+    } catch {
+        // Ignore parsing errors
+    }
+    return null;
+};
+
+const updateStoredAccessToken = (accessToken: string): void => {
+    try {
+        const authStorage = localStorage.getItem(AUTH_STORAGE_KEY);
+        const parsed = authStorage ? JSON.parse(authStorage) : { state: {} };
+        parsed.state = { ...(parsed.state || {}), accessToken };
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(parsed));
+    } catch {
+        // Ignore storage errors
+    }
+    // Clean up legacy copy so it can't go stale
+    localStorage.removeItem('accessToken');
+};
+
+const clearAuthStorage = (): void => {
+    try {
+        const authStorage = localStorage.getItem(AUTH_STORAGE_KEY);
+        if (authStorage) {
+            const parsed = JSON.parse(authStorage);
+            parsed.state = {
+                ...(parsed.state || {}),
+                user: null,
+                accessToken: null,
+                refreshToken: null,
+                isAuthenticated: false,
+            };
+            localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(parsed));
+        }
+    } catch {
+        // Ignore storage errors
+    }
+    // Remove legacy keys from older versions of the app
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+};
+
+// --- Refresh flow ----------------------------------------------------------
+// Single-flight: concurrent 401s share one refresh request so the rotated
+// refresh token is only consumed once.
+let refreshPromise: Promise<string | null> | null = null;
+
+const performRefresh = (): Promise<string | null> => {
+    if (!refreshPromise) {
+        refreshPromise = (async () => {
+            try {
+                // Goes through the `api` instance so the CSRF header and the
+                // httpOnly refresh cookie are sent automatically.
+                const response = await api.post('/auth/refresh', {}, { _skipAuthRetry: true });
+                const { accessToken } = response.data.data;
+                updateStoredAccessToken(accessToken);
+                return accessToken as string;
+            } catch {
+                return null;
+            }
+        })().finally(() => {
+            refreshPromise = null;
+        });
+    }
+    return refreshPromise;
+};
 
 // Request interceptor - add auth token and CSRF token to requests
 api.interceptors.request.use(
@@ -43,30 +133,10 @@ api.interceptors.request.use(
                 }
             }
         }
-        
-        // Try to get token from localStorage first
-        let token = localStorage.getItem('accessToken');
-        
-        // If not found, try to get it from zustand persist storage
-        if (!token) {
-            try {
-                const authStorage = localStorage.getItem('auth-storage');
-                if (authStorage) {
-                    const parsed = JSON.parse(authStorage);
-                    token = parsed?.state?.accessToken || null;
-                }
-            } catch (e) {
-                // Ignore parsing errors
-            }
-        }
-        
-        // Clean token (remove any whitespace)
+
+        const token = getStoredAccessToken()?.trim();
         if (token) {
-            token = token.trim();
-            // Only add token if it's not empty after trimming
-            if (token) {
-                config.headers.Authorization = `Bearer ${token}`;
-            }
+            config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },
@@ -80,7 +150,7 @@ api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
-        
+
         // Handle CSRF token errors
         if (error.response?.status === 403 && error.response?.data?.message?.includes('CSRF')) {
             // Fetch new CSRF token and retry
@@ -92,82 +162,30 @@ api.interceptors.response.use(
             }
         }
 
+        // Internal requests (e.g. the refresh call itself) bypass this flow
+        if (originalRequest?._skipAuthRetry) {
+            return Promise.reject(error);
+        }
+
         // If error is 401 and we haven't tried to refresh yet
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
             // Check error message to determine if we should try refresh
             const errorMessage = error.response?.data?.message || '';
-            
+
             // Only try refresh if token is expired or invalid (not if no token provided)
             if (errorMessage === 'Token expired' || errorMessage === 'Invalid token') {
-                try {
-                    // Try to get refresh token from localStorage or zustand
-                    let refreshToken = localStorage.getItem('refreshToken');
-                    
-                    if (!refreshToken) {
-                        try {
-                            const authStorage = localStorage.getItem('auth-storage');
-                            if (authStorage) {
-                                const parsed = JSON.parse(authStorage);
-                                refreshToken = parsed?.state?.refreshToken || null;
-                            }
-                        } catch (e) {
-                            // Ignore parsing errors
-                        }
-                    }
-                    
-                    if (refreshToken) {
-                        refreshToken = refreshToken.trim();
-                        
-                        // Try to refresh the token
-                        const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-                            refreshToken,
-                        });
+                const newAccessToken = await performRefresh();
 
-                        const { accessToken } = response.data.data;
-                        // Save new token to both locations
-                        localStorage.setItem('accessToken', accessToken);
-                        
-                        // Update zustand storage if it exists
-                        try {
-                            const authStorage = localStorage.getItem('auth-storage');
-                            if (authStorage) {
-                                const parsed = JSON.parse(authStorage);
-                                parsed.state.accessToken = accessToken;
-                                localStorage.setItem('auth-storage', JSON.stringify(parsed));
-                            }
-                        } catch (e) {
-                            // Ignore parsing errors
-                        }
-
-                        // Retry the original request with new token
-                        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-                        return api(originalRequest);
-                    }
-                } catch (refreshError) {
-                    // Refresh failed, clear tokens and redirect to login
-                    localStorage.removeItem('accessToken');
-                    localStorage.removeItem('refreshToken');
-                    
-                    // Clear zustand storage
-                    try {
-                        const authStorage = localStorage.getItem('auth-storage');
-                        if (authStorage) {
-                            const parsed = JSON.parse(authStorage);
-                            parsed.state.accessToken = null;
-                            parsed.state.refreshToken = null;
-                            parsed.state.isAuthenticated = false;
-                            parsed.state.user = null;
-                            localStorage.setItem('auth-storage', JSON.stringify(parsed));
-                        }
-                    } catch (e) {
-                        // Ignore parsing errors
-                    }
-                    
-                    window.location.href = '/login';
-                    return Promise.reject(refreshError);
+                if (newAccessToken) {
+                    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                    return api(originalRequest);
                 }
+
+                // Refresh failed (invalid/expired/reused refresh token) -> force re-login
+                clearAuthStorage();
+                window.location.href = '/login';
             } else if (errorMessage === 'No token provided') {
                 // No token - redirect to login
                 window.location.href = '/login';

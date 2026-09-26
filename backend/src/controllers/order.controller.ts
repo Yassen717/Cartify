@@ -1,19 +1,80 @@
 import { Request, Response, NextFunction } from 'express';
+import { randomUUID } from 'crypto';
+import { OrderStatus, Prisma } from '@prisma/client';
+import type { AddressInput } from '../utils/validation.schemas';
 import prisma from '../config/database';
 import { asyncHandler } from '../middleware/errorHandler';
-import { BadRequestError, NotFoundError, UnauthorizedError } from '../utils/errors';
+import { BadRequestError, NotFoundError, UnauthorizedError, ConflictError } from '../utils/errors';
+import { parsePagination } from '../utils/pagination';
 import { logger } from '../utils/logger';
 
-/**
- * Create a new order from user's cart
- * POST /api/orders
- */
+const estimatedTaxRate = new Prisma.Decimal('0.10');
+const inventoryReservationStatus = 'Inventory Reserved';
+
+const roundMoney = (value: Prisma.Decimal) =>
+    value.toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
+
+const withSerializableRetry = async <T>(operation: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> => {
+    for (let attempt = 0; ; attempt += 1) {
+        try {
+            return await prisma.$transaction(operation, {
+                isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+            });
+        } catch (error) {
+            if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== 'P2034') {
+                throw error;
+            }
+            if (attempt >= 2) {
+                throw new ConflictError('Concurrent order update. Please try again.');
+            }
+            await new Promise((resolve) => setTimeout(resolve, 10 * (attempt + 1)));
+        }
+    }
+};
+
+const resolveAddress = async (
+    tx: Prisma.TransactionClient,
+    userId: string,
+    addressId: string | undefined,
+    address: AddressInput | undefined
+): Promise<string> => {
+    if (addressId) {
+        const ownedAddress = await tx.address.findFirst({
+            where: { id: addressId, userId },
+            select: { id: true },
+        });
+        if (!ownedAddress) {
+            throw new BadRequestError('Address not found or not owned by user');
+        }
+        return ownedAddress.id;
+    }
+    if (!address) {
+        throw new BadRequestError('Shipping and billing addresses are required');
+    }
+    const createdAddress = await tx.address.create({
+        data: {
+            type: address.type,
+            fullName: address.fullName,
+            phone: address.phone,
+            street: address.street,
+            city: address.city,
+            state: address.state,
+            postalCode: address.postalCode,
+            country: address.country,
+            isDefault: address.isDefault,
+            userId,
+        },
+    });
+    return createdAddress.id;
+};
+
 export const createOrder = asyncHandler(
     async (req: Request, res: Response, _next: NextFunction) => {
         if (!req.user) {
             throw new UnauthorizedError('Not authenticated');
         }
 
+        const userId = req.user.id;
         const {
             shippingAddressId,
             billingAddressId,
@@ -22,125 +83,142 @@ export const createOrder = asyncHandler(
             paymentMethod,
         } = req.body;
 
-        // Get user's cart
-        const cart = await prisma.cart.findUnique({
-            where: { userId: req.user.id },
-            include: {
-                items: {
-                    include: {
-                        product: true,
-                        variant: true,
+        const orderNumber = `ORD-${randomUUID()}`;
+        const order = await withSerializableRetry(async (tx) => {
+            const cart = await tx.cart.findUnique({
+                where: { userId },
+                include: {
+                    items: {
+                        include: {
+                            product: true,
+                            variant: true,
+                        },
                     },
                 },
-            },
-        });
-
-        if (!cart || cart.items.length === 0) {
-            throw new BadRequestError('Cart is empty');
-        }
-
-        // Calculate totals
-        let subtotal = 0;
-        cart.items.forEach((item) => {
-            const price = item.variant
-                ? parseFloat(item.variant.price.toString())
-                : parseFloat(item.product.price.toString());
-            subtotal += price * item.quantity;
-        });
-
-        const tax = subtotal * 0.1; // 10% tax
-        const shippingCost = subtotal > 50 ? 0 : 9.99; // Free shipping over $50
-        const total = subtotal + tax + shippingCost;
-
-        // Handle addresses
-        let shippingAddrId = shippingAddressId;
-        let billingAddrId = billingAddressId;
-
-        // Create shipping address if provided
-        if (!shippingAddrId && shippingAddress) {
-            const newShippingAddr = await prisma.address.create({
-                data: {
-                    userId: req.user.id,
-                    ...shippingAddress,
-                },
             });
-            shippingAddrId = newShippingAddr.id;
-        }
 
-        // Create billing address if provided
-        if (!billingAddrId && billingAddress) {
-            const newBillingAddr = await prisma.address.create({
-                data: {
-                    userId: req.user.id,
-                    ...billingAddress,
-                },
+            if (!cart || cart.items.length === 0) {
+                throw new BadRequestError('Cart is empty');
+            }
+
+            for (const item of cart.items) {
+                if (!Number.isSafeInteger(item.quantity) || item.quantity <= 0 || item.quantity > 2147483647) {
+                    throw new BadRequestError(`Invalid quantity for "${item.product.name}"`);
+                }
+                if ((item.variantId && (!item.variant || item.variant.id !== item.variantId || item.variant.productId !== item.productId)) ||
+                    (!item.variantId && item.variant)) {
+                    throw new BadRequestError('Variant does not belong to product');
+                }
+                const inventory = item.variant ?? item.product;
+                if (inventory.stockQty < item.quantity) {
+                    throw new ConflictError(
+                        `Insufficient stock for "${inventory.name}". Requested: ${item.quantity}. Please refresh your cart.`
+                    );
+                }
+            }
+
+            const shippingAddrId = await resolveAddress(tx, userId, shippingAddressId, shippingAddress);
+            const billingAddrId = await resolveAddress(tx, userId, billingAddressId, billingAddress);
+
+            const items = cart.items.map((item) => {
+                const currentPrice = new Prisma.Decimal(item.variant ? item.variant.price : item.product.price);
+                if (!currentPrice.isFinite() || currentPrice.isNegative()) {
+                    throw new BadRequestError('Invalid product price');
+                }
+                const price = roundMoney(currentPrice);
+                return {
+                    productId: item.productId,
+                    variantId: item.variantId,
+                    quantity: item.quantity,
+                    price,
+                    subtotal: roundMoney(price.times(item.quantity)),
+                };
             });
-            billingAddrId = newBillingAddr.id;
-        }
+            const subtotal = roundMoney(items.reduce((sum, item) => sum.plus(item.subtotal), new Prisma.Decimal(0)));
 
-        // Verify addresses exist
-        if (!shippingAddrId || !billingAddrId) {
-            throw new BadRequestError('Shipping and billing addresses are required');
-        }
+            const tax = roundMoney(subtotal.times(estimatedTaxRate));
+            const shippingCost = subtotal.greaterThan(new Prisma.Decimal(50))
+                ? new Prisma.Decimal(0)
+                : new Prisma.Decimal('9.99');
+            const total = roundMoney(subtotal.plus(tax).plus(shippingCost));
 
-        // Generate unique order number
-        const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+            const stockUpdates: Array<Prisma.PrismaPromise<{ count: number }>> = cart.items.map((item) =>
+                item.variant
+                    ? tx.productVariant.updateMany({
+                          where: {
+                              id: item.variant.id,
+                              productId: item.productId,
+                              stockQty: { gte: item.quantity },
+                          },
+                          data: { stockQty: { decrement: item.quantity } },
+                      })
+                    : tx.product.updateMany({
+                          where: {
+                              id: item.productId,
+                              stockQty: { gte: item.quantity },
+                          },
+                          data: { stockQty: { decrement: item.quantity } },
+                      })
+            );
 
-        // Create order
-        const order = await prisma.order.create({
-            data: {
-                userId: req.user.id,
-                orderNumber,
-                status: 'PENDING',
-                paymentStatus: 'PENDING',
-                subtotal,
-                tax,
-                shippingCost,
-                total,
-                shippingAddressId: shippingAddrId,
-                billingAddressId: billingAddrId,
-                items: {
-                    create: cart.items.map((item) => ({
-                        productId: item.productId,
-                        variantId: item.variantId,
-                        quantity: item.quantity,
-                        price: item.variant
-                            ? item.variant.price
-                            : item.product.price,
-                        subtotal:
-                            parseFloat(
-                                (item.variant
-                                    ? item.variant.price
-                                    : item.product.price
-                                ).toString()
-                            ) * item.quantity,
-                    })),
+            const stockResults = await Promise.all(stockUpdates);
+            for (let index = 0; index < cart.items.length; index += 1) {
+                const item = cart.items[index];
+                if (stockResults[index].count === 0) {
+                    const itemName = item.variant ? item.variant.name : item.product.name;
+                    throw new ConflictError(
+                        `Insufficient stock for "${itemName}". Requested: ${item.quantity}. Please refresh your cart.`
+                    );
+                }
+            }
+
+            const createdOrder = await tx.order.create({
+                data: {
+                    userId,
+                    orderNumber,
+                    status: OrderStatus.PENDING,
+                    paymentStatus: 'PENDING',
+                    subtotal,
+                    tax,
+                    shippingCost,
+                    total,
+                    shippingAddressId: shippingAddrId,
+                    billingAddressId: billingAddrId,
+                    items: { create: items },
                 },
-            },
-            include: {
-                items: {
-                    include: {
-                        product: true,
-                        variant: true,
+                include: {
+                    items: {
+                        include: {
+                            product: true,
+                            variant: true,
+                        },
                     },
+                    shippingAddress: true,
+                    billingAddress: true,
                 },
-                shippingAddress: true,
-                billingAddress: true,
-            },
-        });
+            });
 
-        // Clear cart after order creation
-        await prisma.cartItem.deleteMany({
-            where: { cartId: cart.id },
-        });
+            await tx.cartItem.deleteMany({
+                where: { cartId: cart.id },
+            });
 
-        // Create initial order tracking
-        await prisma.orderTracking.create({
-            data: {
-                orderId: order.id,
-                status: 'Order Placed',
-                notes: `Order created with payment method: ${paymentMethod}`,
-            },
+            await tx.orderTracking.create({
+                data: {
+                    orderId: createdOrder.id,
+                    status: 'Order Placed',
+                    notes: `Order created with payment method: ${paymentMethod}`,
+                },
+            });
+
+            await tx.orderTracking.create({
+                data: {
+                    orderId: createdOrder.id,
+                    status: inventoryReservationStatus,
+                    notes: 'Stock decremented atomically at checkout',
+                },
+            });
+
+            return createdOrder;
         });
 
         logger.info(`Order created: ${order.orderNumber} for user ${req.user.email}`);
@@ -163,10 +241,7 @@ export const getOrders = asyncHandler(
             throw new UnauthorizedError('Not authenticated');
         }
 
-        const { page = '1', limit = '10' } = req.query;
-        const pageNum = parseInt(page as string);
-        const limitNum = parseInt(limit as string);
-        const skip = (pageNum - 1) * limitNum;
+        const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query);
 
         const [orders, total] = await Promise.all([
             prisma.order.findMany({
@@ -214,6 +289,9 @@ export const getOrderById = asyncHandler(
         }
 
         const { id } = req.params;
+        if (typeof id !== 'string') {
+            throw new BadRequestError('Invalid order ID');
+        }
 
         const order = await prisma.order.findUnique({
             where: { id },
@@ -261,24 +339,82 @@ export const getOrderById = asyncHandler(
 export const updateOrderStatus = asyncHandler(
     async (req: Request, res: Response, _next: NextFunction) => {
         const { id } = req.params;
-        const { status } = req.body;
+        if (typeof id !== 'string') {
+            throw new BadRequestError('Invalid order ID');
+        }
+        const { status } = req.body as { status: OrderStatus };
 
-        const order = await prisma.order.update({
-            where: { id },
-            data: { status },
-            include: {
-                items: true,
-                shippingAddress: true,
-            },
-        });
+        if (!Object.values(OrderStatus).includes(status)) {
+            throw new BadRequestError('Invalid order status');
+        }
 
-        // Add tracking entry
-        await prisma.orderTracking.create({
-            data: {
-                orderId: order.id,
-                status: `Status updated to ${status}`,
-                notes: `Order status changed by admin`,
-            },
+        const order = await withSerializableRetry(async (tx) => {
+            const existing = await tx.order.findUnique({
+                where: { id },
+                include: { items: true, shippingAddress: true },
+            });
+
+            if (!existing) {
+                throw new NotFoundError('Order not found');
+            }
+
+            if (existing.status === status) {
+                return existing;
+            }
+            const stages: OrderStatus[] = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED'];
+            if (existing.status === OrderStatus.CANCELLED || existing.status === OrderStatus.DELIVERED ||
+                (status === OrderStatus.CANCELLED && existing.status === OrderStatus.SHIPPED) ||
+                (status !== OrderStatus.CANCELLED && stages.indexOf(status) < stages.indexOf(existing.status))) {
+                throw new ConflictError('Invalid order status transition');
+            }
+
+            if (status === OrderStatus.CANCELLED) {
+                const reservation = await tx.orderTracking.findFirst({
+                    where: { orderId: id, status: inventoryReservationStatus },
+                    select: { id: true },
+                });
+                if (!reservation) {
+                    throw new ConflictError('Legacy order inventory must be reconciled before cancellation');
+                }
+                for (const item of existing.items) {
+                    if (!Number.isSafeInteger(item.quantity) || item.quantity <= 0) {
+                        throw new ConflictError('Invalid order item quantity');
+                    }
+                    if (item.variantId) {
+                        const restored = await tx.productVariant.updateMany({
+                            where: { id: item.variantId, productId: item.productId },
+                            data: { stockQty: { increment: item.quantity } },
+                        });
+                        if (restored.count !== 1) {
+                            throw new ConflictError('Invalid order variant');
+                        }
+                    } else {
+                        await tx.product.update({
+                            where: { id: item.productId },
+                            data: { stockQty: { increment: item.quantity } },
+                        });
+                    }
+                }
+            }
+
+            const updated = await tx.order.update({
+                where: { id },
+                data: { status },
+                include: {
+                    items: true,
+                    shippingAddress: true,
+                },
+            });
+
+            await tx.orderTracking.create({
+                data: {
+                    orderId: updated.id,
+                    status: `Status updated to ${status}`,
+                    notes: 'Order status changed by admin',
+                },
+            });
+
+            return updated;
         });
 
         logger.info(`Order ${order.orderNumber} status updated to ${status}`);
@@ -298,7 +434,13 @@ export const updateOrderStatus = asyncHandler(
 export const addOrderTracking = asyncHandler(
     async (req: Request, res: Response, _next: NextFunction) => {
         const { id } = req.params;
+        if (typeof id !== 'string') {
+            throw new BadRequestError('Invalid order ID');
+        }
         const { status, location, notes } = req.body;
+        if (status === inventoryReservationStatus) {
+            throw new BadRequestError('Inventory tracking is server controlled');
+        }
 
         // Verify order exists
         const order = await prisma.order.findUnique({
