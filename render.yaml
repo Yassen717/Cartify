@@ -42,4 +42,6 @@ services:
     name: cartify-cache
     plan: free
     region: frankfurt
-    maxmemoryPolicy: allkeys_lru
+    ipAllowList: []                # private network only — required field
+    maxmemoryPolicy: allkeys-lru
+    persistenceMode: off           # free tier has no disk persistence anyway
