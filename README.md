@@ -9,7 +9,7 @@ A full-stack e-commerce application built with React, TypeScript, Node.js, Expre
 | Service | Platform | URL |
 |---------|----------|-----|
 | Frontend | Vercel | [https://cartify-gold.vercel.app](https://cartify-gold.vercel.app) |
-| Backend API | Render | `https://cartify-api.onrender.com` |
+| Backend API | Render | `https://<your-service>.onrender.com` |
 | Database | Neon | PostgreSQL (managed) |
 | Cache | Render Key Value | Redis-compatible (optional) |
 
