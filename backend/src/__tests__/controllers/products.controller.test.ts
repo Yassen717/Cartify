@@ -4,7 +4,6 @@ import prisma from '../../config/database';
 import { getProducts, getProductById } from '../../controllers/products.controller';
 
 // Mock dependencies
-vi.mock('../../config/database');
 vi.mock('../../middleware/cache', () => ({
     invalidateCache: {
         products: vi.fn(),

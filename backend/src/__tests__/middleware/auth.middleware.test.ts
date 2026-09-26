@@ -1,12 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
-import { authenticate } from '../../middleware/auth';
+import { authenticate, authorize } from '../../middleware/auth';
 import jwt from 'jsonwebtoken';
 import prisma from '../../config/database';
 
 // Mock dependencies
 vi.mock('jsonwebtoken');
-vi.mock('../../config/database');
 
 describe('Auth Middleware', () => {
     let mockRequest: Partial<Request>;
@@ -65,6 +64,43 @@ describe('Auth Middleware', () => {
             mockRequest.headers = {};
 
             await authenticate(mockRequest as Request, mockResponse as Response, nextFunction);
+
+            expect(nextFunction).toHaveBeenCalledWith(expect.any(Error));
+            const error = (nextFunction as any).mock.calls[0][0];
+            expect(error.statusCode).toBe(401);
+        });
+    });
+
+    describe('authorize', () => {
+        it('should allow users with the required role', () => {
+            mockRequest = {
+                headers: {},
+                user: { id: 'user-id', email: 'admin@example.com', role: 'ADMIN' },
+            } as Partial<Request>;
+
+            authorize('ADMIN')(mockRequest as Request, mockResponse as Response, nextFunction);
+
+            expect(nextFunction).toHaveBeenCalledWith();
+            expect(nextFunction.mock.calls[0][0]).toBeUndefined();
+        });
+
+        it('should reject users without the required role (403)', () => {
+            mockRequest = {
+                headers: {},
+                user: { id: 'user-id', email: 'customer@example.com', role: 'CUSTOMER' },
+            } as Partial<Request>;
+
+            authorize('ADMIN')(mockRequest as Request, mockResponse as Response, nextFunction);
+
+            expect(nextFunction).toHaveBeenCalledWith(expect.any(Error));
+            const error = (nextFunction as any).mock.calls[0][0];
+            expect(error.statusCode).toBe(403);
+        });
+
+        it('should reject when no authenticated user is present (401)', () => {
+            mockRequest = { headers: {} };
+
+            authorize('ADMIN')(mockRequest as Request, mockResponse as Response, nextFunction);
 
             expect(nextFunction).toHaveBeenCalledWith(expect.any(Error));
             const error = (nextFunction as any).mock.calls[0][0];

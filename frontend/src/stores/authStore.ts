@@ -1,7 +1,16 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import axios from 'axios';
 import * as authService from '../services/auth.service';
 import type { User } from '../services/auth.service';
+
+interface ApiErrorBody {
+    message?: string;
+    details?: unknown;
+}
+
+const getErrorData = (error: unknown): ApiErrorBody | undefined =>
+    axios.isAxiosError<ApiErrorBody>(error) ? error.response?.data : undefined;
 
 interface AuthState {
     user: User | null;
@@ -34,22 +43,23 @@ export const useAuthStore = create<AuthState>()(
                 set({ isLoading: true, error: null });
                 try {
                     const response = await authService.login({ email, password });
-                    const { user, accessToken, refreshToken } = response.data;
+                    const { user, accessToken } = response.data;
 
-                    // Store tokens
-                    localStorage.setItem('accessToken', accessToken);
-                    localStorage.setItem('refreshToken', refreshToken);
+                    // Clean up legacy raw token keys - the refresh token now
+                    // lives in an httpOnly cookie, never in localStorage.
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
 
                     set({
                         user,
                         accessToken,
-                        refreshToken,
+                        refreshToken: null,
                         isAuthenticated: true,
                         isLoading: false,
                     });
-                } catch (error: any) {
+                } catch (error) {
                     set({
-                        error: error.response?.data?.message || 'Login failed',
+                        error: getErrorData(error)?.message || 'Login failed',
                         isLoading: false,
                     });
                     throw error;
@@ -60,33 +70,39 @@ export const useAuthStore = create<AuthState>()(
                 set({ isLoading: true, error: null });
                 try {
                     const response = await authService.register(data);
-                    const { user, accessToken, refreshToken } = response.data;
+                    const { user, accessToken } = response.data;
 
-                    // Store tokens
-                    localStorage.setItem('accessToken', accessToken);
-                    localStorage.setItem('refreshToken', refreshToken);
+                    // Refresh token is delivered via httpOnly cookie
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
 
                     set({
                         user,
                         accessToken,
-                        refreshToken,
+                        refreshToken: null,
                         isAuthenticated: true,
                         isLoading: false,
                     });
-                } catch (error: any) {
+                } catch (error) {
+                    const data = getErrorData(error);
                     // Extract error message with validation details
-                    let errorMessage = error.response?.data?.message || 'Registration failed';
-                    
+                    let errorMessage = data?.message || 'Registration failed';
+                    const details = data?.details;
+
                     // If there are validation details, format them
-                    if (error.response?.data?.details && Array.isArray(error.response.data.details)) {
-                        const validationErrors = error.response.data.details
-                            .map((detail: any) => detail.message || `${detail.field}: ${detail.message}`)
+                    if (Array.isArray(details)) {
+                        const validationErrors = details
+                            .map((detail) =>
+                                detail && typeof detail === 'object' && 'message' in detail
+                                    ? String(detail.message)
+                                    : String(detail)
+                            )
                             .join(', ');
                         errorMessage = validationErrors || errorMessage;
-                    } else if (error.response?.data?.details && typeof error.response.data.details === 'string') {
-                        errorMessage = error.response.data.details;
+                    } else if (typeof details === 'string') {
+                        errorMessage = details;
                     }
-                    
+
                     set({
                         error: errorMessage,
                         isLoading: false,
@@ -101,7 +117,7 @@ export const useAuthStore = create<AuthState>()(
                 } catch (error) {
                     console.error('Logout error:', error);
                 } finally {
-                    // Clear tokens and state
+                    // Clear any legacy raw token keys
                     localStorage.removeItem('accessToken');
                     localStorage.removeItem('refreshToken');
                     set({
@@ -122,7 +138,6 @@ export const useAuthStore = create<AuthState>()(
             },
 
             updateAccessToken: (token: string) => {
-                localStorage.setItem('accessToken', token);
                 set({ accessToken: token });
             },
         }),
@@ -131,7 +146,6 @@ export const useAuthStore = create<AuthState>()(
             partialize: (state) => ({
                 user: state.user,
                 accessToken: state.accessToken,
-                refreshToken: state.refreshToken,
                 isAuthenticated: state.isAuthenticated,
             }),
         }

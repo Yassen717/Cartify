@@ -5,6 +5,7 @@ import type { AddressInput } from '../utils/validation.schemas';
 import prisma from '../config/database';
 import { asyncHandler } from '../middleware/errorHandler';
 import { BadRequestError, NotFoundError, UnauthorizedError, ConflictError } from '../utils/errors';
+import { parsePagination } from '../utils/pagination';
 import { logger } from '../utils/logger';
 
 const estimatedTaxRate = new Prisma.Decimal('0.10');
@@ -240,10 +241,7 @@ export const getOrders = asyncHandler(
             throw new UnauthorizedError('Not authenticated');
         }
 
-        const { page = '1', limit = '10' } = req.query;
-        const pageNum = parseInt(page as string);
-        const limitNum = parseInt(limit as string);
-        const skip = (pageNum - 1) * limitNum;
+        const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query);
 
         const [orders, total] = await Promise.all([
             prisma.order.findMany({

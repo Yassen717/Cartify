@@ -92,9 +92,11 @@ export const Header = () => {
                     <div className="header-actions">
                         {isAuthenticated && user ? (
                             <>
-                                <Link to="/admin" className="action-btn" title="Dashboard">
-                                    <FiLayout />
-                                </Link>
+                                {user.role === 'ADMIN' && (
+                                    <Link to="/admin" className="action-btn" title="Dashboard">
+                                        <FiLayout />
+                                    </Link>
+                                )}
                                 <Link to="/profile" className="action-btn">
                                     <FiUser />
                                 </Link>
@@ -135,7 +137,7 @@ export const Header = () => {
                         <Link to="/products" className="nav-link-mobile">Products</Link>
                         <Link to="/categories" className="nav-link-mobile">Categories</Link>
                         <Link to="/deals" className="nav-link-mobile">Deals</Link>
-                        {isAuthenticated && (
+                        {isAuthenticated && user?.role === 'ADMIN' && (
                             <Link to="/admin" className="nav-link-mobile">Dashboard</Link>
                         )}
                         <Link to="/wishlist" className="nav-link-mobile">Wishlist</Link>

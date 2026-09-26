@@ -79,9 +79,15 @@ export const updateProductSchema = createProductSchema.partial();
 // Helper to transform empty strings to undefined
 const emptyToUndefined = (val: unknown) => (val === '' ? undefined : val);
 
+// Shared pagination bounds - keeps `take` small enough to prevent table dumps
+export const paginationQuerySchema = z.object({
+    page: z.coerce.number().int().positive().catch(1),
+    limit: z.coerce.number().int().positive().max(100).catch(20),
+}).passthrough();
+
 export const productQuerySchema = z.object({
     page: z.coerce.number().int().positive().catch(1),
-    limit: z.coerce.number().int().positive().catch(20),
+    limit: z.coerce.number().int().positive().max(100).catch(20),
     search: z.string().optional().transform(emptyToUndefined),
     categoryId: z.string().optional().transform(emptyToUndefined),
     minPrice: z.string().optional().transform(emptyToUndefined).pipe(z.coerce.number().positive().optional().catch(undefined)),

@@ -85,6 +85,9 @@ export const addToCart = asyncHandler(
         if (!productId) {
             throw new BadRequestError('Product ID is required');
         }
+        if (!Number.isSafeInteger(quantity) || quantity <= 0 || quantity > 2147483647) {
+            throw new BadRequestError('Valid quantity is required');
+        }
 
         // Verify product exists
         const product = await prisma.product.findUnique({
@@ -95,10 +98,13 @@ export const addToCart = asyncHandler(
             throw new NotFoundError('Product not found');
         }
 
-        // Check stock
-        const availableStock = variantId
-            ? (await prisma.productVariant.findUnique({ where: { id: variantId } }))?.stockQty || 0
-            : product.stockQty;
+        const variant = variantId
+            ? await prisma.productVariant.findUnique({ where: { id: variantId } })
+            : null;
+        if (variantId && (!variant || variant.productId !== productId)) {
+            throw new BadRequestError('Variant does not belong to product');
+        }
+        const availableStock = variant ? variant.stockQty : product.stockQty;
 
         if (availableStock < quantity) {
             throw new BadRequestError('Insufficient stock');
@@ -138,9 +144,7 @@ export const addToCart = asyncHandler(
             });
         } else {
             // Add new item
-            const price = variantId
-                ? (await prisma.productVariant.findUnique({ where: { id: variantId } }))?.price || product.price
-                : product.price;
+            const price = variant ? variant.price : product.price;
 
             await prisma.cartItem.create({
                 data: {
@@ -191,9 +195,12 @@ export const updateCartItem = asyncHandler(
         }
 
         const { itemId } = req.params;
+        if (typeof itemId !== 'string') {
+            throw new BadRequestError('Invalid cart item ID');
+        }
         const { quantity } = req.body;
 
-        if (!quantity || quantity < 1) {
+        if (!Number.isSafeInteger(quantity) || quantity <= 0 || quantity > 2147483647) {
             throw new BadRequestError('Valid quantity is required');
         }
 
@@ -246,6 +253,9 @@ export const removeFromCart = asyncHandler(
         }
 
         const { itemId } = req.params;
+        if (typeof itemId !== 'string') {
+            throw new BadRequestError('Invalid cart item ID');
+        }
 
         // Find cart item
         const cartItem = await prisma.cartItem.findUnique({

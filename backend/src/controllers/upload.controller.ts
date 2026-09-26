@@ -90,8 +90,17 @@ export const deleteUploadedImage = asyncHandler(
             throw new BadRequestError('Filename is required');
         }
 
-        const uploadsDir = path.join(__dirname, '../../uploads/products');
-        const filePath = path.join(uploadsDir, filename);
+        // Reject path traversal: filename must be a plain basename
+        const safeName = path.basename(filename);
+        if (safeName !== filename) {
+            throw new BadRequestError('Invalid filename');
+        }
+
+        const uploadsDir = path.resolve(__dirname, '../../uploads/products');
+        const filePath = path.resolve(uploadsDir, safeName);
+        if (!filePath.startsWith(uploadsDir + path.sep)) {
+            throw new BadRequestError('Invalid filename');
+        }
 
         // Check if file exists
         if (!fs.existsSync(filePath)) {
