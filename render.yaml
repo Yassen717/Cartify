@@ -9,6 +9,7 @@ services:
     runtime: docker
     dockerfilePath: ./Dockerfile
     dockerContext: ./
+    branch: main
     plan: free
     region: frankfurt          # pick the region closest to your Neon DB
     healthCheckPath: /health
