@@ -2,15 +2,18 @@
 
 🛒 **[Live Demo: https://cartify-gold.vercel.app](https://cartify-gold.vercel.app)**
 
-A full-stack e-commerce application built with React, TypeScript, Node.js, Express, and Prisma. Deployed on Vercel (frontend), Koyeb (backend), and Neon (PostgreSQL database).
+A full-stack e-commerce application built with React, TypeScript, Node.js, Express, and Prisma. Deployed on Vercel (frontend), Render (backend), and Neon (PostgreSQL database) — all on free tiers.
 
 ## 🌐 Live Deployment
 
 | Service | Platform | URL |
 |---------|----------|-----|
 | Frontend | Vercel | [https://cartify-gold.vercel.app](https://cartify-gold.vercel.app) |
-| Backend API | Koyeb | `https://revolutionary-farah-yassen-projects-c5696215.koyeb.app` |
+| Backend API | Render | `https://cartify-api.onrender.com` |
 | Database | Neon | PostgreSQL (managed) |
+| Cache | Render Key Value | Redis-compatible (optional) |
+
+> Deploy the backend in one step with the included `render.yaml` blueprint — see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## 🎯 Project Overview
 
@@ -69,8 +72,9 @@ Cartify is a feature-rich e-commerce platform designed to provide an exceptional
 
 ### Deployment
 - **Frontend Hosting**: Vercel
-- **Backend Hosting**: Koyeb
+- **Backend Hosting**: Render (free tier, Docker — `render.yaml` blueprint)
 - **Database**: Neon (PostgreSQL)
+- **Cache**: Render Key Value (Redis-compatible, optional)
 - **CI/CD**: Automatic deployments via GitHub
 
 ### DevOps & Tools
@@ -215,7 +219,7 @@ cartify/
    cd backend
    npm install
    cp .env.example .env
-   # Configure your .env file (DATABASE_URL defaults to a local SQLite file)
+   # Configure your .env file (DATABASE_URL requires a PostgreSQL connection string)
    npm run prisma:generate
    npm run prisma:migrate
    npm run prisma:seed
@@ -248,7 +252,7 @@ PORT=3000
 NODE_ENV=development
 
 # Database
-DATABASE_URL="file:./dev.db"  # or PostgreSQL/MySQL connection string
+DATABASE_URL="postgresql://postgres:password@localhost:5432/cartify?schema=public"
 
 # JWT
 JWT_SECRET=your-secret-key

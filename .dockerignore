@@ -81,6 +81,3 @@ docs/
 
 # Frontend files (only building backend)
 frontend/
-
-# Prisma
-backend/prisma/migrations/

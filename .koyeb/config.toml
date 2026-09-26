@@ -1,8 +1,0 @@
-[build]
-  # Build context is the backend directory
-  context = "backend"
-  dockerfile = "Dockerfile"
-
-[deploy]
-  # Health check endpoint
-  health_check = "/health"

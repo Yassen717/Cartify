@@ -1,21 +1,41 @@
 # Production Deployment Guide
 
-## 🚀 Koyeb Deployment
+## 🚀 Render Deployment (free tier)
 
-### Pre-Deployment Setup
+### Architecture
 
-1. **Set up PostgreSQL database** (e.g., using Koyeb PostgreSQL service or external provider)
-2. **Set up Redis** (optional but recommended for caching)
-3. **Configure environment variables** in Koyeb dashboard
+| Layer | Provider | Cost |
+|-------|----------|------|
+| Backend API | Render web service (`render.yaml` blueprint, Docker) | Free — spins down after 15 min idle, ~1 min cold start |
+| Database | Neon PostgreSQL | Free — 0.5 GB, no expiry |
+| Cache | Render Key Value (Redis-compatible) | Free — 25 MB in-memory (optional; app works without it) |
+| Frontend | Vercel static hosting | Free |
 
-### Required Environment Variables for Koyeb
+> ⚠️ Do **not** use Render's free Postgres — it is deleted 30 days after creation. Use Neon/Supabase instead.
+
+### Deploy steps
+
+1. **Create a Neon database** at [neon.tech](https://neon.tech) and copy the pooled `postgresql://` connection string.
+2. **Push this repo to GitHub.**
+3. **Render dashboard → New → Blueprint** → select the repo. `render.yaml` is detected automatically and provisions:
+   - `cartify-api` — free web service built from the root `Dockerfile`
+   - `cartify-cache` — free Key Value instance, wired into `REDIS_URL` automatically
+4. **Fill in the prompted env vars** (`sync: false` in the blueprint):
+   - `DATABASE_URL` — your Neon connection string
+   - `JWT_SECRET`, `JWT_REFRESH_SECRET` — generate each with `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
+5. **Apply** — Render builds the image, runs `prisma migrate deploy` on boot (via `start.sh`), and health-checks `/health`.
+6. **Fix `BASE_URL`**: if your service URL isn't `https://cartify-api.onrender.com` (Render appends a suffix when the name is taken), update the `BASE_URL` env var in the Render dashboard — it's used to build product-image URLs.
+7. **Point the frontend at it**: set `VITE_API_URL=https://<your-service>.onrender.com/api` in the Vercel project env vars and redeploy the frontend.
+8. If your frontend isn't `https://cartify-gold.vercel.app`, update `CORS_ORIGIN` to the exact frontend origin (no trailing slash).
+
+### Required Environment Variables (Render)
 
 ```env
 # Environment
 NODE_ENV=production
 
-# Database (PostgreSQL required)
-DATABASE_URL=postgresql://user:password@host:5432/cartify?schema=public
+# Database (PostgreSQL required — Neon recommended)
+DATABASE_URL=postgresql://user:password@host.neon.tech/cartify?sslmode=require
 
 # JWT Secrets (generate with: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))")
 JWT_SECRET=<your-generated-64-byte-secret>
@@ -23,33 +43,29 @@ JWT_REFRESH_SECRET=<your-generated-64-byte-refresh-secret>
 JWT_EXPIRES_IN=1h
 JWT_REFRESH_EXPIRES_IN=7d
 
-# CORS - Set to your frontend domain
-CORS_ORIGIN=https://yourdomain.com
+# CORS - exact frontend origin
+CORS_ORIGIN=https://cartify-gold.vercel.app
 
-# Server Base URL (will be provided by Koyeb)
-BASE_URL=https://your-koyeb-app.koyeb.app
+# Server Base URL - this service's public URL (for image URLs)
+BASE_URL=https://cartify-api.onrender.com
 
-# Redis (optional)
-REDIS_URL=redis://your-redis-host:6379
+# Redis - auto-wired from the cartify-cache Key Value service by render.yaml
+REDIS_URL=<auto-injected>
 ```
 
-### Deployment Steps
-
-1. **Push your code to GitHub**
-2. **Connect your GitHub repository to Koyeb**
-3. **Configure the deployment**:
-   - Set the service type to "Web Service"
-   - Set the port to 8000
-   - Add the environment variables above
-   - Health check endpoint: `/health`
-4. **Deploy**
-
 The deployment uses:
+- ✅ `render.yaml` blueprint (web service + Key Value)
 - ✅ Dockerfile in the root directory
-- ✅ `.koyeb/config.toml` configuration
-- ✅ Automatic database migrations
-- ✅ Health checks
+- ✅ Automatic database migrations (`prisma migrate deploy` in `start.sh`)
+- ✅ Health checks on `/health`
 - ✅ Production optimizations
+
+### Free-tier caveats
+
+- **Cold starts**: the API sleeps after 15 min of no traffic; the first request takes ~30–60 s.
+- **Ephemeral filesystem**: admin-uploaded product images under `uploads/` are lost on every redeploy/restart. Seeded catalog images are served by the frontend, so the demo store is unaffected. For persistent uploads, swap Multer disk storage for Cloudinary or Cloudflare R2.
+- **Key Value restarts**: the free cache has no persistence — cached responses and CSRF tokens reset on restart (clients re-fetch automatically).
+- **Usage cap**: 750 free instance-hours/month per workspace — one service fits comfortably.
 
 ---
 

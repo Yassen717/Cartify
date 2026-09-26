@@ -65,11 +65,13 @@ export const setCsrfToken = async (req: Request, res: Response, next: NextFuncti
     
     await storeToken(sessionId, token);
     
-    // Set session cookie
+    // Set session cookie. In production the frontend and API are on
+    // different sites (e.g. Vercel + Render), so the cookie must be
+    // SameSite=None + Secure or browsers won't send it cross-site.
     res.cookie('sessionId', sessionId, {
         httpOnly: true,
         secure: env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: env.NODE_ENV === 'production' ? 'none' : 'strict',
         maxAge: CSRF_TTL_MS,
     });
     
