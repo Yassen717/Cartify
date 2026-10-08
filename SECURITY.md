@@ -395,7 +395,7 @@ For security issues, please:
 ## 📚 Security Resources
 
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-- [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/security/)
+- [Node.js Security Best Practices](https://nodejs.org/learn/getting-started/security-best-practices)
 - [Express Security Best Practices](https://expressjs.com/en/advanced/best-practice-security.html)
 - [Helmet.js Documentation](https://helmetjs.github.io/)
 - [JWT Best Practices](https://tools.ietf.org/html/rfc8725)
