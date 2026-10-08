@@ -70,7 +70,7 @@ export const Products = () => {
         try {
             const response = await productsService.getCategories();
             setCategories(response.data.categories);
-        } catch (error) {
+        } catch {
             console.error('Failed to load categories');
         }
     };
@@ -87,7 +87,7 @@ export const Products = () => {
             });
             setProducts(response.data.products);
             setPagination(response.data.pagination);
-        } catch (error) {
+        } catch {
             toast.error('Failed to load products');
         } finally {
             setIsLoading(false);
@@ -101,7 +101,7 @@ export const Products = () => {
         }
         try {
             await addItem(productId, 1);
-        } catch (error) {
+        } catch {
             // Error already handled in store
         }
     };
@@ -128,7 +128,7 @@ export const Products = () => {
             } else {
                 await addToWishlist(productId);
             }
-        } catch (error) {
+        } catch {
             // Error handled in store via toast
         }
     };

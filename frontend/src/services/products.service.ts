@@ -1,4 +1,5 @@
 import api from './api';
+import type { Review } from './reviews.service';
 
 export interface Product {
     id: string;
@@ -77,7 +78,7 @@ export const getProductReviews = async (
     id: string,
     page = 1,
     limit = 10
-): Promise<any> => {
+): Promise<{ success: boolean; data: { reviews: Review[]; pagination: ProductsResponse['data']['pagination'] } }> => {
     const response = await api.get(`/products/${id}/reviews`, {
         params: { page, limit },
     });
@@ -91,13 +92,13 @@ export const getCategories = async (): Promise<{ success: boolean; data: { categ
 };
 
 // Admin: Create product
-export const createProduct = async (data: any): Promise<{ success: boolean; data: { product: Product } }> => {
+export const createProduct = async (data: Partial<Product>): Promise<{ success: boolean; data: { product: Product } }> => {
     const response = await api.post('/products', data);
     return response.data;
 };
 
 // Admin: Update product
-export const updateProduct = async (id: string, data: any): Promise<{ success: boolean; data: { product: Product } }> => {
+export const updateProduct = async (id: string, data: Partial<Product>): Promise<{ success: boolean; data: { product: Product } }> => {
     const response = await api.put(`/products/${id}`, data);
     return response.data;
 };

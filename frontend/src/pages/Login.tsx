@@ -23,7 +23,7 @@ export const Login = () => {
             await login(email, password);
             toast.success('Welcome back!');
             navigate('/');
-        } catch (err: any) {
+        } catch {
             toast.error(error || 'Login failed. Please check your credentials.');
         }
     };

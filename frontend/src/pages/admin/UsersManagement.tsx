@@ -18,7 +18,7 @@ const UsersManagement = () => {
             const response = await getAllUsers(page, 10, search || undefined);
             setUsers(response.data.users);
             setTotalPages(response.data.pagination.totalPages);
-        } catch (error) {
+        } catch {
             toast.error('Failed to load users');
         } finally {
             setIsLoading(false);

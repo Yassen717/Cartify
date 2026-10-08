@@ -36,7 +36,7 @@ export interface OrderItem {
     };
     variant?: {
         name: string;
-        attributes: any;
+        attributes: Record<string, unknown>;
     };
 }
 

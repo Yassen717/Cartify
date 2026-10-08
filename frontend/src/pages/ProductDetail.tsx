@@ -44,7 +44,7 @@ export const ProductDetail = () => {
         try {
             const response = await productsService.getProductById(id);
             setProduct(response.data.product);
-        } catch (error) {
+        } catch {
             toast.error('Failed to load product');
             navigate('/products');
         } finally {
@@ -62,7 +62,7 @@ export const ProductDetail = () => {
 
         try {
             await addToCart(product.id, quantity);
-        } catch (error) {
+        } catch {
             // Error handled in store
         }
     };
@@ -77,7 +77,7 @@ export const ProductDetail = () => {
 
         try {
             await addToWishlist(product.id);
-        } catch (error) {
+        } catch {
             // Error handled in store
         }
     };

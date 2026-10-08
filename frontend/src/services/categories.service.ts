@@ -1,4 +1,5 @@
 import api from './api';
+import type { Product } from './products.service';
 
 export interface Category {
     id: string;
@@ -34,7 +35,7 @@ export const getProductsByCategory = async (
     categoryId: string,
     page = 1,
     limit = 12
-): Promise<any> => {
+): Promise<{ success: boolean; data: { products: Product[]; pagination: { page: number; limit: number; total: number; totalPages: number } } }> => {
     const response = await api.get(`/categories/${categoryId}/products`, {
         params: { page, limit },
     });

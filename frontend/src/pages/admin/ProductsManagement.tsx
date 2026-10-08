@@ -20,7 +20,7 @@ const ProductsManagement = () => {
             const response = await getProducts({ page, search, limit: 10 });
             setProducts(response.data.products);
             setTotalPages(response.data.pagination.totalPages);
-        } catch (error) {
+        } catch {
             toast.error('Failed to load products');
         } finally {
             setIsLoading(false);
@@ -40,7 +40,7 @@ const ProductsManagement = () => {
             await deleteProduct(id);
             toast.success('Product deleted successfully');
             fetchProducts();
-        } catch (error) {
+        } catch {
             toast.error('Failed to delete product');
         }
     };
@@ -109,7 +109,7 @@ const ProductsManagement = () => {
                                         </span>
                                     </td>
                                     <td>
-                                        {((product as any).category?.name) || 'Uncategorized'}
+                                        {product.category?.name || 'Uncategorized'}
                                     </td>
                                     <td>
                                         <div className="action-buttons">

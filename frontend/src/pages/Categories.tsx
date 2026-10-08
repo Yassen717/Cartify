@@ -21,7 +21,7 @@ export const Categories = () => {
         try {
             const response = await categoriesService.getCategories();
             setCategories(response.data.categories);
-        } catch (error) {
+        } catch {
             toast.error('Failed to load categories');
         } finally {
             setIsLoading(false);

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiUser } from 'react-icons/fi';
 import { Button, Input } from '../components/ui';
 import { useAuthStore } from '../stores/authStore';
+import axios from 'axios';
 import toast from 'react-hot-toast';
 import './Login.css';
 
@@ -60,13 +61,16 @@ export const Register = () => {
             });
             toast.success('Account created successfully! Please login.');
             navigate('/login');
-        } catch (err: any) {
+        } catch (err) {
             // Error is already handled in store, but show toast with details
-            const errorMessage = err.response?.data?.details 
-                ? (Array.isArray(err.response.data.details) 
-                    ? err.response.data.details.map((d: any) => d.message).join(', ')
-                    : err.response.data.details)
-                : (error || err.response?.data?.message || 'Registration failed. Please try again.');
+            const data = axios.isAxiosError<{ message?: string; details?: string | { message: string }[] }>(err)
+                ? err.response?.data
+                : undefined;
+            const errorMessage = data?.details
+                ? (Array.isArray(data.details)
+                    ? data.details.map((d) => d.message).join(', ')
+                    : data.details)
+                : (error || data?.message || 'Registration failed. Please try again.');
             toast.error(errorMessage);
         }
     };

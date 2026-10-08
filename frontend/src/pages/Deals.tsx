@@ -74,7 +74,7 @@ export const Deals = () => {
             );
 
             setDeals(dealsProducts);
-        } catch (error) {
+        } catch {
             toast.error('Failed to load deals');
         } finally {
             setIsLoading(false);
@@ -88,7 +88,7 @@ export const Deals = () => {
         }
         try {
             await addItem(productId, 1);
-        } catch (error) {
+        } catch {
             // Error already handled in store
         }
     };
