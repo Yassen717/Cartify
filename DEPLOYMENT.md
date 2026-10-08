@@ -69,6 +69,79 @@ The deployment uses:
 
 ---
 
+## 🚑 RECOVERY — Redeploying the backend
+
+If the Render backend service was deleted or suspended (symptom: the frontend loads but every API call fails instantly, and `https://<service>.onrender.com/health` returns Render's 404 page), the data layer is unaffected — the Neon database and the `cartify-cache` Key Value instance live outside the web service. Recreate just the web service:
+
+### 1. Recreate the backend on Render
+
+**Option A — Blueprint (recommended):**
+
+> ⚠️ `render.yaml` also declares a `cartify-cache` Key Value service that already exists in your Render workspace — a blueprint deploy fails on the name collision. Either:
+> - delete the `cartify-cache` block in `render.yaml` first (plus the `REDIS_URL` `fromService` env var that references it), or
+> - delete the existing `cartify-cache` instance in the dashboard and let the blueprint recreate it.
+
+1. Render dashboard → **New → Blueprint** → pick this repo.
+2. Render provisions `cartify-api` — a free web service built from the root `Dockerfile`, region `frankfurt`, health check `/health`.
+3. Fill in the `sync: false` env vars when prompted (see table below).
+4. The new service URL will be `https://cartify-api.onrender.com` — the plain name is free once the old suffixed service (e.g. `cartify-api-tx0r`) is gone.
+
+**Option B — Manual web service:**
+
+1. Render dashboard → **New → Web Service** → pick this repo.
+2. Runtime `Docker` (auto-detected from the root `Dockerfile`), Region `frankfurt`, Plan `free`.
+3. Health Check Path: `/health`. No build/start commands needed — the image `CMD` is `./start.sh`.
+4. Add the env vars below manually.
+
+### 2. Required env vars
+
+| Var | Required? | Value |
+|-----|-----------|-------|
+| `NODE_ENV` | Yes | `production` |
+| `DATABASE_URL` | Yes — see note | Neon pooled `postgresql://` connection string |
+| `JWT_SECRET` | Yes — validated ≥ 64 chars | `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"` |
+| `JWT_REFRESH_SECRET` | Yes — validated ≥ 64 chars | Generate a second secret the same way |
+| `CORS_ORIGIN` | Yes — else the frontend is blocked | `https://cartify-gold.vercel.app` (exact origin, no trailing slash) |
+| `BASE_URL` | Yes — used to build image URLs | `https://<new-service>.onrender.com` |
+| `REDIS_URL` | Optional — app degrades to no-cache | Connection string of the existing `cartify-cache` instance, or leave unset |
+| `JWT_EXPIRES_IN` / `JWT_REFRESH_EXPIRES_IN` | Optional | `1h` / `7d` (defaults) |
+| `PORT` | Do not set | Render injects it |
+
+> Note: only the two JWT secrets are hard-validated in `backend/src/config/env.ts`, but `DATABASE_URL` is effectively required — the Prisma datasource is `postgresql` and the `/health` check fails without a working DB connection.
+
+### 3. Database readiness
+
+- **Migrations run on boot**: `start.sh` executes `npx prisma migrate deploy` before starting the server, so schema migrations apply automatically on the first deploy. No manual step needed if the Neon database already has the schema.
+- **Products need a seed**: an empty/fresh database serves an empty catalog until seeded. The production image doesn't include `tsx` (devDependency), so run the seed from a local checkout pointed at the Neon DB — or use `npx tsx` in the Render shell:
+
+  ```bash
+  cd backend
+  # with DATABASE_URL=<neon pooled connection string> in backend/.env or the shell:
+  npx prisma migrate deploy   # only if the schema isn't applied yet
+  npx tsx prisma/seed.ts
+  ```
+
+  > ⚠️ `prisma/seed.ts` **deletes all existing products and related rows** before inserting the demo catalog. When `NODE_ENV` is not `production` it also creates `admin@cartify.com` and `customer@example.com` users with random passwords (printed once); run with `NODE_ENV=production` to skip user creation.
+
+### 4. Repoint the frontend (Vercel)
+
+`VITE_API_URL` is baked into the frontend at build time, so changing it requires a redeploy:
+
+1. Vercel dashboard → Cartify project → **Settings → Environment Variables**.
+2. Set `VITE_API_URL` = `https://<new-service>.onrender.com/api` (Production scope).
+3. **Deployments → ⋯ → Redeploy** the latest deployment.
+
+### 5. Verify
+
+```bash
+curl https://<new-service>.onrender.com/health          # 200 {"status":"OK","database":"connected",...}
+curl https://<new-service>.onrender.com/api/products    # 200 JSON product list
+```
+
+Then open `https://cartify-gold.vercel.app` — products should render. First request may take ~30–60 s (free-tier cold start).
+
+---
+
 ## 🚀 Pre-Deployment Checklist
 
 ### 1. Environment Configuration
