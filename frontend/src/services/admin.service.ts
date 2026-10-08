@@ -26,6 +26,13 @@ export interface Product {
     reviewCount?: number;
 }
 
+export interface Pagination {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+}
+
 export interface DashboardStats {
     counts: {
         users: number;
@@ -33,7 +40,7 @@ export interface DashboardStats {
         orders: number;
     };
     revenue: number;
-    recentOrders: any[];
+    recentOrders: AdminOrder[];
     lowStockProducts: Partial<Product>[];
 }
 
@@ -78,8 +85,8 @@ export const getAllOrders = async (
     page = 1,
     limit = 10,
     status?: string
-): Promise<{ success: boolean; data: { orders: AdminOrder[]; pagination: any } }> => {
-    const params: any = { page, limit };
+): Promise<{ success: boolean; data: { orders: AdminOrder[]; pagination: Pagination } }> => {
+    const params: { page: number; limit: number; status?: string } = { page, limit };
     if (status) params.status = status;
 
     const response = await api.get('/admin/orders', { params });
@@ -91,8 +98,8 @@ export const getAllUsers = async (
     page = 1,
     limit = 10,
     search?: string
-): Promise<{ success: boolean; data: { users: AdminUser[]; pagination: any } }> => {
-    const params: any = { page, limit };
+): Promise<{ success: boolean; data: { users: AdminUser[]; pagination: Pagination } }> => {
+    const params: { page: number; limit: number; search?: string } = { page, limit };
     if (search) params.search = search;
 
     const response = await api.get('/admin/users', { params });

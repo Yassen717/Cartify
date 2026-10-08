@@ -23,7 +23,7 @@ const OrdersManagement = () => {
             const response = await getAllOrders(page, 10, statusFilter || undefined);
             setOrders(response.data.orders);
             setTotalPages(response.data.pagination.totalPages);
-        } catch (error) {
+        } catch {
             toast.error('Failed to load orders');
         } finally {
             setIsLoading(false);
@@ -42,13 +42,13 @@ const OrdersManagement = () => {
             toast.success('Order status updated');
             setEditingId(null);
             fetchOrders();
-        } catch (error) {
+        } catch {
             toast.error('Failed to update status');
         }
     };
 
     const getStatusClass = (status: string) => {
-        const statusMap: any = {
+        const statusMap: Record<string, string> = {
             PENDING: 'pending',
             PROCESSING: 'processing',
             SHIPPED: 'shipped',
@@ -117,7 +117,7 @@ const OrdersManagement = () => {
                                             <div className="status-editor">
                                                 <select
                                                     value={newStatus}
-                                                    onChange={(e) => setNewStatus(e.target.value as any)}
+                                                    onChange={(e) => setNewStatus(e.target.value as Order['status'])}
                                                     className="status-editor-select"
                                                 >
                                                     <option value="PENDING">PENDING</option>
@@ -144,7 +144,7 @@ const OrdersManagement = () => {
                                             <button
                                                 onClick={() => {
                                                     setEditingId(order.id);
-                                                    setNewStatus(order.status as any);
+                                                    setNewStatus(order.status as Order['status']);
                                                 }}
                                                 className="action-btn edit"
                                                 title="Update Status"

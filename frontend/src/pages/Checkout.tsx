@@ -7,6 +7,7 @@ import { useCartStore } from '../stores/cartStore';
 import { useAuthStore } from '../stores/authStore';
 import * as orderService from '../services/order.service';
 import type { Address } from '../services/order.service';
+import { getApiErrorMessage } from '../utils/apiError';
 import toast from 'react-hot-toast';
 import './Checkout.css';
 
@@ -111,8 +112,8 @@ export const Checkout = () => {
             await clearCart();
             toast.success('Order placed successfully!');
             navigate(`/orders`);
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Failed to place order');
+        } catch (error) {
+            toast.error(getApiErrorMessage(error, 'Failed to place order'));
         } finally {
             setIsLoading(false);
         }

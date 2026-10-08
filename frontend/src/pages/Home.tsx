@@ -68,7 +68,7 @@ export const Home = () => {
             } else {
                 await addToWishlist(productId);
             }
-        } catch (error) {
+        } catch {
             // Error handled in store via toast
         }
     };

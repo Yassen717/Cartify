@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { getProductById } from '../../services/products.service';
 import api from '../../services/api';
+import axios from 'axios';
 import toast from 'react-hot-toast';
 import { DEFAULT_PLACEHOLDER } from '../../utils/imageUtils';
 import './ProductForm.css';
@@ -12,11 +13,20 @@ interface Category {
     name: string;
 }
 
+interface ProductFormData {
+    name: string;
+    description: string;
+    price: string;
+    stockQty: string;
+    sku: string;
+    categoryId: string;
+}
+
 const ProductForm = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const isEditMode = !!id;
-    const { register, handleSubmit, setValue, formState: { errors } } = useForm();
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm<ProductFormData>();
     const [isLoading, setIsLoading] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
 
@@ -25,7 +35,7 @@ const ProductForm = () => {
             try {
                 const response = await api.get('/categories');
                 setCategories(response.data.data.categories);
-            } catch (error) {
+            } catch {
                 toast.error('Failed to load categories');
             }
         };
@@ -38,11 +48,11 @@ const ProductForm = () => {
                     const product = response.data.product;
                     setValue('name', product.name);
                     setValue('description', product.description);
-                    setValue('price', product.price);
-                    setValue('stockQty', product.stockQty);
+                    setValue('price', String(product.price));
+                    setValue('stockQty', String(product.stockQty));
                     setValue('sku', product.sku);
                     setValue('categoryId', product.categoryId);
-                } catch (error) {
+                } catch {
                     toast.error('Failed to load product');
                     navigate('/admin/products');
                 }
@@ -51,7 +61,7 @@ const ProductForm = () => {
         }
     }, [id, isEditMode, setValue, navigate]);
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: ProductFormData) => {
         setIsLoading(true);
         try {
             // Build payload with type assertion for optional images
@@ -87,11 +97,14 @@ const ProductForm = () => {
                 toast.success('Product created successfully');
             }
             navigate('/admin/products');
-        } catch (error: any) {
-            console.error('Product creation error:', error.response?.data);
-            const errorMsg = error.response?.data?.errors
-                ? error.response.data.errors.map((e: any) => `${e.field}: ${e.message}`).join(', ')
-                : error.response?.data?.message || 'Failed to save product';
+        } catch (error) {
+            const data = axios.isAxiosError<{ message?: string; errors?: { field: string; message: string }[] }>(error)
+                ? error.response?.data
+                : undefined;
+            console.error('Product creation error:', data);
+            const errorMsg = data?.errors
+                ? data.errors.map((e) => `${e.field}: ${e.message}`).join(', ')
+                : data?.message || 'Failed to save product';
             toast.error(errorMsg);
         } finally {
             setIsLoading(false);

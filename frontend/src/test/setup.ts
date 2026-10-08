@@ -8,7 +8,7 @@ afterEach(() => {
 });
 
 // Mock ResizeObserver
-(globalThis as any).ResizeObserver = class ResizeObserver {
+globalThis.ResizeObserver = class ResizeObserver {
     observe() { }
     unobserve() { }
     disconnect() { }

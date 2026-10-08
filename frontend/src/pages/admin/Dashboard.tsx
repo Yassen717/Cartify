@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { getDashboardStats } from '../../services/admin.service';
+import type { DashboardStats } from '../../services/admin.service';
+import { getApiErrorMessage } from '../../utils/apiError';
 import './Dashboard.css';
-
-type DashboardStats = {
-  counts: { users: number; products: number; orders: number };
-  revenue: number;
-  recentOrders: any[];
-  lowStockProducts: any[];
-};
 
 const Dashboard: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -18,12 +13,11 @@ const Dashboard: React.FC = () => {
     let mounted = true;
     getDashboardStats()
       .then((res) => {
-        if (mounted) setStats(res.data as DashboardStats);
+        if (mounted) setStats(res.data);
       })
-      .catch((err: any) => {
+      .catch((err) => {
         if (mounted) {
-          const msg = err?.response?.data?.message || 'Failed to load dashboard stats';
-          setError(msg);
+          setError(getApiErrorMessage(err, 'Failed to load dashboard stats'));
         }
       })
       .finally(() => {
@@ -215,7 +209,7 @@ const Dashboard: React.FC = () => {
             <div className="panel-content">
               {stats.recentOrders && stats.recentOrders.length > 0 ? (
                 <div className="orders-list">
-                  {stats.recentOrders.map((order: any, index: number) => (
+                  {stats.recentOrders.map((order, index: number) => (
                     <div 
                       key={order.id} 
                       className="order-item"
@@ -260,7 +254,7 @@ const Dashboard: React.FC = () => {
             <div className="panel-content">
               {stats.lowStockProducts && stats.lowStockProducts.length > 0 ? (
                 <div className="alerts-list">
-                  {stats.lowStockProducts.map((p: any, index: number) => (
+                  {stats.lowStockProducts.map((p, index: number) => (
                     <div 
                       key={p.id} 
                       className="alert-item"
@@ -274,11 +268,11 @@ const Dashboard: React.FC = () => {
                         <div className="stock-bar">
                           <div 
                             className="stock-fill" 
-                            style={{ width: `${Math.min((p.stockQty / 20) * 100, 100)}%` }}
+                            style={{ width: `${Math.min(((p.stockQty ?? 0) / 20) * 100, 100)}%` }}
                           ></div>
                         </div>
                         <span className="alert-stock">
-                          <span className="stock-count">{p.stockQty}</span> units remaining
+                          <span className="stock-count">{p.stockQty ?? 0}</span> units remaining
                         </span>
                       </div>
                       <button className="restock-btn">

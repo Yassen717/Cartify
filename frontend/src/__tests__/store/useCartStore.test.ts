@@ -37,7 +37,9 @@ describe('useCartStore', () => {
             }
         };
 
-        (cartService.addToCart as any).mockResolvedValue(mockCartResponse);
+        vi.mocked(cartService.addToCart).mockResolvedValue(
+            mockCartResponse as unknown as Awaited<ReturnType<typeof cartService.addToCart>>
+        );
 
         await act(async () => {
             await result.current.addItem('p1', 1);
@@ -52,12 +54,12 @@ describe('useCartStore', () => {
         const { result } = renderHook(() => useCartStore());
 
         const error = { response: { data: { message: 'Out of stock' } } };
-        (cartService.addToCart as any).mockRejectedValue(error);
+        vi.mocked(cartService.addToCart).mockRejectedValue(error);
 
         await act(async () => {
             try {
                 await result.current.addItem('p1', 1);
-            } catch (e) {
+            } catch {
                 // Ignore error in test
             }
         });

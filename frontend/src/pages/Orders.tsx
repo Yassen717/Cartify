@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card, Button } from '../components/ui';
@@ -19,7 +20,7 @@ export const Orders = () => {
         try {
             const data = await orderService.getOrders();
             setOrders(data.orders);
-        } catch (error: any) {
+        } catch {
             toast.error('Failed to fetch orders');
         } finally {
             setIsLoading(false);
@@ -77,7 +78,7 @@ export const Orders = () => {
                                         </div>
                                         <span
                                             className="status-badge"
-                                            style={{ '--status-color': `var(--${getStatusColor(order.status)})` } as any}
+                                            style={{ '--status-color': `var(--${getStatusColor(order.status)})` } as CSSProperties}
                                         >
                                             {order.status}
                                         </span>

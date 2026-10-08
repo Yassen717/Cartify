@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiCreditCard, FiLock, FiCheck, FiX, FiAlertCircle } from 'react-icons/fi';
 import './PaymentForm.css';
@@ -28,29 +28,27 @@ interface PaymentFormProps {
 
 type PaymentStep = 'form' | 'processing' | 'success' | 'error';
 
-export const PaymentForm = ({ amount, onPaymentSuccess, onPaymentError: _onPaymentError, disabled }: PaymentFormProps) => {
+export const PaymentForm = ({ amount, onPaymentSuccess, disabled }: PaymentFormProps) => {
     const [cardNumber, setCardNumber] = useState('');
     const [cardHolder, setCardHolder] = useState('');
     const [expiryDate, setExpiryDate] = useState('');
     const [cvv, setCvv] = useState('');
-    const [cardType, setCardType] = useState<string | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [step, setStep] = useState<PaymentStep>('form');
     const [processingStep, setProcessingStep] = useState(0);
     const [errorMessage, setErrorMessage] = useState('');
 
     // Detect card type
-    useEffect(() => {
+    const cardType = useMemo(() => {
         const number = cardNumber.replace(/\s/g, '');
         if (number.length >= 1) {
             for (const [type, pattern] of Object.entries(CARD_PATTERNS)) {
                 if (pattern.test(number)) {
-                    setCardType(type);
-                    return;
+                    return type;
                 }
             }
         }
-        setCardType(null);
+        return null;
     }, [cardNumber]);
 
     // Format card number with spaces

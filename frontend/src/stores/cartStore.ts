@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import * as cartService from '../services/cart.service';
 import type { Cart } from '../services/cart.service';
+import { getApiErrorMessage } from '../utils/apiError';
 import toast from 'react-hot-toast';
 
 interface CartState {
@@ -26,9 +27,9 @@ export const useCartStore = create<CartState>((set) => ({
         try {
             const response = await cartService.getCart();
             set({ cart: response.data.cart, isLoading: false });
-        } catch (error: any) {
+        } catch (error) {
             set({
-                error: error.response?.data?.message || 'Failed to fetch cart',
+                error: getApiErrorMessage(error, 'Failed to fetch cart'),
                 isLoading: false,
             });
         }
@@ -40,8 +41,8 @@ export const useCartStore = create<CartState>((set) => ({
             const response = await cartService.addToCart(productId, quantity, variantId);
             set({ cart: response.data.cart, isLoading: false });
             toast.success('Item added to cart');
-        } catch (error: any) {
-            const errorMsg = error.response?.data?.message || 'Failed to add item to cart';
+        } catch (error) {
+            const errorMsg = getApiErrorMessage(error, 'Failed to add item to cart');
             set({ error: errorMsg, isLoading: false });
             toast.error(errorMsg);
             throw error;
@@ -56,8 +57,8 @@ export const useCartStore = create<CartState>((set) => ({
             const response = await cartService.getCart();
             set({ cart: response.data.cart, isLoading: false });
             toast.success('Cart updated');
-        } catch (error: any) {
-            const errorMsg = error.response?.data?.message || 'Failed to update cart';
+        } catch (error) {
+            const errorMsg = getApiErrorMessage(error, 'Failed to update cart');
             set({ error: errorMsg, isLoading: false });
             toast.error(errorMsg);
             throw error;
@@ -72,8 +73,8 @@ export const useCartStore = create<CartState>((set) => ({
             const response = await cartService.getCart();
             set({ cart: response.data.cart, isLoading: false });
             toast.success('Item removed from cart');
-        } catch (error: any) {
-            const errorMsg = error.response?.data?.message || 'Failed to remove item';
+        } catch (error) {
+            const errorMsg = getApiErrorMessage(error, 'Failed to remove item');
             set({ error: errorMsg, isLoading: false });
             toast.error(errorMsg);
             throw error;
@@ -86,8 +87,8 @@ export const useCartStore = create<CartState>((set) => ({
             await cartService.clearCart();
             set({ cart: null, isLoading: false });
             toast.success('Cart cleared');
-        } catch (error: any) {
-            const errorMsg = error.response?.data?.message || 'Failed to clear cart';
+        } catch (error) {
+            const errorMsg = getApiErrorMessage(error, 'Failed to clear cart');
             set({ error: errorMsg, isLoading: false });
             toast.error(errorMsg);
             throw error;
