@@ -29,7 +29,7 @@ services:
       - key: CORS_ORIGIN       # exact frontend origin, no trailing slash
         value: https://cartify-gold.vercel.app
       - key: BASE_URL          # public URL of THIS service; fix after 1st deploy
-        value: https://cartify-api.onrender.com
+        value: https://cartify-api-tx0r.onrender.com
       - key: REDIS_URL         # auto-injected from the Key Value service below
         fromService:
           type: keyvalue
