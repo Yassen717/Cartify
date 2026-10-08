@@ -8,6 +8,7 @@ import { useWishlistStore } from '../stores/wishlistStore';
 import { useAuthStore } from '../stores/authStore';
 import * as productsService from '../services/products.service';
 import { getProductImage } from '../utils/imageUtils';
+import { getRetryDelay, isRetryableError, MAX_READ_RETRIES } from '../utils/retry';
 import toast from 'react-hot-toast';
 import './Home.css';
 
@@ -27,6 +28,9 @@ export const Home = () => {
             });
             return response.data.products;
         },
+        retry: (failureCount, error) =>
+            failureCount < MAX_READ_RETRIES && isRetryableError(error),
+        retryDelay: getRetryDelay,
     });
 
     // Fetch wishlist on mount if authenticated
