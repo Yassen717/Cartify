@@ -15,6 +15,6 @@ jobs:
         env:
           BACKEND_HEALTH_URL: ${{ vars.BACKEND_HEALTH_URL }}
         run: |
-          url="${BACKEND_HEALTH_URL:-https://cartify-api-tx0r.onrender.com/health}"
+          url="${BACKEND_HEALTH_URL:-https://cartify-api-g3hs.onrender.com/health}"
           echo "Pinging $url"
           curl -fsS --retry 5 --retry-all-errors --max-time 90 "$url"

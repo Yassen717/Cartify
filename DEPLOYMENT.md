@@ -24,7 +24,7 @@
    - `DATABASE_URL` — your Neon connection string
    - `JWT_SECRET`, `JWT_REFRESH_SECRET` — generate each with `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
 5. **Apply** — Render builds the image, runs `prisma migrate deploy` on boot (via `start.sh`), and health-checks `/health`.
-6. **Fix `BASE_URL`**: if your service URL isn't `https://cartify-api-tx0r.onrender.com` (Render appends a suffix when the name is taken), update the `BASE_URL` env var in the Render dashboard — it's used to build product-image URLs.
+6. **Fix `BASE_URL`**: if your service URL isn't `https://cartify-api-g3hs.onrender.com` (Render appends a suffix when the name is taken), update the `BASE_URL` env var in the Render dashboard — it's used to build product-image URLs.
 7. **Point the frontend at it**: set `VITE_API_URL=https://<your-service>.onrender.com/api` in the Vercel project env vars and redeploy the frontend.
 8. If your frontend isn't `https://cartify-gold.vercel.app`, update `CORS_ORIGIN` to the exact frontend origin (no trailing slash).
 
@@ -47,7 +47,7 @@ JWT_REFRESH_EXPIRES_IN=7d
 CORS_ORIGIN=https://cartify-gold.vercel.app
 
 # Server Base URL - this service's public URL (for image URLs)
-BASE_URL=https://cartify-api-tx0r.onrender.com
+BASE_URL=https://cartify-api-g3hs.onrender.com
 
 # Redis - auto-wired from the cartify-cache Key Value service by render.yaml
 REDIS_URL=<auto-injected>
@@ -84,7 +84,7 @@ If the Render backend service was deleted or suspended (symptom: the frontend lo
 1. Render dashboard → **New → Blueprint** → pick this repo.
 2. Render provisions `cartify-api` — a free web service built from the root `Dockerfile`, region `frankfurt`, health check `/health`.
 3. Fill in the `sync: false` env vars when prompted (see table below).
-4. The new service URL will be `https://cartify-api.onrender.com` — the plain name is free once the old suffixed service (e.g. `cartify-api-tx0r`) is gone.
+4. The new service URL will be `https://cartify-api.onrender.com` — the plain name is free once the old suffixed service (e.g. `cartify-api-g3hs`) is gone.
 
 **Option B — Manual web service:**
 
